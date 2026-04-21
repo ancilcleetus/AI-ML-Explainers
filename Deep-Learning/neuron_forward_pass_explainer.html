@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Neuron & Forward Pass — Interactive Explainer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f4f0;
+      --bg-tertiary: #eeece6;
+      --bg-info: #e6f1fb;
+      --bg-success: #e1f5ee;
+      --bg-warning: #faeeda;
+      --bg-danger: #fcebeb;
+      --text-primary: #1a1a18;
+      --text-secondary: #5f5e5a;
+      --text-tertiary: #888780;
+      --text-info: #185fa5;
+      --text-success: #0f6e56;
+      --text-warning: #854f0b;
+      --text-danger: #a32d2d;
+      --border-tertiary: rgba(0,0,0,0.12);
+      --border-secondary: rgba(0,0,0,0.22);
+      --border-info: #85b7eb;
+      --border-success: #5dcaa5;
+      --border-warning: #ef9f27;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      --blue: #378ADD;
+      --teal: #1D9E75;
+      --amber: #BA7517;
+      --purple: #534AB7;
+      --coral: #D85A30;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1a;
+        --bg-secondary: #252522;
+        --bg-tertiary: #2c2c2a;
+        --bg-info: #042c53;
+        --bg-success: #04342c;
+        --bg-warning: #412402;
+        --bg-danger: #501313;
+        --text-primary: #e8e6de;
+        --text-secondary: #b4b2a9;
+        --text-tertiary: #73726c;
+        --text-info: #85b7eb;
+        --text-success: #5dcaa5;
+        --text-warning: #ef9f27;
+        --text-danger: #f09595;
+        --border-tertiary: rgba(255,255,255,0.10);
+        --border-secondary: rgba(255,255,255,0.20);
+        --border-info: #185fa5;
+        --border-success: #0f6e56;
+        --border-warning: #854f0b;
+        --blue: #85b7eb;
+        --teal: #5dcaa5;
+        --amber: #ef9f27;
+        --purple: #afa9ec;
+        --coral: #f0997b;
+      }
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem 1rem 3rem;
+      line-height: 1.6;
+    }
+
+    .page { max-width: 740px; margin: 0 auto; }
+
+    header { margin-bottom: 2rem; }
+    header .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--bg-info);
+      color: var(--text-info);
+      border: 0.5px solid var(--border-info);
+      margin-bottom: 10px;
+      letter-spacing: .03em;
+    }
+    header h1 { font-size: 24px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+    header p  { font-size: 14px; color: var(--text-secondary); max-width: 560px; }
+
+    .card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    h2 { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+    p.note { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 0.75rem; }
+
+    .step-label {
+      font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+      letter-spacing: .05em; text-transform: uppercase; margin: 1rem 0 6px;
+    }
+
+    .divider { border: none; border-top: 0.5px solid var(--border-tertiary); margin: 1.25rem 0; }
+
+    .eq-box {
+      background: var(--bg-secondary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-md);
+      padding: 0.875rem 1rem;
+      margin: 0.5rem 0;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+    .eq-note { font-family: var(--font); font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+
+    .insight {
+      border-left: 2px solid var(--border-info);
+      padding: 7px 12px;
+      font-size: 13px; color: var(--text-secondary);
+      background: var(--bg-info);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 0.5rem 0; line-height: 1.55;
+    }
+    .insight.success { border-color: var(--border-success); background: var(--bg-success); }
+    .insight.warning { border-color: var(--border-warning); background: var(--bg-warning); }
+
+    .row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 0.75rem; }
+
+    .tab-btn {
+      padding: 6px 14px;
+      border: 0.5px solid var(--border-secondary);
+      border-radius: var(--radius-md);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 13px; font-family: var(--font);
+      cursor: pointer; transition: background 0.15s;
+    }
+    .tab-btn.active { background: var(--bg-info); border-color: var(--border-info); color: var(--text-info); }
+    .tab-btn:hover:not(.active) { background: var(--bg-secondary); }
+
+    .slider-row {
+      display: flex; align-items: center; gap: 10px; margin: 8px 0;
+    }
+    .slider-label { font-size: 13px; color: var(--text-secondary); width: 28px; flex-shrink: 0; font-family: var(--font-mono); }
+    .slider-name  { font-size: 12px; color: var(--text-tertiary); width: 54px; flex-shrink: 0; }
+    .slider-val   { font-size: 13px; color: var(--text-primary); width: 46px; text-align: right; font-family: var(--font-mono); flex-shrink: 0; }
+    input[type=range] { flex: 1; }
+
+    .result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0.75rem 0; }
+    .result-card {
+      background: var(--bg-secondary); border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+    }
+    .result-card .rc-label { font-size: 11px; color: var(--text-tertiary); margin-bottom: 4px; text-transform: uppercase; letter-spacing:.04em; }
+    .result-card .rc-val   { font-size: 22px; font-weight: 500; color: var(--text-primary); transition: color 0.3s; }
+
+    .computation-steps { display: flex; flex-direction: column; gap: 6px; margin: 0.75rem 0; }
+    .comp-step {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg-secondary); border-radius: var(--radius-md);
+      padding: 8px 12px; font-size: 13px;
+    }
+    .comp-step .cs-label { color: var(--text-tertiary); width: 80px; flex-shrink: 0; font-size: 12px; }
+    .comp-step .cs-math  { font-family: var(--font-mono); color: var(--text-primary); flex: 1; font-size: 12px; }
+    .comp-step .cs-result{ font-family: var(--font-mono); font-weight: 500; color: var(--text-info); min-width: 56px; text-align: right; font-size: 13px; }
+
+    .stepper-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 1rem 0 0.5rem;
+    }
+    .stepper-dots { display: flex; gap: 6px; }
+    .stepper-dot  { width: 7px; height: 7px; border-radius: 50%; background: var(--border-secondary); transition: background 0.2s; }
+    .stepper-dot.active { background: var(--blue); }
+    .step-btn {
+      padding: 5px 14px; font-size: 13px; font-family: var(--font);
+      border: 0.5px solid var(--border-secondary); border-radius: var(--radius-md);
+      background: var(--bg-primary); color: var(--text-primary); cursor: pointer;
+      transition: background 0.15s;
+    }
+    .step-btn:hover { background: var(--bg-secondary); }
+    .step-btn:disabled { opacity: 0.35; cursor: default; }
+
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    .step-title { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+
+    .neuron-svg-wrap { margin: 0.75rem 0; overflow: visible; }
+
+    .relu-viz { display: flex; align-items: flex-end; gap: 0; margin: 0.75rem 0; height: 90px; position: relative; }
+
+    footer { text-align: center; font-size: 12px; color: var(--text-tertiary); margin-top: 2rem; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0.75rem 0; }
+    @media (max-width: 500px) { .two-col { grid-template-columns: 1fr; } .result-grid { grid-template-columns: 1fr 1fr; } }
+
+    .bio-art-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 0.75rem 0; }
+    @media (max-width: 500px) { .bio-art-grid { grid-template-columns: 1fr; } }
+
+    .anatomy-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
+    .anatomy-svg   { width: 100%; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>The neuron &amp; forward pass</h1>
+    <p>Every neural network, no matter how large, is built from a single repeating unit: the neuron. Understand one neuron and you understand the whole stack.</p>
+  </header>
+
+  <!-- PART 1: Bio vs Artificial -->
+  <div class="card">
+    <h2>Biological vs. artificial neuron</h2>
+    <p class="note">The artificial neuron is loosely inspired by biology. Dendrites → inputs, synaptic strength → weights, cell body → weighted sum + activation, axon → output.</p>
+
+    <div class="bio-art-grid">
+      <div>
+        <div class="anatomy-label">Biological neuron</div>
+        <svg class="anatomy-svg" viewBox="0 0 310 200" role="img">
+          <title>Biological neuron diagram</title>
+          <defs>
+            <marker id="ba" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" id="ba-p"/>
+            </marker>
+          </defs>
+          <!-- Dendrites — shifted right by 18px so branch tips never clip -->
+          <line x1="38" y1="65"  x2="118" y2="95"  stroke-width="2" stroke-linecap="round" id="d1"/>
+          <line x1="38" y1="95"  x2="118" y2="95"  stroke-width="2" stroke-linecap="round" id="d2"/>
+          <line x1="38" y1="125" x2="118" y2="95"  stroke-width="2" stroke-linecap="round" id="d3"/>
+          <line x1="22" y1="55"  x2="40"  y2="67"  stroke-width="1.5" stroke-linecap="round" id="d4"/>
+          <line x1="22" y1="73"  x2="40"  y2="65"  stroke-width="1.5" stroke-linecap="round" id="d5"/>
+          <line x1="22" y1="135" x2="40"  y2="125" stroke-width="1.5" stroke-linecap="round" id="d6"/>
+          <line x1="22" y1="117" x2="40"  y2="125" stroke-width="1.5" stroke-linecap="round" id="d7"/>
+          <!-- Cell body -->
+          <ellipse cx="146" cy="95" rx="28" ry="28" id="cb-fill" fill-opacity="0.15" stroke-width="1.5"/>
+          <ellipse cx="146" cy="95" rx="28" ry="28" id="cb-stroke" fill="none" stroke-width="1.5"/>
+          <!-- Axon -->
+          <line x1="174" y1="95" x2="240" y2="95" stroke-width="2" stroke-linecap="round" id="ax"/>
+          <!-- Myelin sheaths -->
+          <rect x="185" y="89" width="14" height="12" rx="6" id="m1" fill-opacity="0.18"/>
+          <rect x="208" y="89" width="14" height="12" rx="6" id="m2" fill-opacity="0.18"/>
+          <!-- Terminal buttons -->
+          <circle cx="246" cy="83"  r="6" id="t1"/>
+          <circle cx="246" cy="95"  r="6" id="t2"/>
+          <circle cx="246" cy="107" r="6" id="t3"/>
+          <line x1="240" y1="95" x2="242" y2="83"  stroke-width="1.5" id="tb1"/>
+          <line x1="240" y1="95" x2="242" y2="107" stroke-width="1.5" id="tb2"/>
+          <!-- Labels -->
+          <text x="32"  y="42"  font-size="11" id="lt1" text-anchor="middle">Dendrites</text>
+          <text x="146" y="98"  font-size="10" id="lt2" text-anchor="middle">Cell</text>
+          <text x="146" y="110" font-size="10" id="lt3" text-anchor="middle">body</text>
+          <text x="207" y="82"  font-size="11" id="lt4" text-anchor="middle">Axon</text>
+          <text x="256" y="98"  font-size="11" id="lt5" text-anchor="start">Terminals</text>
+        </svg>
+      </div>
+
+      <div>
+        <div class="anatomy-label">Artificial neuron</div>
+        <svg class="anatomy-svg" viewBox="0 0 290 190" role="img">
+          <title>Artificial neuron diagram</title>
+          <defs>
+            <marker id="aa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" id="aa-p"/>
+            </marker>
+          </defs>
+          <!-- Input lines -->
+          <line x1="28" y1="50"  x2="112" y2="80"  stroke-width="1.5" marker-end="url(#aa)" id="i1"/>
+          <line x1="28" y1="90"  x2="112" y2="90"  stroke-width="1.5" marker-end="url(#aa)" id="i2"/>
+          <line x1="28" y1="130" x2="112" y2="100" stroke-width="1.5" marker-end="url(#aa)" id="i3"/>
+          <!-- Input labels -->
+          <text x="20" y="50"  font-size="12" id="ix1" text-anchor="middle" font-style="italic">x₁</text>
+          <text x="20" y="90"  font-size="12" id="ix2" text-anchor="middle" font-style="italic">x₂</text>
+          <text x="20" y="130" font-size="12" id="ix3" text-anchor="middle" font-style="italic">x₃</text>
+          <!-- Weight labels on lines -->
+          <text x="64"  y="60"  font-size="11" id="iw1" text-anchor="middle" font-style="italic">w₁</text>
+          <text x="68"  y="87"  font-size="11" id="iw2" text-anchor="middle" font-style="italic">w₂</text>
+          <text x="64"  y="122" font-size="11" id="iw3" text-anchor="middle" font-style="italic">w₃</text>
+          <!-- Summation node -->
+          <circle cx="132" cy="90" r="24" id="sum-fill" fill-opacity="0.15" stroke-width="1.5"/>
+          <circle cx="132" cy="90" r="24" id="sum-stroke" fill="none" stroke-width="1.5"/>
+          <text x="132" y="87"  font-size="11" id="sum-t1" text-anchor="middle">Σ + b</text>
+          <text x="132" y="100" font-size="10" id="sum-t2" text-anchor="middle">f( )</text>
+          <!-- Bias dashed line -->
+          <line x1="132" y1="150" x2="132" y2="116" stroke-width="1" stroke-dasharray="4 3" id="bias-line"/>
+          <text x="132" y="163" font-size="11" id="bias-t" text-anchor="middle" font-style="italic">b</text>
+          <!-- Output -->
+          <line x1="156" y1="90" x2="230" y2="90" stroke-width="1.5" marker-end="url(#aa)" id="out-line"/>
+          <text x="240" y="93"  font-size="12" id="out-t" text-anchor="start" font-style="italic">y</text>
+          <text x="240" y="105" font-size="10" id="out-t2" text-anchor="start">Output</text>
+          <!-- Labels bottom -->
+          <text x="24"  y="170" font-size="10" id="ll1" text-anchor="middle">Inputs</text>
+          <text x="132" y="170" font-size="10" id="ll2" text-anchor="middle">Σ + activation</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="insight">
+      Each input x corresponds to a dendrite, each weight w corresponds to synaptic strength, and the summation node is the cell body deciding whether to "fire."
+    </div>
+  </div>
+
+  <!-- PART 2: Interactive neuron -->
+  <div class="card">
+    <h2>Interactive: adjust weights &amp; inputs</h2>
+    <p class="note">Drag the sliders to change input values and weights. Watch the weighted sum z and final output a update in real time.</p>
+
+    <div class="step-label">Inputs (x)</div>
+    <div class="slider-row">
+      <span class="slider-name">x₁</span>
+      <input type="range" id="x1" min="-3" max="3" step="0.1" value="1.5">
+      <span class="slider-val" id="x1v">1.5</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-name">x₂</span>
+      <input type="range" id="x2" min="-3" max="3" step="0.1" value="-2.0">
+      <span class="slider-val" id="x2v">−2.0</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-name">x₃</span>
+      <input type="range" id="x3" min="-3" max="3" step="0.1" value="0.8">
+      <span class="slider-val" id="x3v">0.8</span>
+    </div>
+
+    <div class="step-label">Weights (w) &amp; bias (b)</div>
+    <div class="slider-row">
+      <span class="slider-name">w₁</span>
+      <input type="range" id="w1" min="-2" max="2" step="0.05" value="0.4">
+      <span class="slider-val" id="w1v">0.40</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-name">w₂</span>
+      <input type="range" id="w2" min="-2" max="2" step="0.05" value="-0.5">
+      <span class="slider-val" id="w2v">−0.50</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-name">w₃</span>
+      <input type="range" id="w3" min="-2" max="2" step="0.05" value="0.3">
+      <span class="slider-val" id="w3v">0.30</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-name">b</span>
+      <input type="range" id="b" min="-2" max="2" step="0.05" value="0.1">
+      <span class="slider-val" id="bv">0.10</span>
+    </div>
+
+    <div class="step-label">Activation function</div>
+    <div class="row">
+      <button class="tab-btn active" id="btn-relu" onclick="setActiv('relu')">ReLU</button>
+      <button class="tab-btn" id="btn-sigmoid" onclick="setActiv('sigmoid')">Sigmoid</button>
+      <button class="tab-btn" id="btn-tanh" onclick="setActiv('tanh')">Tanh</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="step-label">Live computation</div>
+    <div class="computation-steps" id="comp-steps"></div>
+
+    <div class="result-grid" style="margin-top:0.875rem">
+      <div class="result-card">
+        <div class="rc-label">Weighted sum z</div>
+        <div class="rc-val" id="rc-z">1.94</div>
+      </div>
+      <div class="result-card">
+        <div class="rc-label">Output a = f(z)</div>
+        <div class="rc-val" id="rc-a">1.94</div>
+      </div>
+      <div class="result-card">
+        <div class="rc-label">Neuron</div>
+        <div class="rc-val" id="rc-fire" style="font-size:14px;padding-top:4px">fired</div>
+      </div>
+    </div>
+
+    <div id="live-insight" class="insight"></div>
+  </div>
+
+  <!-- PART 3: Forward pass stepper -->
+  <div class="card">
+    <h2>The forward pass — step by step</h2>
+    <p class="note">Data flows left to right through the neuron. Click through each stage using the example values from the PDF (x₁=1.5, x₂=−2.0, x₃=0.8 with ReLU).</p>
+
+    <div class="stepper-nav">
+      <button class="step-btn" id="prev-btn" onclick="stepNav(-1)" disabled>← Prev</button>
+      <div class="stepper-dots" id="stepper-dots"></div>
+      <button class="step-btn" id="next-btn" onclick="stepNav(1)">Next →</button>
+    </div>
+
+    <div id="step-panels"></div>
+  </div>
+
+  <!-- PART 4: Activation function visualiser -->
+  <div class="card">
+    <h2>Activation functions visualised</h2>
+    <p class="note">Activation functions introduce non-linearity. Without them, stacking layers is pointless — a composition of linear functions is still linear.</p>
+
+    <div class="row">
+      <button class="tab-btn active" id="vbtn-relu"    onclick="setViz('relu')">ReLU</button>
+      <button class="tab-btn"       id="vbtn-sigmoid" onclick="setViz('sigmoid')">Sigmoid</button>
+      <button class="tab-btn"       id="vbtn-tanh"    onclick="setViz('tanh')">Tanh</button>
+    </div>
+
+    <div style="position:relative;width:100%;height:200px;margin:0.75rem 0">
+      <canvas id="activ-chart" role="img" aria-label="Activation function curve">Activation function visualisation</canvas>
+    </div>
+
+    <div id="activ-desc" class="insight"></div>
+  </div>
+
+  <!-- PART 5: Key equations -->
+  <div class="card">
+    <h2>Key equations</h2>
+
+    <div class="step-label">Weighted sum</div>
+    <div class="eq-box">
+      z = w₁x₁ + w₂x₂ + … + wₙxₙ + b = Σᵢ(wᵢ · xᵢ) + b
+      <div class="eq-note">Each input multiplied by its weight, summed, then shifted by the bias.</div>
+    </div>
+
+    <div class="step-label" style="margin-top:1rem">ReLU activation</div>
+    <div class="eq-box">
+      a = max(0, z)
+      <div class="eq-note">Returns z if positive, 0 otherwise. Most widely used in deep networks.</div>
+    </div>
+
+    <div class="step-label" style="margin-top:1rem">Sigmoid activation</div>
+    <div class="eq-box">
+      a = 1 / (1 + e⁻ᶻ)
+      <div class="eq-note">Squashes output to (0, 1). Used in binary classification output layers.</div>
+    </div>
+
+    <div class="step-label" style="margin-top:1rem">Tanh activation</div>
+    <div class="eq-box">
+      a = (eᶻ − e⁻ᶻ) / (eᶻ + e⁻ᶻ)
+      <div class="eq-note">Squashes output to (−1, 1). Zero-centred — often preferred over sigmoid in hidden layers.</div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="insight">
+      <strong>Intuition:</strong> Think of weights as "importance dials" and the bias as a "default activation level" that lets the neuron fire even when all inputs are zero.
+    </div>
+  </div>
+
+  <footer>1.1 — The Neuron &amp; Forward Pass · Interactive Explainer · No dependencies · MIT License</footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ─── Theme ───────────────────────────────────────────────────────────────────
+function isDark() { return matchMedia('(prefers-color-scheme: dark)').matches; }
+
+function applyBioColors() {
+  const d = isDark();
+  const teal   = d ? '#5dcaa5' : '#1D9E75';
+  const blue   = d ? '#85b7eb' : '#378ADD';
+  const border = d ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.22)';
+  const text   = d ? '#b4b2a9' : '#5f5e5a';
+  const textP  = d ? '#e8e6de' : '#1a1a18';
+  const bg     = d ? '#252522' : '#f5f4f0';
+
+  // Bio neuron
+  ['d1','d2','d3','d4','d5','d6','d7','ax','tb1','tb2'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.setAttribute('stroke', teal);
+  });
+  const cbFill   = document.getElementById('cb-fill');
+  const cbStroke = document.getElementById('cb-stroke');
+  if (cbFill)   { cbFill.setAttribute('fill', teal); }
+  if (cbStroke) { cbStroke.setAttribute('stroke', teal); }
+  ['t1','t2','t3'].forEach(id => {
+    const el = document.getElementById(id); if(el) { el.setAttribute('fill', teal); el.setAttribute('stroke', 'none'); }
+  });
+  ['m1','m2'].forEach(id => {
+    const el = document.getElementById(id); if(el) { el.setAttribute('fill', teal); }
+  });
+  ['lt1','lt2','lt3','lt4','lt5'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.setAttribute('fill', text);
+  });
+
+  // Artificial neuron
+  const aa = document.getElementById('aa-p'); if(aa) aa.setAttribute('stroke', border);
+  const ba = document.getElementById('ba-p'); if(ba) ba.setAttribute('stroke', border);
+  ['i1','i2','i3'].forEach(id => { const el = document.getElementById(id); if(el) el.setAttribute('stroke', blue); });
+  ['iw1','iw2','iw3'].forEach(id => { const el = document.getElementById(id); if(el) el.setAttribute('fill', blue); });
+  ['ix1','ix2','ix3'].forEach(id => { const el = document.getElementById(id); if(el) el.setAttribute('fill', textP); });
+  const sf = document.getElementById('sum-fill');   if(sf) { sf.setAttribute('fill', blue); }
+  const ss = document.getElementById('sum-stroke'); if(ss) { ss.setAttribute('stroke', blue); }
+  ['sum-t1','sum-t2'].forEach(id => { const el = document.getElementById(id); if(el) el.setAttribute('fill', blue); });
+  const bl = document.getElementById('bias-line'); if(bl) bl.setAttribute('stroke', border);
+  const bt = document.getElementById('bias-t');   if(bt) bt.setAttribute('fill', text);
+  const ol = document.getElementById('out-line'); if(ol) ol.setAttribute('stroke', border);
+  ['out-t','out-t2'].forEach(id => { const el = document.getElementById(id); if(el) el.setAttribute('fill', text); });
+  ['ll1','ll2'].forEach(id => { const el = document.getElementById(id); if(el) el.setAttribute('fill', text); });
+}
+
+// ─── Activations ─────────────────────────────────────────────────────────────
+const activFns = {
+  relu:    z => Math.max(0, z),
+  sigmoid: z => 1 / (1 + Math.exp(-z)),
+  tanh:    z => Math.tanh(z)
+};
+const activNames = { relu: 'ReLU  max(0, z)', sigmoid: 'Sigmoid  1/(1+e⁻ᶻ)', tanh: 'Tanh  (eᶻ − e⁻ᶻ) / (eᶻ + e⁻ᶻ)' };
+const activDescs = {
+  relu:    'ReLU is the workhorse of deep learning hidden layers. It is zero for all negative z and linear for positive z — simple, fast, and avoids the vanishing gradient problem that plagued older networks.',
+  sigmoid: 'Sigmoid squashes any real number to (0, 1), making it perfect for output layers in binary classification. But it saturates near 0 and 1, causing vanishing gradients in deep networks.',
+  tanh:    'Tanh is zero-centred (output range −1 to 1), which often makes training faster than sigmoid. It still saturates at large |z| values but is generally preferred over sigmoid for hidden layers.'
+};
+
+let currentActiv = 'relu';
+let vizActiv = 'relu';
+let activChart = null;
+
+function setActiv(name) {
+  currentActiv = name;
+  ['relu','sigmoid','tanh'].forEach(n => {
+    document.getElementById('btn-'+n).classList.toggle('active', n===name);
+  });
+  updateComputation();
+}
+
+function setViz(name) {
+  vizActiv = name;
+  ['relu','sigmoid','tanh'].forEach(n => {
+    document.getElementById('vbtn-'+n).classList.toggle('active', n===name);
+  });
+  drawActivChart();
+  document.getElementById('activ-desc').textContent = activDescs[name];
+}
+
+// ─── Slider helpers ───────────────────────────────────────────────────────────
+function fmt(v) { return (v >= 0 ? '' : '−') + Math.abs(v).toFixed(2); }
+function fmtShort(v) { return (v >= 0 ? '' : '−') + Math.abs(v).toFixed(1); }
+
+function getVals() {
+  return {
+    x1: +document.getElementById('x1').value,
+    x2: +document.getElementById('x2').value,
+    x3: +document.getElementById('x3').value,
+    w1: +document.getElementById('w1').value,
+    w2: +document.getElementById('w2').value,
+    w3: +document.getElementById('w3').value,
+    b:  +document.getElementById('b').value,
+  };
+}
+
+function updateComputation() {
+  const v = getVals();
+  document.getElementById('x1v').textContent = fmtShort(v.x1);
+  document.getElementById('x2v').textContent = fmtShort(v.x2);
+  document.getElementById('x3v').textContent = fmtShort(v.x3);
+  document.getElementById('w1v').textContent = fmt(v.w1);
+  document.getElementById('w2v').textContent = fmt(v.w2);
+  document.getElementById('w3v').textContent = fmt(v.w3);
+  document.getElementById('bv').textContent  = fmt(v.b);
+
+  const t1 = v.x1 * v.w1;
+  const t2 = v.x2 * v.w2;
+  const t3 = v.x3 * v.w3;
+  const z  = t1 + t2 + t3 + v.b;
+  const a  = activFns[currentActiv](z);
+  const fired = a > 0.001;
+
+  const sign = x => x >= 0 ? '+' : '−';
+  const abs  = x => Math.abs(x).toFixed(2);
+
+  document.getElementById('comp-steps').innerHTML = `
+    <div class="comp-step">
+      <span class="cs-label">x₁ × w₁</span>
+      <span class="cs-math">${fmtShort(v.x1)} × ${fmt(v.w1)}</span>
+      <span class="cs-result">${fmt(t1)}</span>
+    </div>
+    <div class="comp-step">
+      <span class="cs-label">x₂ × w₂</span>
+      <span class="cs-math">${fmtShort(v.x2)} × ${fmt(v.w2)}</span>
+      <span class="cs-result">${fmt(t2)}</span>
+    </div>
+    <div class="comp-step">
+      <span class="cs-label">x₃ × w₃</span>
+      <span class="cs-math">${fmtShort(v.x3)} × ${fmt(v.w3)}</span>
+      <span class="cs-result">${fmt(t3)}</span>
+    </div>
+    <div class="comp-step">
+      <span class="cs-label">z = Σ + b</span>
+      <span class="cs-math">${fmt(t1)} ${sign(t2)} ${abs(t2)} ${sign(t3)} ${abs(t3)} ${sign(v.b)} ${abs(v.b)}</span>
+      <span class="cs-result">${z.toFixed(2)}</span>
+    </div>
+    <div class="comp-step">
+      <span class="cs-label">a = f(z)</span>
+      <span class="cs-math">${activNames[currentActiv]}</span>
+      <span class="cs-result">${a.toFixed(4)}</span>
+    </div>
+  `;
+
+  document.getElementById('rc-z').textContent = z.toFixed(3);
+  document.getElementById('rc-a').textContent = a.toFixed(4);
+  document.getElementById('rc-fire').textContent = fired ? 'fired' : 'silent';
+
+  const zEl = document.getElementById('rc-z');
+  const aEl = document.getElementById('rc-a');
+  const fEl = document.getElementById('rc-fire');
+  zEl.style.color = z > 0 ? 'var(--text-success)' : z < 0 ? 'var(--text-danger)' : 'var(--text-primary)';
+  aEl.style.color = a > 0.01 ? 'var(--text-success)' : 'var(--text-danger)';
+  fEl.style.color = fired ? 'var(--text-success)' : 'var(--text-danger)';
+
+  const insight = document.getElementById('live-insight');
+  if (currentActiv === 'relu') {
+    if (z > 0) {
+      insight.textContent = `z = ${z.toFixed(3)} is positive → ReLU passes it through unchanged. The neuron fires with output ${a.toFixed(4)}.`;
+      insight.className = 'insight success';
+    } else {
+      insight.textContent = `z = ${z.toFixed(3)} is negative or zero → ReLU clamps it to 0. The neuron stays silent.`;
+      insight.className = 'insight warning';
+    }
+  } else if (currentActiv === 'sigmoid') {
+    insight.textContent = `z = ${z.toFixed(3)} → sigmoid(z) = ${a.toFixed(4)}. Output is always between 0 and 1. ${a > 0.5 ? 'Above 0.5 = leans positive.' : 'Below 0.5 = leans negative.'}`;
+    insight.className = 'insight';
+  } else {
+    insight.textContent = `z = ${z.toFixed(3)} → tanh(z) = ${a.toFixed(4)}. Output is always between −1 and 1, zero-centred.`;
+    insight.className = 'insight';
+  }
+}
+
+['x1','x2','x3','w1','w2','w3','b'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateComputation);
+});
+
+// ─── Forward pass stepper ─────────────────────────────────────────────────────
+const steps = [
+  {
+    title: 'Step 0 — inputs enter the neuron',
+    body: `The neuron receives three numerical inputs from the previous layer (or from the raw data). Each input is just a number.`,
+    eq: 'x₁ = 1.5,   x₂ = −2.0,   x₃ = 0.8',
+    eqNote: 'These could represent pixel brightness values, sensor readings, or any numerical features.',
+    insight: 'Inputs are passive — they carry information but do nothing on their own. The weights decide how much each input matters.',
+    insightClass: 'insight',
+    svgFn: svgStep0
+  },
+  {
+    title: 'Step 1 — multiply each input by its weight',
+    body: 'Each input is multiplied by a corresponding weight. A large positive weight amplifies the input; a negative weight inverts it; a near-zero weight ignores it.',
+    eq: 'x₁×w₁ = 1.5×0.4 = 0.60\nx₂×w₂ = −2.0×−0.5 = 1.00\nx₃×w₃ = 0.8×0.3 = 0.24',
+    eqNote: 'Note that x₂ is negative and w₂ is also negative — a double negative gives a positive contribution.',
+    insight: 'Weights are the learnable parameters. During training, gradient descent adjusts them to minimise the loss.',
+    insightClass: 'insight',
+    svgFn: svgStep1
+  },
+  {
+    title: 'Step 2 — sum all weighted inputs + add bias',
+    body: 'All weighted inputs are added together, then the bias is added. This produces the pre-activation value z.',
+    eq: 'z = 0.60 + 1.00 + 0.24 + 0.10 = 1.94',
+    eqNote: 'The bias b = 0.1 shifts the result. Without bias, the decision boundary would always pass through the origin.',
+    insight: 'z is called the "pre-activation" or "logit". It can be any real number — positive, negative, or zero.',
+    insightClass: 'insight',
+    svgFn: svgStep2
+  },
+  {
+    title: 'Step 3 — apply the activation function',
+    body: 'The activation function f transforms z into the final output a. Here we use ReLU: if z > 0, pass it through; otherwise output 0.',
+    eq: 'a = ReLU(z) = max(0, 1.94) = 1.94',
+    eqNote: 'Since z = 1.94 > 0, ReLU passes it through unchanged.',
+    insight: 'The activation function introduces non-linearity — without it, any depth of network could only learn linear functions.',
+    insightClass: 'insight success',
+    svgFn: svgStep3
+  },
+  {
+    title: 'Step 4 — output passes to the next layer',
+    body: 'The output a = 1.94 is sent to every neuron in the next layer, where it becomes one of their inputs. This chain — repeated for every neuron, every layer — is the complete forward pass.',
+    eq: 'y = a = 1.94',
+    eqNote: 'In a network with L layers, the forward pass runs this computation L times, left to right.',
+    insight: 'The forward pass is fast and cheap — just matrix multiplications and function evaluations. It is the backward pass (backpropagation) that is computationally intensive.',
+    insightClass: 'insight',
+    svgFn: svgStep4
+  }
+];
+
+let currentStep = 0;
+
+function buildStepper() {
+  const dots = document.getElementById('stepper-dots');
+  dots.innerHTML = steps.map((_,i) => `<div class="stepper-dot${i===0?' active':''}" id="dot-${i}"></div>`).join('');
+
+  const panels = document.getElementById('step-panels');
+  panels.innerHTML = steps.map((s,i) => `
+    <div class="step-panel${i===0?' active':''}" id="panel-${i}">
+      <div class="step-title">${s.title}</div>
+      <p class="note">${s.body}</p>
+      <div class="neuron-svg-wrap" id="svg-wrap-${i}"></div>
+      <div class="eq-box" style="white-space:pre-line">${s.eq}<div class="eq-note">${s.eqNote}</div></div>
+      <div class="${s.insightClass}">${s.insight}</div>
+    </div>
+  `).join('');
+
+  steps.forEach((s, i) => {
+    const wrap = document.getElementById('svg-wrap-'+i);
+    if (wrap && s.svgFn) wrap.innerHTML = s.svgFn();
+  });
+}
+
+function stepNav(dir) {
+  const prev = currentStep;
+  currentStep = Math.max(0, Math.min(steps.length-1, currentStep+dir));
+  if (prev === currentStep) return;
+  document.getElementById('panel-'+prev).classList.remove('active');
+  document.getElementById('panel-'+currentStep).classList.add('active');
+  document.querySelectorAll('.stepper-dot').forEach((d,i) => d.classList.toggle('active', i===currentStep));
+  document.getElementById('prev-btn').disabled = currentStep === 0;
+  document.getElementById('next-btn').disabled = currentStep === steps.length-1;
+}
+
+// ─── Step SVGs ────────────────────────────────────────────────────────────────
+function neuronSVGBase(highlight) {
+  const d = isDark();
+  const blue   = d ? '#85b7eb' : '#378ADD';
+  const teal   = d ? '#5dcaa5' : '#1D9E75';
+  const amber  = d ? '#ef9f27' : '#BA7517';
+  const gray   = d ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
+  const border = d ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.18)';
+  const text   = d ? '#b4b2a9' : '#5f5e5a';
+  const textP  = d ? '#e8e6de' : '#1a1a18';
+
+  const iColor  = highlight === 'inputs'  ? blue  : (highlight === 'weights' ? teal : (highlight === 'sum' || highlight === 'all' ? teal : border));
+  const wColor  = highlight === 'weights' || highlight === 'all' ? amber : border;
+  const sumColor= highlight === 'sum'     || highlight === 'all' ? teal  : border;
+  const outColor= highlight === 'output'  || highlight === 'all' ? teal  : border;
+
+  return `<svg width="100%" viewBox="0 0 580 130" role="img" style="overflow:visible">
+    <title>Neuron forward pass diagram</title>
+    <defs><marker id="na" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="${border}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker></defs>
+    <!-- Input nodes -->
+    <rect x="20" y="18" width="60" height="28" rx="6" fill="${highlight==='inputs'||highlight==='all'?blue:gray}" stroke="${iColor}" stroke-width="0.5"/>
+    <text x="50" y="35" font-size="12" fill="${highlight==='inputs'||highlight==='all'?'#fff':text}" text-anchor="middle" dominant-baseline="central">x₁ = 1.5</text>
+    <rect x="20" y="54" width="60" height="28" rx="6" fill="${highlight==='inputs'||highlight==='all'?blue:gray}" stroke="${iColor}" stroke-width="0.5"/>
+    <text x="50" y="68" font-size="12" fill="${highlight==='inputs'||highlight==='all'?'#fff':text}" text-anchor="middle" dominant-baseline="central">x₂ = −2.0</text>
+    <rect x="20" y="90" width="60" height="28" rx="6" fill="${highlight==='inputs'||highlight==='all'?blue:gray}" stroke="${iColor}" stroke-width="0.5"/>
+    <text x="50" y="104" font-size="12" fill="${highlight==='inputs'||highlight==='all'?'#fff':text}" text-anchor="middle" dominant-baseline="central">x₃ = 0.8</text>
+
+    <!-- Weight lines -->
+    <line x1="80" y1="32"  x2="210" y2="55" stroke="${wColor}" stroke-width="${highlight==='weights'||highlight==='all'?2:1}" marker-end="url(#na)"/>
+    <line x1="80" y1="68"  x2="210" y2="65" stroke="${wColor}" stroke-width="${highlight==='weights'||highlight==='all'?2:1}" marker-end="url(#na)"/>
+    <line x1="80" y1="104" x2="210" y2="75" stroke="${wColor}" stroke-width="${highlight==='weights'||highlight==='all'?2:1}" marker-end="url(#na)"/>
+    <!-- Weight labels -->
+    <text x="140" y="38"  font-size="11" fill="${wColor}" text-anchor="middle" font-style="italic">w₁=0.4</text>
+    <text x="148" y="64"  font-size="11" fill="${wColor}" text-anchor="middle" font-style="italic">w₂=−0.5</text>
+    <text x="140" y="96"  font-size="11" fill="${wColor}" text-anchor="middle" font-style="italic">w₃=0.3</text>
+
+    <!-- Summation node -->
+    <circle cx="248" cy="65" r="34" fill="${highlight==='sum'||highlight==='all'?teal:gray}" fill-opacity="${highlight==='sum'||highlight==='all'?0.15:1}" stroke="${sumColor}" stroke-width="0.5"/>
+    <text x="248" y="60" font-size="12" fill="${highlight==='sum'||highlight==='all'?teal:text}" text-anchor="middle" dominant-baseline="central">z=1.94</text>
+    <text x="248" y="76" font-size="11" fill="${highlight==='sum'||highlight==='all'?teal:text}" text-anchor="middle" dominant-baseline="central">f(z)</text>
+    <!-- Bias -->
+    <line x1="248" y1="120" x2="248" y2="100" stroke="${border}" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="248" y="128" font-size="11" fill="${text}" text-anchor="middle">b=0.1</text>
+
+    <!-- Output line -->
+    <line x1="282" y1="65" x2="360" y2="65" stroke="${outColor}" stroke-width="${highlight==='output'||highlight==='all'?2:1}" marker-end="url(#na)"/>
+    <!-- Output node -->
+    <rect x="362" y="48" width="80" height="34" rx="8" fill="${highlight==='output'||highlight==='all'?teal:gray}" fill-opacity="${highlight==='output'||highlight==='all'?0.15:1}" stroke="${outColor}" stroke-width="0.5"/>
+    <text x="402" y="65" font-size="12" fill="${highlight==='output'||highlight==='all'?teal:text}" text-anchor="middle" dominant-baseline="central">a = 1.94</text>
+
+    <!-- Arrow to next layer -->
+    <line x1="442" y1="65" x2="500" y2="65" stroke="${outColor}" stroke-width="${highlight==='output'||highlight==='all'?1.5:0.5}" stroke-dasharray="4 3"/>
+    <text x="520" y="65" font-size="11" fill="${text}" text-anchor="middle" dominant-baseline="central">next…</text>
+  </svg>`;
+}
+
+function svgStep0() { return neuronSVGBase('inputs'); }
+function svgStep1() { return neuronSVGBase('weights'); }
+function svgStep2() { return neuronSVGBase('sum'); }
+function svgStep3() { return neuronSVGBase('all'); }
+function svgStep4() { return neuronSVGBase('output'); }
+
+// ─── Activation chart ─────────────────────────────────────────────────────────
+function drawActivChart() {
+  const d = isDark();
+  const blue  = d ? '#85b7eb' : '#378ADD';
+  const teal  = d ? '#5dcaa5' : '#1D9E75';
+  const amber = d ? '#ef9f27' : '#BA7517';
+  const gridColor = d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const textColor = d ? '#73726c' : '#888780';
+
+  const xs = [];
+  for (let x = -4; x <= 4; x += 0.1) xs.push(+x.toFixed(1));
+
+  const datasets = {
+    relu:    { label: 'ReLU',    color: blue,  data: xs.map(x => Math.max(0,x)) },
+    sigmoid: { label: 'Sigmoid', color: teal,  data: xs.map(x => 1/(1+Math.exp(-x))) },
+    tanh:    { label: 'Tanh',    color: amber, data: xs.map(x => Math.tanh(x)) }
+  };
+
+  const ds = datasets[vizActiv];
+
+  if (activChart) activChart.destroy();
+  activChart = new Chart(document.getElementById('activ-chart'), {
+    type: 'line',
+    data: {
+      labels: xs,
+      datasets: [{
+        label: ds.label,
+        data: ds.data,
+        borderColor: ds.color,
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.3,
+        fill: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: {
+          ticks: { color: textColor, maxTicksLimit: 9, callback: v => xs[v] !== undefined ? xs[v].toFixed(1) : '' },
+          grid: { color: gridColor },
+          title: { display: true, text: 'z (pre-activation)', color: textColor, font: { size: 11 } }
+        },
+        y: {
+          ticks: { color: textColor, maxTicksLimit: 7 },
+          grid: { color: gridColor },
+          title: { display: true, text: 'a = f(z)', color: textColor, font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+applyBioColors();
+buildStepper();
+updateComputation();
+drawActivChart();
+document.getElementById('activ-desc').textContent = activDescs['relu'];
+
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  applyBioColors();
+  buildStepper();
+  updateComputation();
+  drawActivChart();
+});
+</script>
+</body>
+</html>
