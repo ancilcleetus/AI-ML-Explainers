@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activation Functions — Interactive Explainer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f4f0;
+      --bg-tertiary: #eeece6;
+      --bg-info: #e6f1fb;
+      --bg-success: #e1f5ee;
+      --bg-warning: #faeeda;
+      --bg-danger: #fcebeb;
+      --text-primary: #1a1a18;
+      --text-secondary: #5f5e5a;
+      --text-tertiary: #888780;
+      --text-info: #185fa5;
+      --text-success: #0f6e56;
+      --text-warning: #854f0b;
+      --text-danger: #a32d2d;
+      --border-tertiary: rgba(0,0,0,0.12);
+      --border-secondary: rgba(0,0,0,0.22);
+      --border-info: #85b7eb;
+      --border-success: #5dcaa5;
+      --border-warning: #ef9f27;
+      --border-danger: #e24b4a;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1a;
+        --bg-secondary: #252522;
+        --bg-tertiary: #2c2c2a;
+        --bg-info: #042c53;
+        --bg-success: #04342c;
+        --bg-warning: #412402;
+        --bg-danger: #501313;
+        --text-primary: #e8e6de;
+        --text-secondary: #b4b2a9;
+        --text-tertiary: #73726c;
+        --text-info: #85b7eb;
+        --text-success: #5dcaa5;
+        --text-warning: #ef9f27;
+        --text-danger: #f09595;
+        --border-tertiary: rgba(255,255,255,0.10);
+        --border-secondary: rgba(255,255,255,0.20);
+        --border-info: #185fa5;
+        --border-success: #0f6e56;
+        --border-warning: #854f0b;
+        --border-danger: #a32d2d;
+      }
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem 1rem 3rem;
+      line-height: 1.6;
+    }
+
+    .page { max-width: 760px; margin: 0 auto; }
+
+    header { margin-bottom: 2rem; }
+    header h1 { font-size: 24px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+    header p  { font-size: 14px; color: var(--text-secondary); max-width: 580px; line-height: 1.65; }
+
+    .card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    h2 { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+    p.note { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 0.75rem; }
+
+    .step-label {
+      font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+      letter-spacing: .05em; text-transform: uppercase; margin: 1rem 0 6px;
+    }
+
+    .divider { border: none; border-top: 0.5px solid var(--border-tertiary); margin: 1.25rem 0; }
+
+    .eq-box {
+      background: var(--bg-secondary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-md);
+      padding: 0.875rem 1rem;
+      margin: 0.5rem 0;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+    .eq-note { font-family: var(--font); font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+
+    .insight {
+      border-left: 2px solid var(--border-info);
+      padding: 7px 12px;
+      font-size: 13px; color: var(--text-secondary);
+      background: var(--bg-info);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 0.5rem 0; line-height: 1.55;
+    }
+    .insight.success { border-color: var(--border-success); background: var(--bg-success); color: var(--text-success); }
+    .insight.warning { border-color: var(--border-warning); background: var(--bg-warning); color: var(--text-warning); }
+    .insight.danger  { border-color: var(--border-danger);  background: var(--bg-danger);  color: var(--text-danger); }
+
+    .row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 0.75rem; }
+
+    .tab-btn {
+      padding: 6px 14px;
+      border: 0.5px solid var(--border-secondary);
+      border-radius: var(--radius-md);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 13px; font-family: var(--font);
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+    }
+    .tab-btn.active { background: var(--bg-info); border-color: var(--border-info); color: var(--text-info); }
+    .tab-btn:hover:not(.active) { background: var(--bg-secondary); }
+
+    .slider-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+    .slider-name { font-size: 12px; color: var(--text-tertiary); width: 30px; flex-shrink: 0; }
+    .slider-val  { font-size: 13px; color: var(--text-primary); width: 46px; text-align: right; font-family: var(--font-mono); flex-shrink: 0; }
+    input[type=range] { flex: 1; }
+
+    .prop-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0.75rem 0;
+    }
+    @media (max-width: 500px) { .prop-grid { grid-template-columns: 1fr; } }
+
+    .prop-card {
+      background: var(--bg-secondary); border-radius: var(--radius-md);
+      padding: 0.6rem 0.875rem;
+    }
+    .prop-card .pc-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing:.04em; margin-bottom: 3px; }
+    .prop-card .pc-val   { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+    .prop-card .pc-val.good    { color: var(--text-success); }
+    .prop-card .pc-val.bad     { color: var(--text-danger); }
+    .prop-card .pc-val.neutral { color: var(--text-warning); }
+
+    .canvas-wrap { position: relative; width: 100%; height: 220px; margin: 0.75rem 0; }
+
+    .fn-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 0.75rem; }
+
+    .live-output {
+      display: flex; align-items: baseline; gap: 10px; margin: 0.75rem 0;
+    }
+    .lo-val { font-size: 28px; font-weight: 500; font-family: var(--font-mono); transition: color 0.3s; }
+    .lo-label { font-size: 13px; color: var(--text-secondary); }
+
+    .compare-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0.75rem 0;
+    }
+    @media (max-width: 520px) { .compare-grid { grid-template-columns: 1fr; } }
+
+    .compare-card {
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 0.875rem;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .compare-card:hover { background: var(--bg-secondary); }
+    .compare-card.active { border-color: var(--border-info); background: var(--bg-info); }
+    .compare-card .cc-name { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 3px; }
+    .compare-card.active .cc-name { color: var(--text-info); }
+    .compare-card .cc-eq   { font-size: 11px; font-family: var(--font-mono); color: var(--text-tertiary); }
+
+    .summary-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 0.75rem 0; }
+    .summary-table th {
+      text-align: left; padding: 7px 10px;
+      background: var(--bg-secondary);
+      color: var(--text-tertiary);
+      font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing:.04em;
+      border-bottom: 0.5px solid var(--border-tertiary);
+    }
+    .summary-table td {
+      padding: 7px 10px;
+      border-bottom: 0.5px solid var(--border-tertiary);
+      color: var(--text-secondary);
+      vertical-align: middle;
+    }
+    .summary-table tr:last-child td { border-bottom: none; }
+    .summary-table tr:hover td { background: var(--bg-secondary); }
+    .badge {
+      display: inline-block; font-size: 11px; padding: 2px 8px;
+      border-radius: 20px; font-weight: 500; white-space: nowrap;
+    }
+    .badge-good    { background: var(--bg-success); color: var(--text-success); }
+    .badge-bad     { background: var(--bg-danger);  color: var(--text-danger); }
+    .badge-neutral { background: var(--bg-warning); color: var(--text-warning); }
+    .badge-info    { background: var(--bg-info);    color: var(--text-info); }
+
+    .nonlinear-demo {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0.75rem 0;
+    }
+    @media (max-width: 480px) { .nonlinear-demo { grid-template-columns: 1fr; } }
+    .nl-card {
+      border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-md);
+      padding: 0.875rem;
+    }
+    .nl-card .nl-title { font-size: 12px; font-weight: 500; margin-bottom: 6px; color: var(--text-primary); }
+    .nl-layers { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .nl-box {
+      padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 500;
+      border: 0.5px solid var(--border-tertiary); background: var(--bg-secondary);
+      color: var(--text-secondary);
+    }
+    .nl-box.linear  { background: var(--bg-info);    border-color: var(--border-info);    color: var(--text-info); }
+    .nl-box.activ   { background: var(--bg-success); border-color: var(--border-success); color: var(--text-success); }
+    .nl-box.result  { background: var(--bg-warning); border-color: var(--border-warning); color: var(--text-warning); }
+    .nl-box.good    { background: var(--bg-success); border-color: var(--border-success); color: var(--text-success); }
+    .nl-arrow { font-size: 12px; color: var(--text-tertiary); }
+
+    .gelu-insight {
+      background: var(--bg-secondary); border-radius: var(--radius-md);
+      padding: 0.875rem 1rem; margin: 0.75rem 0;
+      border-left: 3px solid var(--border-info);
+    }
+    .gelu-insight .gi-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+    .gelu-insight p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+    footer { text-align: center; font-size: 12px; color: var(--text-tertiary); margin-top: 2rem; }
+
+    .dot-indicator {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>Activation functions</h1>
+    <p>If a neuron were just a weighted sum, stacking layers would be pointless — the composition of linear functions is still linear. Activation functions introduce nonlinearity, giving neural networks the power to learn complex patterns.</p>
+  </header>
+
+  <!-- PART 1: Why nonlinearity -->
+  <div class="card">
+    <h2>Why we need nonlinearity</h2>
+    <p class="note">Without activation functions, any depth of network collapses into a single linear transformation — no matter how many layers you add.</p>
+
+    <div class="nonlinear-demo">
+      <div class="nl-card">
+        <div class="nl-title" style="color:var(--text-danger)">Without activation functions</div>
+        <div class="nl-layers">
+          <div class="nl-box linear">Linear</div>
+          <div class="nl-arrow">→</div>
+          <div class="nl-box linear">Linear</div>
+          <div class="nl-arrow">→</div>
+          <div class="nl-box linear">Linear</div>
+        </div>
+        <div class="nl-arrow" style="margin-bottom:6px">↓ collapses to</div>
+        <div class="nl-layers">
+          <div class="nl-box result">Still linear!</div>
+        </div>
+        <p style="font-size:12px;color:var(--text-tertiary);margin-top:8px;line-height:1.5">z₂ = W₂(W₁x + b₁) + b₂ = (W₂W₁)x + const<br>→ just one linear function</p>
+      </div>
+      <div class="nl-card">
+        <div class="nl-title" style="color:var(--text-success)">With activation functions</div>
+        <div class="nl-layers">
+          <div class="nl-box linear">Lin</div>
+          <div class="nl-arrow">→</div>
+          <div class="nl-box activ">f(·)</div>
+          <div class="nl-arrow">→</div>
+          <div class="nl-box linear">Lin</div>
+          <div class="nl-arrow">→</div>
+          <div class="nl-box activ">f(·)</div>
+        </div>
+        <div class="nl-arrow" style="margin-bottom:6px">↓ produces</div>
+        <div class="nl-layers">
+          <div class="nl-box good">Powerful nonlinear!</div>
+        </div>
+        <p style="font-size:12px;color:var(--text-tertiary);margin-top:8px;line-height:1.5">Each activation layer adds expressive power — the network can approximate any continuous function.</p>
+      </div>
+    </div>
+
+    <div class="insight">
+      This is the Universal Approximation Theorem: a neural network with at least one hidden layer and a nonlinear activation function can approximate any continuous function to arbitrary precision, given enough neurons.
+    </div>
+  </div>
+
+  <!-- PART 2: Interactive curve explorer -->
+  <div class="card">
+    <h2>Interactive curve explorer</h2>
+    <p class="note">Select an activation function, drag the slider to set an input z, and watch the output and gradient update live on the curve.</p>
+
+    <div class="fn-selector" id="fn-selector">
+      <button class="tab-btn active" onclick="selectFn('sigmoid')">Sigmoid</button>
+      <button class="tab-btn" onclick="selectFn('tanh')">Tanh</button>
+      <button class="tab-btn" onclick="selectFn('relu')">ReLU</button>
+      <button class="tab-btn" onclick="selectFn('leaky')">Leaky ReLU</button>
+      <button class="tab-btn" onclick="selectFn('gelu')">GELU</button>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="curve-canvas" role="img" aria-label="Activation function curve with interactive point"></canvas>
+    </div>
+
+    <div class="slider-row">
+      <span class="slider-name">z</span>
+      <input type="range" id="z-slider" min="-4" max="4" step="0.05" value="0">
+      <span class="slider-val" id="z-val">0.00</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:0.75rem">
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.6rem 0.875rem">
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Input z</div>
+        <div style="font-size:20px;font-weight:500;font-family:var(--font-mono);color:var(--text-primary)" id="out-z">0.00</div>
+      </div>
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.6rem 0.875rem">
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Output f(z)</div>
+        <div style="font-size:20px;font-weight:500;font-family:var(--font-mono);transition:color 0.3s" id="out-fz">0.50</div>
+      </div>
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.6rem 0.875rem">
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Gradient f′(z)</div>
+        <div style="font-size:20px;font-weight:500;font-family:var(--font-mono);transition:color 0.3s" id="out-grad">0.25</div>
+      </div>
+    </div>
+
+    <div id="curve-insight" class="insight" style="margin-top:0.75rem"></div>
+  </div>
+
+  <!-- PART 3: Sigmoid -->
+  <div class="card">
+    <h2>Sigmoid</h2>
+    <p class="note">The sigmoid function squashes any input into the range (0, 1). It was historically popular but suffers from the vanishing gradient problem for very positive or negative inputs.</p>
+
+    <div class="eq-box">
+      σ(z) = 1 / (1 + e⁻ᶻ)
+      <div class="eq-note">Derivative: σ′(z) = σ(z) · (1 − σ(z)) — maximum gradient of 0.25 at z = 0.</div>
+    </div>
+
+    <div class="step-label">Properties</div>
+    <div class="prop-grid">
+      <div class="prop-card">
+        <div class="pc-label">Output range</div>
+        <div class="pc-val">(0, 1)</div>
+      </div>
+      <div class="prop-card">
+        <div class="pc-label">Zero-centred</div>
+        <div class="pc-val bad">No</div>
+      </div>
+      <div class="prop-card">
+        <div class="pc-label">Max gradient</div>
+        <div class="pc-val">0.25 at z = 0</div>
+      </div>
+      <div class="prop-card">
+        <div class="pc-label">Differentiable</div>
+        <div class="pc-val good">Everywhere</div>
+      </div>
+    </div>
+
+    <div class="insight danger">
+      Problem: For large |z|, the gradient approaches zero — learning becomes extremely slow. This is the vanishing gradient problem. In deep networks it prevents gradients from flowing back through many layers.
+    </div>
+    <div class="insight success">
+      Best use: Output layer of binary classification networks, where the output should represent a probability between 0 and 1.
+    </div>
+  </div>
+
+  <!-- PART 4: Tanh -->
+  <div class="card">
+    <h2>Tanh (hyperbolic tangent)</h2>
+    <p class="note">The tanh function is similar to sigmoid but outputs values in the range (−1, 1). Since its output is zero-centred, it often works better than sigmoid in hidden layers.</p>
+
+    <div class="eq-box">
+      tanh(z) = (eᶻ − e⁻ᶻ) / (eᶻ + e⁻ᶻ)
+      <div class="eq-note">Relationship to sigmoid: tanh(z) = 2σ(2z) − 1 — essentially a rescaled, shifted sigmoid.</div>
+    </div>
+
+    <div class="step-label">Tanh vs sigmoid — key differences</div>
+    <div class="prop-grid">
+      <div class="prop-card">
+        <div class="pc-label">Output range</div>
+        <div class="pc-val">(−1, 1)</div>
+      </div>
+      <div class="prop-card">
+        <div class="pc-label">Zero-centred</div>
+        <div class="pc-val good">Yes</div>
+      </div>
+      <div class="prop-card">
+        <div class="pc-label">Max gradient</div>
+        <div class="pc-val">1.0 at z = 0</div>
+      </div>
+      <div class="prop-card">
+        <div class="pc-label">Steeper near origin</div>
+        <div class="pc-val good">Yes — 4× sigmoid</div>
+      </div>
+    </div>
+
+    <div class="insight">
+      Zero-centred output helps gradient flow during training — if outputs are always positive (as in sigmoid), gradients in the layer below are always the same sign, causing zig-zagging weight updates.
+    </div>
+    <div class="insight danger">
+      Problem: Like sigmoid, tanh still saturates for large |z|, causing vanishing gradients. It is not the answer for very deep networks.
+    </div>
+    <div class="insight success">
+      Best use: RNNs and LSTMs, where zero-centred activations improve gradient flow across long sequences.
+    </div>
+  </div>
+
+  <!-- PART 5: ReLU Family -->
+  <div class="card">
+    <h2>The ReLU family</h2>
+    <p class="note">ReLU and its variants are the most widely used activation functions in modern deep learning. They are simple, fast, and largely avoid the vanishing gradient problem for positive inputs.</p>
+
+    <div class="step-label">Select a function to explore</div>
+    <div class="compare-grid" id="relu-cards">
+      <div class="compare-card active" onclick="selectRelu('relu')">
+        <div class="cc-name">ReLU</div>
+        <div class="cc-eq">f(z) = max(0, z)</div>
+      </div>
+      <div class="compare-card" onclick="selectRelu('leaky')">
+        <div class="cc-name">Leaky ReLU</div>
+        <div class="cc-eq">f(z) = max(0.01z, z)</div>
+      </div>
+      <div class="compare-card" onclick="selectRelu('gelu')">
+        <div class="cc-name">GELU</div>
+        <div class="cc-eq">f(z) = z · Φ(z)</div>
+      </div>
+    </div>
+
+    <div class="canvas-wrap" style="height:180px">
+      <canvas id="relu-canvas" role="img" aria-label="ReLU family comparison chart"></canvas>
+    </div>
+
+    <div id="relu-detail"></div>
+  </div>
+
+  <!-- PART 6: GELU deep dive -->
+  <div class="card">
+    <h2>GELU deep dive</h2>
+    <p class="note">The Gaussian Error Linear Unit is the activation function of choice in modern transformers — GPT, BERT, and their successors all use GELU.</p>
+
+    <div class="eq-box">
+      GELU(z) = z · Φ(z)
+      <div class="eq-note">Approximation: 0.5z(1 + tanh[√(2/π)(z + 0.044715z³)])<br>where Φ(z) is the standard Gaussian CDF.</div>
+    </div>
+
+    <div class="step-label">Why GELU beats ReLU in transformers</div>
+
+    <div class="gelu-insight">
+      <div class="gi-title">Smooth gating, not hard cut-off</div>
+      <p>ReLU makes a hard decision at zero — below zero, signal is completely blocked. GELU smoothly gates inputs by their magnitude: larger inputs are more likely passed through, smaller or negative inputs are gradually suppressed. This smooth gradient everywhere improves training stability.</p>
+    </div>
+
+    <div class="gelu-insight">
+      <div class="gi-title">Stochastic regularization</div>
+      <p>GELU acts as a stochastic regularizer during training. For inputs near zero, the function behaves probabilistically — sometimes passing the signal, sometimes blocking it — which works similarly to dropout but within the activation itself.</p>
+    </div>
+
+    <div class="gelu-insight">
+      <div class="gi-title">No dead neurons</div>
+      <p>ReLU neurons that output zero can never recover — their gradient is permanently zero. GELU always has a non-zero gradient everywhere, so every neuron can always learn.</p>
+    </div>
+
+    <div class="step-label" style="margin-top:1rem">Interactive: ReLU vs GELU at the boundary</div>
+    <p class="note">Drag the slider near zero to see how differently ReLU and GELU behave in the critical region where hard vs soft gating matters most.</p>
+
+    <div class="slider-row">
+      <span class="slider-name">z</span>
+      <input type="range" id="gelu-slider" min="-3" max="3" step="0.05" value="-0.5">
+      <span class="slider-val" id="gelu-z-val">−0.50</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:0.75rem">
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.75rem 1rem">
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">ReLU output</div>
+        <div style="font-size:22px;font-weight:500;font-family:var(--font-mono);transition:color 0.3s" id="gelu-relu-out">0.0000</div>
+        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px" id="gelu-relu-note">Hard block</div>
+      </div>
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.75rem 1rem">
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">GELU output</div>
+        <div style="font-size:22px;font-weight:500;font-family:var(--font-mono);transition:color 0.3s" id="gelu-gelu-out">−0.1543</div>
+        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px" id="gelu-gelu-note">Smooth suppression</div>
+      </div>
+    </div>
+
+    <div id="gelu-insight-box" class="insight" style="margin-top:0.75rem"></div>
+  </div>
+
+  <!-- PART 7: Summary table -->
+  <div class="card">
+    <h2>Activation function summary</h2>
+    <p class="note">A quick reference covering all five functions — range, zero-centring, gradient issues, and where each is used today.</p>
+
+    <div style="overflow-x:auto">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Function</th>
+            <th>Range</th>
+            <th>Zero-centred</th>
+            <th>Gradient issues</th>
+            <th>Modern use</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Sigmoid</strong></td>
+            <td>(0, 1)</td>
+            <td><span class="badge badge-bad">No</span></td>
+            <td><span class="badge badge-bad">Vanishing</span></td>
+            <td>Output layer (binary)</td>
+          </tr>
+          <tr>
+            <td><strong>Tanh</strong></td>
+            <td>(−1, 1)</td>
+            <td><span class="badge badge-good">Yes</span></td>
+            <td><span class="badge badge-bad">Vanishing</span></td>
+            <td>RNNs, LSTMs</td>
+          </tr>
+          <tr>
+            <td><strong>ReLU</strong></td>
+            <td>[0, ∞)</td>
+            <td><span class="badge badge-bad">No</span></td>
+            <td><span class="badge badge-neutral">Dead neurons</span></td>
+            <td>CNNs, general use</td>
+          </tr>
+          <tr>
+            <td><strong>Leaky ReLU</strong></td>
+            <td>(−∞, ∞)</td>
+            <td><span class="badge badge-bad">No</span></td>
+            <td><span class="badge badge-good">Minimal</span></td>
+            <td>GANs, deep networks</td>
+          </tr>
+          <tr>
+            <td><strong>GELU</strong></td>
+            <td>≈(−0.17, ∞)</td>
+            <td><span class="badge badge-bad">No</span></td>
+            <td><span class="badge badge-good">Minimal</span></td>
+            <td><span class="badge badge-info">Transformers (GPT, BERT)</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight" style="margin-top:0.875rem">
+      There is no single best activation function — the right choice depends on the architecture and task. ReLU remains the default for hidden layers in CNNs. GELU is the default for transformers. Sigmoid and tanh remain relevant in specific output and recurrent contexts.
+    </div>
+  </div>
+
+  <footer>Activation Functions · Interactive Explainer · No external dependencies · MIT License</footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const isDark = () => matchMedia('(prefers-color-scheme: dark)').matches;
+
+// ─── Math helpers ─────────────────────────────────────────────────────────────
+const sigmoid  = z => 1 / (1 + Math.exp(-z));
+const tanh_fn  = z => Math.tanh(z);
+const relu     = z => Math.max(0, z);
+const leaky    = z => z >= 0 ? z : 0.01 * z;
+const phi      = z => 0.5 * (1 + Math.tanh(Math.sqrt(2 / Math.PI) * (z + 0.044715 * z * z * z)));
+const gelu     = z => z * phi(z);
+
+const d_sigmoid = z => sigmoid(z) * (1 - sigmoid(z));
+const d_tanh    = z => 1 - Math.tanh(z) ** 2;
+const d_relu    = z => z > 0 ? 1 : 0;
+const d_leaky   = z => z >= 0 ? 1 : 0.01;
+const d_gelu    = z => {
+  const p = phi(z);
+  const dp = Math.exp(-0.5 * z * z) / Math.sqrt(2 * Math.PI);
+  return p + z * dp;
+};
+
+const fns = {
+  sigmoid: { fn: sigmoid, grad: d_sigmoid, label: 'Sigmoid', color: '#378ADD', yMin: -0.2, yMax: 1.2 },
+  tanh:    { fn: tanh_fn, grad: d_tanh,    label: 'Tanh',    color: '#1D9E75', yMin: -1.3, yMax: 1.3 },
+  relu:    { fn: relu,    grad: d_relu,    label: 'ReLU',    color: '#BA7517', yMin: -0.5, yMax: 4.5 },
+  leaky:   { fn: leaky,   grad: d_leaky,   label: 'Leaky ReLU', color: '#D85A30', yMin: -0.5, yMax: 4.5 },
+  gelu:    { fn: gelu,    grad: d_gelu,    label: 'GELU',    color: '#534AB7', yMin: -0.5, yMax: 4.5 },
+};
+
+const curveInsights = {
+  sigmoid: z => {
+    if (Math.abs(z) > 2.5) return { cls:'danger',  msg:`z = ${z.toFixed(2)} is in the saturation zone — gradient ≈ ${d_sigmoid(z).toFixed(4)}, nearly zero. This is the vanishing gradient problem in action.` };
+    if (Math.abs(z) < 0.5) return { cls:'success', msg:`z = ${z.toFixed(2)} is near the origin — gradient is at its highest (${d_sigmoid(z).toFixed(4)}). This is where sigmoid learns fastest.` };
+    return { cls:'',      msg:`z = ${z.toFixed(2)} — output ${sigmoid(z).toFixed(4)}, gradient ${d_sigmoid(z).toFixed(4)}. Gradient is declining as we move away from zero.` };
+  },
+  tanh: z => {
+    if (Math.abs(z) > 2.5) return { cls:'danger',  msg:`z = ${z.toFixed(2)} — tanh saturates here too. Gradient ≈ ${d_tanh(z).toFixed(4)}, nearly zero. Vanishing gradient still applies.` };
+    if (Math.abs(z) < 0.5) return { cls:'success', msg:`z = ${z.toFixed(2)} — near the origin, gradient = ${d_tanh(z).toFixed(4)} (4× stronger than sigmoid's max of 0.25). Zero-centred output = ${tanh_fn(z).toFixed(4)}.` };
+    return { cls:'',      msg:`z = ${z.toFixed(2)} — output ${tanh_fn(z).toFixed(4)}, gradient ${d_tanh(z).toFixed(4)}. Note output is zero-centred, unlike sigmoid.` };
+  },
+  relu: z => {
+    if (z < 0) return { cls:'danger',  msg:`z = ${z.toFixed(2)} is negative — ReLU outputs exactly 0. Gradient = 0. If this neuron gets stuck here during training, it becomes a "dead neuron" and never recovers.` };
+    if (z === 0) return { cls:'warning', msg:`z = 0 — the ReLU boundary. Output = 0, gradient is undefined (technically 0 by convention). This is where dead neurons begin.` };
+    return { cls:'success', msg:`z = ${z.toFixed(2)} is positive — ReLU passes it through unchanged (output = ${relu(z).toFixed(4)}). Gradient = 1.0 — no vanishing gradient here!` };
+  },
+  leaky: z => {
+    if (z < 0) return { cls:'warning', msg:`z = ${z.toFixed(2)} is negative — Leaky ReLU outputs ${leaky(z).toFixed(4)} (= 0.01 × z). Gradient = 0.01 — tiny but non-zero, preventing dead neurons!` };
+    return { cls:'success', msg:`z = ${z.toFixed(2)} is positive — Leaky ReLU behaves identically to ReLU here. Output = ${leaky(z).toFixed(4)}, gradient = 1.0.` };
+  },
+  gelu: z => {
+    if (z < -2) return { cls:'warning', msg:`z = ${z.toFixed(2)} — GELU output ${gelu(z).toFixed(4)}, gradient ${d_gelu(z).toFixed(4)}. Smoothly suppressed but not hard-blocked like ReLU.` };
+    if (Math.abs(z) < 0.5) return { cls:'',      msg:`z = ${z.toFixed(2)} — GELU's probabilistic zone. Output ${gelu(z).toFixed(4)}, gradient ${d_gelu(z).toFixed(4)}. This smooth transition is why transformers prefer GELU over ReLU.` };
+    return { cls:'success', msg:`z = ${z.toFixed(2)} — GELU output ${gelu(z).toFixed(4)}, gradient ${d_gelu(z).toFixed(4)}. For large |z|, GELU ≈ ReLU but smoother.` };
+  },
+};
+
+// ─── Curve canvas ─────────────────────────────────────────────────────────────
+let curveChart = null;
+let currentFn  = 'sigmoid';
+let currentZ   = 0;
+
+function getColors() {
+  const d = isDark();
+  return {
+    grid:    d ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)',
+    tick:    d ? '#73726c' : '#888780',
+    point:   d ? '#e8e6de' : '#1a1a18',
+  };
+}
+
+function buildCurveChart() {
+  const xs = [];
+  for (let x = -4; x <= 4; x += 0.08) xs.push(+x.toFixed(2));
+  const c = getColors();
+  const f = fns[currentFn];
+  const ctx = document.getElementById('curve-canvas');
+
+  if (curveChart) curveChart.destroy();
+  curveChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: xs,
+      datasets: [
+        {
+          label: f.label,
+          data: xs.map(x => f.fn(x)),
+          borderColor: f.color,
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: false,
+          order: 2,
+        },
+        {
+          label: 'Gradient f′(z)',
+          data: xs.map(x => f.grad(x)),
+          borderColor: f.color,
+          borderWidth: 1.5,
+          borderDash: [5, 4],
+          pointRadius: 0,
+          tension: 0.3,
+          fill: false,
+          order: 3,
+        },
+        {
+          label: 'Current z',
+          data: xs.map(x => Math.abs(x - currentZ) < 0.05 ? f.fn(x) : null),
+          borderColor: 'transparent',
+          pointBackgroundColor: c.point,
+          pointRadius: xs.map(x => Math.abs(x - currentZ) < 0.05 ? 6 : 0),
+          pointHoverRadius: 0,
+          showLine: false,
+          order: 1,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: { color: c.tick, font: { size: 11 }, boxWidth: 20, padding: 12,
+            filter: item => item.text !== 'Current z' }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: c.tick, maxTicksLimit: 9,
+            callback: (v) => { const val = xs[v]; return val !== undefined && Number.isInteger(val*10/10) && val % 1 === 0 ? val : ''; }
+          },
+          grid: { color: c.grid },
+          title: { display: true, text: 'z', color: c.tick, font: { size: 11 } }
+        },
+        y: {
+          min: f.yMin, max: f.yMax,
+          ticks: { color: c.tick, maxTicksLimit: 7 },
+          grid: { color: c.grid },
+          title: { display: true, text: 'f(z)', color: c.tick, font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+function updateCurvePoint() {
+  const f   = fns[currentFn];
+  const z   = currentZ;
+  const out = f.fn(z);
+  const gr  = f.grad(z);
+  const xs  = curveChart.data.labels;
+
+  curveChart.data.datasets[2].data = xs.map(x => Math.abs(x - z) < 0.06 ? f.fn(+x) : null);
+  curveChart.data.datasets[2].pointRadius = xs.map(x => Math.abs(x - z) < 0.06 ? 7 : 0);
+  curveChart.update('none');
+
+  document.getElementById('out-z').textContent    = z.toFixed(2);
+  const fzEl = document.getElementById('out-fz');
+  const grEl = document.getElementById('out-grad');
+  fzEl.textContent = out.toFixed(4);
+  grEl.textContent = gr.toFixed(4);
+
+  fzEl.style.color = out > 0.01 ? 'var(--text-success)' : out < -0.01 ? 'var(--text-danger)' : 'var(--text-primary)';
+  grEl.style.color = gr > 0.1 ? 'var(--text-success)' : gr < 0.01 ? 'var(--text-danger)' : 'var(--text-warning)';
+
+  const ins = curveInsights[currentFn](z);
+  const box = document.getElementById('curve-insight');
+  box.textContent = ins.msg;
+  box.className = 'insight' + (ins.cls ? ' ' + ins.cls : '');
+}
+
+function selectFn(name) {
+  currentFn = name;
+  document.querySelectorAll('#fn-selector .tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['sigmoid','tanh','relu','leaky','gelu'][i] === name);
+  });
+  buildCurveChart();
+  updateCurvePoint();
+}
+
+document.getElementById('z-slider').addEventListener('input', function() {
+  currentZ = +this.value;
+  document.getElementById('z-val').textContent = currentZ.toFixed(2);
+  updateCurvePoint();
+});
+
+// ─── ReLU family comparison ───────────────────────────────────────────────────
+let reluChart = null;
+let currentRelu = 'relu';
+
+const reluDetails = {
+  relu: {
+    eq:   'f(z) = max(0, z)',
+    pros: ['No vanishing gradient for z > 0', 'Computationally very cheap', 'Sparse activation — most neurons output 0, which is efficient'],
+    cons: ['Dead neurons: if z < 0 always, gradient = 0 permanently', 'Not zero-centred', 'Gradient undefined at z = 0'],
+    use:  'Default choice for CNNs and most feedforward networks.',
+  },
+  leaky: {
+    eq:   'f(z) = max(0.01z, z)',
+    pros: ['Solves dead neuron problem — gradient = 0.01 when z < 0', 'Allows negative information to flow backward', 'Simple modification of ReLU'],
+    cons: ['Slope 0.01 is a hyperparameter (sometimes tuned as Parametric ReLU)', 'Still not zero-centred'],
+    use:  'GANs and very deep networks where dead neurons are a concern.',
+  },
+  gelu: {
+    eq:   'f(z) = z · Φ(z) ≈ 0.5z(1 + tanh[√(2/π)(z + 0.044715z³)])',
+    pros: ['Smooth and differentiable everywhere', 'No dead neurons', 'Acts as stochastic regularizer near zero', 'Empirically superior in transformers'],
+    cons: ['Computationally more expensive than ReLU', 'Less interpretable intuitively'],
+    use:  'Standard in transformers: GPT, BERT, ViT, and virtually all modern LLMs.',
+  }
+};
+
+function buildReluChart() {
+  const xs = [];
+  for (let x = -4; x <= 4; x += 0.08) xs.push(+x.toFixed(2));
+  const c = getColors();
+  const ctx = document.getElementById('relu-canvas');
+
+  if (reluChart) reluChart.destroy();
+  reluChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: xs,
+      datasets: [
+        { label: 'ReLU',       data: xs.map(x => relu(x)),  borderColor: currentRelu==='relu'   ? '#BA7517':'rgba(186,117,23,0.25)',  borderWidth: currentRelu==='relu'   ?2.5:1, pointRadius:0, tension:0.1, fill:false },
+        { label: 'Leaky ReLU', data: xs.map(x => leaky(x)), borderColor: currentRelu==='leaky'  ? '#D85A30':'rgba(216,90,48,0.25)',   borderWidth: currentRelu==='leaky'  ?2.5:1, pointRadius:0, tension:0.1, fill:false },
+        { label: 'GELU',       data: xs.map(x => gelu(x)),  borderColor: currentRelu==='gelu'   ? '#534AB7':'rgba(83,74,183,0.25)',   borderWidth: currentRelu==='gelu'   ?2.5:1, pointRadius:0, tension:0.3, fill:false },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: { legend: { display: true, position: 'top', labels: { color: c.tick, font: { size: 11 }, boxWidth: 16, padding: 10 } } },
+      scales: {
+        x: { ticks: { color: c.tick, maxTicksLimit: 9, callback: (v) => { const val = xs[v]; return val !== undefined && val % 1 === 0 ? val : ''; } }, grid: { color: c.grid }, title: { display:true, text:'z', color:c.tick, font:{size:11} } },
+        y: { min: -0.6, max: 4.2, ticks: { color: c.tick, maxTicksLimit: 7 }, grid: { color: c.grid }, title: { display:true, text:'f(z)', color:c.tick, font:{size:11} } }
+      }
+    }
+  });
+}
+
+function renderReluDetail() {
+  const d = reluDetails[currentRelu];
+  document.getElementById('relu-detail').innerHTML = `
+    <div class="eq-box">${d.eq}<div class="eq-note">${d.use}</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:0.75rem">
+      <div>
+        <div class="step-label">Advantages</div>
+        ${d.pros.map(p=>`<div style="font-size:12px;color:var(--text-secondary);padding:4px 0;border-bottom:0.5px solid var(--border-tertiary);display:flex;gap:6px"><span style="color:var(--text-success);flex-shrink:0">+</span>${p}</div>`).join('')}
+      </div>
+      <div>
+        <div class="step-label">Limitations</div>
+        ${d.cons.map(p=>`<div style="font-size:12px;color:var(--text-secondary);padding:4px 0;border-bottom:0.5px solid var(--border-tertiary);display:flex;gap:6px"><span style="color:var(--text-danger);flex-shrink:0">−</span>${p}</div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function selectRelu(name) {
+  currentRelu = name;
+  document.querySelectorAll('#relu-cards .compare-card').forEach((c,i) => {
+    c.classList.toggle('active', ['relu','leaky','gelu'][i] === name);
+  });
+  buildReluChart();
+  renderReluDetail();
+}
+
+// ─── GELU comparison slider ───────────────────────────────────────────────────
+function updateGeluSlider() {
+  const z = +document.getElementById('gelu-slider').value;
+  document.getElementById('gelu-z-val').textContent = (z >= 0 ? '' : '−') + Math.abs(z).toFixed(2);
+
+  const rOut = relu(z);
+  const gOut = gelu(z);
+
+  const rEl = document.getElementById('gelu-relu-out');
+  const gEl = document.getElementById('gelu-gelu-out');
+  rEl.textContent = rOut.toFixed(4);
+  gEl.textContent = gOut.toFixed(4);
+
+  rEl.style.color = rOut > 0 ? 'var(--text-success)' : 'var(--text-danger)';
+  gEl.style.color = Math.abs(gOut) > 0.001 ? 'var(--text-success)' : 'var(--text-secondary)';
+
+  document.getElementById('gelu-relu-note').textContent = z < 0 ? 'Hard block (output = 0)' : 'Passes through unchanged';
+  document.getElementById('gelu-gelu-note').textContent = z < -2 ? 'Strongly suppressed' : z < 0 ? 'Smooth suppression' : z < 1 ? 'Partial gating' : 'Near-linear pass-through';
+
+  const box = document.getElementById('gelu-insight-box');
+  if (z < 0) {
+    box.className = 'insight warning';
+    box.textContent = `At z = ${z.toFixed(2)}: ReLU hard-blocks to 0.0000, while GELU smoothly outputs ${gOut.toFixed(4)}. The difference is ${Math.abs(gOut).toFixed(4)} — GELU still lets a small amount of signal through, preserving gradient flow.`;
+  } else if (z < 1) {
+    box.className = 'insight';
+    box.textContent = `At z = ${z.toFixed(2)}: both are positive, but GELU (${gOut.toFixed(4)}) is slightly below ReLU (${rOut.toFixed(4)}) — the smooth Gaussian gating hasn't fully opened yet. This region is where GELU provides its stochastic regularisation effect.`;
+  } else {
+    box.className = 'insight success';
+    box.textContent = `At z = ${z.toFixed(2)}: GELU (${gOut.toFixed(4)}) ≈ ReLU (${rOut.toFixed(4)}). For large positive values, Φ(z) → 1, so GELU approaches the identity — just like ReLU. The computational cost for this region is the main trade-off.`;
+  }
+}
+
+document.getElementById('gelu-slider').addEventListener('input', updateGeluSlider);
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+buildCurveChart();
+updateCurvePoint();
+buildReluChart();
+renderReluDetail();
+updateGeluSlider();
+
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  buildCurveChart();
+  updateCurvePoint();
+  buildReluChart();
+  renderReluDetail();
+  updateGeluSlider();
+});
+</script>
+</body>
+</html>
