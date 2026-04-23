@@ -233,46 +233,50 @@
     <div id="loss-what-insight" class="insight"></div>
   </div>
 
-  <!-- PART 2: Loss landscape -->
+  <!-- PART 2: Loss landscape (3D) -->
   <div class="card">
     <h2>The loss landscape</h2>
-    <p class="note">Imagine the loss as a function of the network's weights. In two dimensions, this creates a loss landscape — a surface with hills, valleys, and flat plains. Training seeks the lowest point (the global minimum) in this landscape.</p>
+    <p class="note">The loss is a function of the network's weights — a high-dimensional surface with hills, valleys, and flat regions. Below is a 3D interactive view. <strong>Drag to rotate</strong>, scroll to zoom. Notice how the global minimum, local minimum, and saddle point look completely different from every angle.</p>
 
-    <div class="step-label">Interactive: click a point on the landscape to place the network there</div>
-    <div class="canvas-wrap" style="height:260px">
-      <canvas id="landscape-canvas" role="img" aria-label="Loss landscape contour plot with clickable points" style="cursor:crosshair"></canvas>
+    <div id="landscape-3d" style="width:100%;height:340px;border-radius:var(--radius-md);overflow:hidden;border:0.5px solid var(--border-tertiary);cursor:grab;position:relative">
+      <div id="ls3d-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text-tertiary)">Loading 3D surface…</div>
     </div>
 
-    <div class="metric-grid" style="grid-template-columns:repeat(2,1fr)">
-      <div class="metric-card">
-        <div class="mc-label">Current position</div>
-        <div class="mc-val" id="ls-pos" style="font-size:13px;padding-top:2px">(w₁, w₂)</div>
-      </div>
-      <div class="metric-card">
-        <div class="mc-label">Loss at position</div>
-        <div class="mc-val" id="ls-loss" style="transition:color 0.3s">—</div>
-      </div>
-    </div>
-
-    <div class="step-label">Key features</div>
+    <div class="step-label" style="margin-top:0.75rem">Key features</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:0.75rem">
-      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:8px 10px">
-        <div style="font-size:11px;font-weight:500;color:var(--text-success);margin-bottom:2px">Global minimum</div>
+      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:8px 10px;cursor:pointer" onclick="flyToPoint('globalMin')">
+        <div style="font-size:11px;font-weight:500;color:var(--text-success);margin-bottom:2px">Global minimum ↗</div>
         <div style="font-size:12px;color:var(--text-success)">The lowest loss point — ideal destination for training</div>
       </div>
-      <div style="background:var(--bg-warning);border-radius:var(--radius-md);padding:8px 10px">
-        <div style="font-size:11px;font-weight:500;color:var(--text-warning);margin-bottom:2px">Local minimum</div>
+      <div style="background:var(--bg-warning);border-radius:var(--radius-md);padding:8px 10px;cursor:pointer" onclick="flyToPoint('localMin')">
+        <div style="font-size:11px;font-weight:500;color:var(--text-warning);margin-bottom:2px">Local minimum ↗</div>
         <div style="font-size:12px;color:var(--text-warning)">A valley that isn't the lowest — gradient descent can get stuck here</div>
       </div>
-      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 10px">
-        <div style="font-size:11px;font-weight:500;color:var(--text-tertiary);margin-bottom:2px">Saddle point</div>
-        <div style="font-size:12px;color:var(--text-tertiary)">Flat in one direction, curving in another — slows training</div>
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 10px;cursor:pointer;border:0.5px solid var(--border-tertiary)" onclick="flyToPoint('saddle')">
+        <div style="font-size:11px;font-weight:500;color:var(--text-tertiary);margin-bottom:2px">Saddle point ↗</div>
+        <div style="font-size:12px;color:var(--text-tertiary)">Click to highlight — flat in one direction, curving in another</div>
       </div>
     </div>
 
     <div class="insight">
-      Real loss landscapes are not 2D — they exist in a space with as many dimensions as there are weights in the network, which can be billions. Surprisingly, in very high dimensions, local minima are rare — most critical points are saddle points, which gradient descent can usually escape.
+      Real loss landscapes are not 2D or even 3D — they exist in a space with as many dimensions as there are weights in the network, which can be billions. In very high dimensions, local minima are rare — most critical points are saddle points, which gradient descent can usually escape.
     </div>
+
+    <div class="divider"></div>
+
+    <h2>Saddle point — cross-section view</h2>
+    <p class="note">A saddle point has zero gradient in all directions — but it is not a minimum. The cross-section below shows why: in one direction the surface curves <em>downward</em> (like a valley), and in the perpendicular direction it curves <em>upward</em> (like a hill).</p>
+
+    <div class="row">
+      <button class="tab-btn active" id="btn-cross-w1" onclick="setCrossSection('w1')">Slice along w₁ axis</button>
+      <button class="tab-btn" id="btn-cross-w2" onclick="setCrossSection('w2')">Slice along w₂ axis</button>
+    </div>
+
+    <div style="position:relative;width:100%;margin:0.75rem 0;height:180px">
+      <canvas id="cross-canvas" role="img" aria-label="Cross-section through saddle point"></canvas>
+    </div>
+
+    <div id="cross-insight" class="insight warning"></div>
   </div>
 
   <!-- PART 3: Gradient descent -->
@@ -516,8 +520,10 @@ function updateGap() {
 document.getElementById('actual-slider').addEventListener('input', updateGap);
 document.getElementById('pred-slider').addEventListener('input', updateGap);
 
-// ─── PART 2: Loss landscape ───────────────────────────────────────────────────
-let lsClickX = null, lsClickY = null;
+// ─── PART 2: 3D Loss landscape (Three.js) ────────────────────────────────────
+// Architecture: ONE master group contains surface + all markers.
+// Camera orbits around world origin using spherical coordinates.
+// Sprites stay in world space so they always face camera (billboard).
 
 function lossLandscape(w1, w2) {
   return 0.4*(Math.sin(w1*2.2+0.5)*Math.cos(w2*1.8+0.3) + Math.sin(w1*0.9-0.8)*Math.cos(w2*2.3+1.0))
@@ -525,114 +531,384 @@ function lossLandscape(w1, w2) {
        + 0.05*(Math.pow(w1+1.2,2) + Math.pow(w2-1.0,2))*0.3;
 }
 
-function drawLandscape() {
-  const canvas = document.getElementById('landscape-canvas');
+const SPECIAL_PTS = {
+  globalMin: { w1:-0.81, w2:-0.31, hexNum:0x1D9E75, hexStr:'#1D9E75', label:'Global Min' },
+  localMin:  { w1:-1.35, w2: 0.95, hexNum:0xBA7517, hexStr:'#BA7517', label:'Local Min'  },
+  saddle:    { w1: 1.10, w2: 1.10, hexNum:0x888780, hexStr:'#888780', label:'Saddle'     },
+};
+
+let threeRenderer=null, threeScene=null, threeCamera=null, masterGroup=null;
+let isDragging=false, lastMX=0, lastMY=0;
+// Camera orbit: theta = horizontal angle, phi = vertical angle
+let camTheta=0.55, camPhi=0.92, camRadius=7.0;
+let globalMinL=0, globalMaxL=1;
+
+function lossToY(v) {
+  return ((v - globalMinL) / (globalMaxL - globalMinL)) * 2.2 - 0.4;
+}
+
+function heightToColor(t) {
+  // Cool blue (low) → warm red (high), perceptually clear in both modes
+  const r = Math.round(40  + t*215);
+  const g = Math.round(120 - t*60);
+  const b = Math.round(200 - t*180);
+  return (Math.max(0,Math.min(255,r)) << 16)
+       | (Math.max(0,Math.min(255,g)) << 8)
+       |  Math.max(0,Math.min(255,b));
+}
+
+function camPosition() {
+  // Spherical → Cartesian, camera orbits around origin
+  return new THREE.Vector3(
+    camRadius * Math.sin(camPhi) * Math.sin(camTheta),
+    camRadius * Math.cos(camPhi),
+    camRadius * Math.sin(camPhi) * Math.cos(camTheta)
+  );
+}
+
+function makeLabelTex(text, hexStr) {
+  const c = document.createElement('canvas');
+  c.width=256; c.height=64;
+  const ctx=c.getContext('2d');
+  const bg = isDark() ? 'rgba(30,30,28,0.92)' : 'rgba(255,255,255,0.92)';
+  ctx.fillStyle=bg;
+  ctx.beginPath(); ctx.roundRect(3,3,250,58,10); ctx.fill();
+  ctx.strokeStyle=hexStr; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.roundRect(3,3,250,58,10); ctx.stroke();
+  ctx.fillStyle=hexStr;
+  ctx.font='bold 26px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(text,128,34);
+  return c;
+}
+
+function initThree() {
+  const container = document.getElementById('landscape-3d');
+  if (!container || !window.THREE) return;
+  document.getElementById('ls3d-loading').style.display='none';
+
+  const W=container.clientWidth, H=container.clientHeight;
+
+  threeScene = new THREE.Scene();
+  threeScene.background = new THREE.Color(isDark() ? 0x1c1c1a : 0xf0efe9);
+
+  threeCamera = new THREE.PerspectiveCamera(45, W/H, 0.1, 100);
+  threeCamera.position.copy(camPosition());
+  threeCamera.lookAt(0, 0.3, 0);
+
+  threeRenderer = new THREE.WebGLRenderer({ antialias:true });
+  threeRenderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  threeRenderer.setSize(W, H);
+  container.appendChild(threeRenderer.domElement);
+
+  // Lights stay in world space — they illuminate the group correctly regardless of rotation
+  const ambient = new THREE.AmbientLight(0xffffff, 0.55);
+  threeScene.add(ambient);
+  const dir1 = new THREE.DirectionalLight(0xfff5e0, 0.9);
+  dir1.position.set(4, 8, 5);
+  threeScene.add(dir1);
+  const dir2 = new THREE.DirectionalLight(0xd0e8ff, 0.35);
+  dir2.position.set(-4, 3, -5);
+  threeScene.add(dir2);
+
+  // Master group: surface + all markers inside — rotate this, nothing else
+  masterGroup = new THREE.Group();
+  threeScene.add(masterGroup);
+
+  buildSurface();
+  buildMarkers();
+  buildBaseGrid();
+  animateThree();
+  bindDrag(container);
+}
+
+function buildSurface() {
+  const N=70;
+  const raw=[], verts=[], cols=[], idxs=[];
+  let minL=Infinity, maxL=-Infinity;
+
+  for (let j=0; j<=N; j++) {
+    raw[j]=[];
+    for (let i=0; i<=N; i++) {
+      const w1=(i/N)*4-2, w2=(j/N)*4-2;
+      const v=lossLandscape(w1,w2);
+      raw[j][i]=v;
+      if(v<minL) minL=v;
+      if(v>maxL) maxL=v;
+    }
+  }
+  globalMinL=minL; globalMaxL=maxL;
+
+  for (let j=0; j<=N; j++) {
+    for (let i=0; i<=N; i++) {
+      const w1=(i/N)*4-2, w2=(j/N)*4-2;
+      const v=raw[j][i];
+      verts.push(w1, lossToY(v), w2);
+      const t=(v-minL)/(maxL-minL);
+      const hex=heightToColor(t);
+      cols.push(((hex>>16)&255)/255, ((hex>>8)&255)/255, (hex&255)/255);
+    }
+  }
+  for (let j=0; j<N; j++) {
+    for (let i=0; i<N; i++) {
+      const a=j*(N+1)+i, b=a+1, c=a+(N+1), d=c+1;
+      idxs.push(a,c,b, b,c,d);
+    }
+  }
+
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(verts,3));
+  geo.setAttribute('color',    new THREE.Float32BufferAttribute(cols,3));
+  geo.setIndex(idxs);
+  geo.computeVertexNormals();
+
+  const mat=new THREE.MeshLambertMaterial({ vertexColors:true, side:THREE.DoubleSide });
+  masterGroup.add(new THREE.Mesh(geo, mat));
+
+  // Subtle wireframe on top for surface structure readability
+  const wMat=new THREE.MeshBasicMaterial({
+    color: isDark() ? 0x555552 : 0xbbbbbb,
+    wireframe:true, transparent:true, opacity:0.06
+  });
+  masterGroup.add(new THREE.Mesh(geo, wMat));
+}
+
+function buildMarkers() {
+  Object.entries(SPECIAL_PTS).forEach(([key, pt]) => {
+    const h = lossToY(lossLandscape(pt.w1, pt.w2));
+
+    // ── Flat torus ring lying on the surface ──
+    // TorusGeometry(outerR, tubeR, radialSegs, tubularSegs)
+    const torusGeo = new THREE.TorusGeometry(0.1, 0.01, 10, 48);
+    const torusMat = new THREE.MeshLambertMaterial({ color: pt.hexNum });
+    const torus = new THREE.Mesh(torusGeo, torusMat);
+    // Rotate so it lies flat (torus default is in XY plane, we need XZ plane)
+    torus.rotation.x = Math.PI / 2;
+    torus.position.set(pt.w1, h + 0.01, pt.w2);  // 0.01 lifts it just off surface
+    masterGroup.add(torus);
+
+    // ── Thin vertical line stem from torus to label ──
+    const stemPts = [
+      new THREE.Vector3(pt.w1, h + 0.01, pt.w2),
+      new THREE.Vector3(pt.w1, h + 0.72, pt.w2),
+    ];
+    const stemGeo = new THREE.BufferGeometry().setFromPoints(stemPts);
+    const stemMat = new THREE.LineBasicMaterial({ color: pt.hexNum, linewidth: 1 });
+    masterGroup.add(new THREE.Line(stemGeo, stemMat));
+
+    // ── Billboard label sprite — lives in WORLD space so it always faces camera ──
+    // We add it to threeScene (not masterGroup) and update its world position each frame
+    const labelCanvas = makeLabelTex(pt.label, pt.hexStr);
+    const tex = new THREE.CanvasTexture(labelCanvas);
+    const spriteMat = new THREE.SpriteMaterial({ map:tex, transparent:true, depthTest:false });
+    const sprite = new THREE.Sprite(spriteMat);
+    sprite.scale.set(1.15, 0.29, 1);
+    sprite.userData = { key, localPos: new THREE.Vector3(pt.w1, h+0.72, pt.w2) };
+    sprite.name = 'label_' + key;
+    threeScene.add(sprite);  // world space — always faces camera
+  });
+}
+
+function buildBaseGrid() {
+  // Flat grid at the bottom of the surface for spatial reference
+  const yBase = lossToY(globalMinL) - 0.05;
+  const axColor = isDark() ? 0x555552 : 0xaaaaaa;
+  const lineMat = new THREE.LineBasicMaterial({ color:axColor, transparent:true, opacity:0.4 });
+
+  for (let i=-2; i<=2; i++) {
+    const hGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-2, yBase, i),
+      new THREE.Vector3( 2, yBase, i)
+    ]);
+    const vGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(i, yBase, -2),
+      new THREE.Vector3(i, yBase,  2)
+    ]);
+    masterGroup.add(new THREE.Line(hGeo, lineMat));
+    masterGroup.add(new THREE.Line(vGeo, lineMat));
+  }
+}
+
+function animateThree() {
+  requestAnimationFrame(animateThree);
+  if (!threeRenderer || !threeScene || !threeCamera) return;
+
+  // Update camera orbit position
+  threeCamera.position.copy(camPosition());
+  threeCamera.lookAt(0, 0.3, 0);
+
+  // Update label sprite world positions by transforming their local positions
+  // through the masterGroup's world matrix
+  threeScene.children.forEach(obj => {
+    if (obj.isSprite && obj.userData.localPos) {
+      const world = obj.userData.localPos.clone();
+      masterGroup.localToWorld(world);
+      obj.position.copy(world);
+    }
+  });
+
+  threeRenderer.render(threeScene, threeCamera);
+}
+
+function bindDrag(container) {
+  container.addEventListener('mousedown', e => {
+    isDragging=true; lastMX=e.clientX; lastMY=e.clientY;
+    container.style.cursor='grabbing';
+  });
+  container.addEventListener('touchstart', e => {
+    isDragging=true; lastMX=e.touches[0].clientX; lastMY=e.touches[0].clientY;
+  }, {passive:true});
+
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    camTheta -= (e.clientX - lastMX) * 0.008;
+    camPhi   += (e.clientY - lastMY) * 0.008;
+    camPhi = Math.max(0.15, Math.min(1.45, camPhi));
+    lastMX=e.clientX; lastMY=e.clientY;
+  });
+  window.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    camTheta -= (e.touches[0].clientX - lastMX) * 0.008;
+    camPhi   += (e.touches[0].clientY - lastMY) * 0.008;
+    camPhi = Math.max(0.15, Math.min(1.45, camPhi));
+    lastMX=e.touches[0].clientX; lastMY=e.touches[0].clientY;
+  }, {passive:true});
+
+  window.addEventListener('mouseup',  () => { isDragging=false; container.style.cursor='grab'; });
+  window.addEventListener('touchend', () => { isDragging=false; });
+
+  container.addEventListener('wheel', e => {
+    e.preventDefault();
+    camRadius = Math.max(4, Math.min(14, camRadius + e.deltaY * 0.01));
+  }, {passive:false});
+}
+
+function flyToPoint(key) {
+  // Target camera angles that give the best view of each special point
+  const targets = {
+    globalMin: { theta:-0.9, phi:0.75 },
+    localMin:  { theta: 0.5, phi:0.80 },
+    saddle:    { theta: 1.4, phi:0.70 },
+  };
+  const target = targets[key];
+  if (!target) return;
+  const startTheta=camTheta, startPhi=camPhi;
+  let t=0;
+  const step = () => {
+    t += 0.04;
+    if (t >= 1) { camTheta=target.theta; camPhi=target.phi; return; }
+    const ease = t<0.5 ? 2*t*t : -1+(4-2*t)*t;
+    camTheta = startTheta + (target.theta - startTheta)*ease;
+    camPhi   = startPhi   + (target.phi   - startPhi  )*ease;
+    requestAnimationFrame(step);
+  };
+  step();
+}
+
+function drawLandscape() { /* 3D handles itself via animateThree */ }
+
+// ─── Saddle cross-section ─────────────────────────────────────────────────────
+const SADDLE_W1 = 1.10, SADDLE_W2 = 1.10;
+let crossAxis = 'w1';
+
+function setCrossSection(axis) {
+  crossAxis = axis;
+  document.getElementById('btn-cross-w1').classList.toggle('active', axis==='w1');
+  document.getElementById('btn-cross-w2').classList.toggle('active', axis==='w2');
+  drawCrossSection();
+}
+
+function drawCrossSection() {
+  const canvas = document.getElementById('cross-canvas');
   const W = canvas.parentElement.clientWidth;
-  const H = 260;
+  const H = 180;
   canvas.width  = W * devicePixelRatio;
   canvas.height = H * devicePixelRatio;
-  canvas.style.width  = W + 'px';
+  canvas.style.width = W + 'px';
   canvas.style.height = H + 'px';
   const ctx = canvas.getContext('2d');
   ctx.scale(devicePixelRatio, devicePixelRatio);
 
   const c = themeColors();
-  const padL=40, padR=10, padT=10, padB=30;
-  const cW = W - padL - padR, cH = H - padT - padB;
+  const padL=52, padR=20, padT=18, padB=36;
+  const cW = W-padL-padR, cH = H-padT-padB;
 
-  const steps = 80;
-  const cellW = cW / steps, cellH = cH / steps;
-
-  let minL = Infinity, maxL = -Infinity;
-  const grid = [];
-  for (let j = 0; j <= steps; j++) {
-    grid[j] = [];
-    for (let i = 0; i <= steps; i++) {
-      const w1 = (i/steps)*4 - 2;
-      const w2 = (j/steps)*4 - 2;
-      const v = lossLandscape(w1, w2);
-      grid[j][i] = v;
-      if (v < minL) minL = v;
-      if (v > maxL) maxL = v;
-    }
+  const N = 200;
+  const pts = [];
+  for (let i=0; i<=N; i++) {
+    const t = (i/N)*4 - 2;
+    const v = crossAxis==='w1' ? lossLandscape(t, SADDLE_W2) : lossLandscape(SADDLE_W1, t);
+    pts.push({ t, v });
   }
+  const vMin = Math.min(...pts.map(p=>p.v))*0.95;
+  const vMax = Math.max(...pts.map(p=>p.v))*1.08;
 
-  for (let j = 0; j < steps; j++) {
-    for (let i = 0; i < steps; i++) {
-      const v = (grid[j][i] - minL) / (maxL - minL);
-      const x = padL + i*cellW, y = padT + j*cellH;
-      const d = isDark();
-      const r = d ? Math.round(28  + v*60)  : Math.round(230 - v*80);
-      const g = d ? Math.round(80  + v*60)  : Math.round(240 - v*50);
-      const b = d ? Math.round(100 + v*80)  : Math.round(255 - v*30);
-      ctx.fillStyle = `rgb(${r},${g},${b})`;
-      ctx.fillRect(x, y, cellW+1, cellH+1);
-    }
-  }
+  const toX = t => padL + ((t+2)/4)*cW;
+  const toY = v => padT + (1-(v-vMin)/(vMax-vMin))*cH;
 
-  ctx.strokeStyle = c.border; ctx.lineWidth = 0.5;
-  ctx.strokeRect(padL, padT, cW, cH);
-
-  ['−2','−1','0','1','2'].forEach((l,i) => {
-    const x = padL + (i/4)*cW;
-    ctx.fillStyle = c.text; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(l, x, H - padB + 14);
+  ctx.strokeStyle=c.border; ctx.lineWidth=0.5;
+  [0,0.5,1].forEach(frac => {
+    const y = padT + frac*cH;
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+cW,y); ctx.stroke();
+    const lv = (vMax - frac*(vMax-vMin)).toFixed(2);
+    ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='right';
+    ctx.fillText(lv, padL-4, y+3);
   });
-  ctx.fillStyle = c.text; ctx.textAlign = 'center';
-  ctx.fillText('Weight w₁', padL + cW/2, H - 2);
-  ctx.save(); ctx.translate(12, padT + cH/2); ctx.rotate(-Math.PI/2);
-  ctx.fillText('Weight w₂', 0, 0); ctx.restore();
+  [-2,-1,0,1,2].forEach(w => {
+    const x = toX(w);
+    ctx.strokeStyle=c.border; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,padT+cH); ctx.stroke();
+    ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(w, x, padT+cH+16);
+  });
 
-  const toCanvasX = w1 => padL + ((w1+2)/4)*cW;
-  const toCanvasY = w2 => padT + ((w2+2)/4)*cH;
+  const axLabel = crossAxis==='w1' ? 'w₁  (w₂ fixed at saddle)' : 'w₂  (w₁ fixed at saddle)';
+  ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='center';
+  ctx.fillText(axLabel, padL+cW/2, H-2);
+  ctx.save(); ctx.translate(13, padT+cH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Loss', 0, 0); ctx.restore();
 
-  const globalMin = { w1: -0.81, w2: -0.31 };
-  const localMin  = { w1:-1.35, w2: 0.95 };
-  const saddle    = { w1: 1.1,  w2: 1.1  };
+  // Determine if this slice goes downhill or uphill from saddle
+  const saddleX = toX(crossAxis==='w1' ? SADDLE_W1 : SADDLE_W2);
+  const saddleV = lossLandscape(SADDLE_W1, SADDLE_W2);
+  const saddleY = toY(saddleV);
 
-  const drawSpecial = (pt, color, label, lr, tb) => {
-    const cx = toCanvasX(pt.w1), cy = toCanvasY(pt.w2);
-    ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI*2);
-    ctx.fillStyle = color; ctx.fill();
-    ctx.strokeStyle = c.bg; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.fillStyle = color; ctx.font = '500 11px sans-serif';
-    ctx.textAlign = lr === 'left' ? 'right' : 'left';
-    ctx.fillText(label, cx + (lr==='left'?-10:10), cy + (tb==='top'?-10:14));
-  };
+  // Colour the curve by direction from saddle
+  const blue  = isDark() ? '#85b7eb' : '#378ADD';
+  const red   = isDark() ? '#f09595' : '#a32d2d';
+  const green = isDark() ? '#5dcaa5' : '#1D9E75';
 
-  drawSpecial(globalMin, isDark()?'#5dcaa5':'#1D9E75', 'Global Min', 'right', 'top');
-  drawSpecial(localMin,  isDark()?'#ef9f27':'#BA7517', 'Local Min',  'left',  'top');
-  drawSpecial(saddle,    isDark()?'#b4b2a9':'#5f5e5a', 'Saddle',     'left',  'bottom');
+  // Check curvature sign at saddle (second derivative numerically)
+  const eps = 0.05;
+  const f0 = crossAxis==='w1' ? lossLandscape(SADDLE_W1, SADDLE_W2) : lossLandscape(SADDLE_W1, SADDLE_W2);
+  const fp = crossAxis==='w1' ? lossLandscape(SADDLE_W1+eps, SADDLE_W2) : lossLandscape(SADDLE_W1, SADDLE_W2+eps);
+  const fm = crossAxis==='w1' ? lossLandscape(SADDLE_W1-eps, SADDLE_W2) : lossLandscape(SADDLE_W1, SADDLE_W2-eps);
+  const curv = (fp - 2*f0 + fm) / (eps*eps);
+  const curvesUp = curv > 0;
+  const lineColor = curvesUp ? red : green;
 
-  if (lsClickX !== null) {
-    const w1 = (lsClickX / cW)*4 - 2;
-    const w2 = (lsClickY / cH)*4 - 2;
-    const cx = padL + lsClickX, cy = padT + lsClickY;
-    ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI*2);
-    ctx.fillStyle = isDark()?'#85b7eb':'#378ADD'; ctx.fill();
-    ctx.strokeStyle = c.bg; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.beginPath();
+  pts.forEach((p,i) => { const x=toX(p.t),y=toY(p.v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.strokeStyle = lineColor; ctx.lineWidth = 2; ctx.stroke();
 
-    const lv = lossLandscape(w1, w2);
-    const norm = (lv - minL) / (maxL - minL);
-    document.getElementById('ls-pos').textContent   = `(${w1.toFixed(2)}, ${w2.toFixed(2)})`;
-    document.getElementById('ls-loss').textContent  = norm.toFixed(3);
-    const lEl = document.getElementById('ls-loss');
-    lEl.style.color = norm < 0.2 ? 'var(--text-success)' : norm < 0.6 ? 'var(--text-warning)' : 'var(--text-danger)';
+  // Saddle point marker
+  ctx.beginPath(); ctx.arc(saddleX, saddleY, 7, 0, Math.PI*2);
+  ctx.fillStyle = isDark() ? '#b4b2a9' : '#5f5e5a'; ctx.fill();
+  ctx.strokeStyle = isDark() ? '#1c1c1a' : '#fff'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle = isDark() ? '#b4b2a9' : '#5f5e5a';
+  ctx.font = '500 10px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Saddle', saddleX, saddleY-12);
+
+  // Curvature annotation
+  const curveDir = curvesUp ? 'curves upward (like a hill)' : 'curves downward (like a valley)';
+  const ins = document.getElementById('cross-insight');
+  if (curvesUp) {
+    ins.className = 'insight danger';
+    ins.textContent = `Along the ${crossAxis==='w1'?'w₁':'w₂'} axis: the surface ${curveDir} — curvature is positive (${curv.toFixed(2)}). This is the 'hill' direction. If gradient descent steps along this axis it will climb away from the saddle. Zero gradient but the wrong curvature.`;
+  } else {
+    ins.className = 'insight success';
+    ins.textContent = `Along the ${crossAxis==='w1'?'w₁':'w₂'} axis: the surface ${curveDir} — curvature is negative (${curv.toFixed(2)}). This is the 'valley' direction. Gradient descent would descend if it steps along this axis. But the zero gradient at the saddle means it may stall here.`;
   }
 }
-
-document.getElementById('landscape-canvas').addEventListener('click', function(e) {
-  const rect = this.getBoundingClientRect();
-  const W = this.clientWidth;
-  const padL=40, padR=10, padT=10, padB=30;
-  const cW = W - padL - padR, cH = this.clientHeight - padT - padB;
-  const x = e.clientX - rect.left - padL;
-  const y = e.clientY - rect.top  - padT;
-  if (x >= 0 && x <= cW && y >= 0 && y <= cH) {
-    lsClickX = x; lsClickY = y;
-    drawLandscape();
-  }
-});
 
 // ─── PART 3: Gradient descent animation ───────────────────────────────────────
 function lossFunc(w) { return (w - 1.2)*(w - 1.2)*0.5 + 0.08*Math.sin(w*4)*Math.pow(Math.E,-0.3*Math.pow(w-1.2,2)); }
@@ -941,21 +1217,44 @@ function setLR(name) {
 // ─── Init & resize ─────────────────────────────────────────────────────────────
 function initAll() {
   updateGap();
-  drawLandscape();
   resetGD();
   setLR('good');
+  drawCrossSection();
+}
+
+function loadThree() {
+  if (window.THREE) { initThree(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+  s.onload = initThree;
+  document.head.appendChild(s);
 }
 
 initAll();
+loadThree();
+setCrossSection('w1');
 
 window.addEventListener('resize', () => {
   drawGapCanvas();
-  drawLandscape();
   drawGDCanvas();
   drawLRCanvas();
+  drawCrossSection();
+  if (threeRenderer && threeCamera) {
+    const container = document.getElementById('landscape-3d');
+    if (container) {
+      threeRenderer.setSize(container.clientWidth, container.clientHeight);
+      threeCamera.aspect = container.clientWidth / container.clientHeight;
+      threeCamera.updateProjectionMatrix();
+    }
+  }
 });
 
-matchMedia('(prefers-color-scheme: dark)').addEventListener('change', initAll);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  initAll();
+  if (threeScene && threeRenderer) {
+    threeScene.background = new THREE.Color(isDark() ? 0x1c1c1a : 0xf5f4f0);
+  }
+});
 </script>
 </body>
 </html>
