@@ -41,7 +41,7 @@ Coming soon 🔜
 
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
-| CNN Intuition | How convolution works visually | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
+| How Machines Learned to See Explainer | Interactive introduction to the two paradigms of computer vision — local feature extraction with CNNs and global attention with Vision Transformers | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
 
 ![rainbow](https://github.com/ancilcleetus/My-Learning-Journey/assets/25684256/839c3524-2a1d-4779-85a0-83c562e1e5e5)
 
