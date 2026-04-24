@@ -33,7 +33,8 @@ Coming soon 🔜
 | :-------- | :---------- | :----- |
 | [The Neuron & Forward Pass Explainer](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/neuron_forward_pass_explainer.html) | Step-by-step visualization of how a neuron computes output | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Activation Functions Explainer](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html) | Visualization of various activation functions | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Loss & Gradient Descent Explainer](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html) | Visualization of loss, gradient descent, and how neural networks learn step by step | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
+| [Loss & Gradient Descent Explainer](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html) | Visualization of loss, gradient descent, and how neural networks learn step by step | ![Status](https://img.shields.io/badge/Live-brightgreen) |
+| [Loss Functions Overview Explainer](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_functions_overview_explainer.html) | Visual introduction to loss functions — what loss is, task-to-loss mapping, and interactive deep dive into MSE, MAE, Huber, and Cross-Entropy with a practical decision guide | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
 
 ![rainbow](https://github.com/ancilcleetus/My-Learning-Journey/assets/25684256/839c3524-2a1d-4779-85a0-83c562e1e5e5)
 
@@ -41,7 +42,7 @@ Coming soon 🔜
 
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
-| How Machines Learned to See Explainer | Interactive introduction to the two paradigms of computer vision — local feature extraction with CNNs and global attention with Vision Transformers | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
+| How Machines Learned to See Explainer | Interactive introduction to the two paradigms of computer vision — local feature extraction with CNNs and global attention with Vision Transformers | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
 
 ![rainbow](https://github.com/ancilcleetus/My-Learning-Journey/assets/25684256/839c3524-2a1d-4779-85a0-83c562e1e5e5)
 
