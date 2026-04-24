@@ -182,6 +182,40 @@
     .gd-step-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
     .gd-step-desc  { font-size: 12px; color: var(--text-secondary); line-height: 1.55; }
 
+    /* Clickable TOC */
+    .toc-nav {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-lg);
+      padding: 0.875rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .toc-title {
+      font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+      text-transform: uppercase; letter-spacing: .05em; margin-bottom: 0.5rem;
+    }
+    .toc-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 5px 6px; margin: 2px -6px;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .toc-item:hover { background: var(--bg-secondary); }
+    .toc-num {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      background: var(--bg-info); color: var(--text-info);
+      font-size: 11px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .toc-label {
+      font-size: 13px; color: var(--text-info); font-weight: 500;
+      line-height: 1.45;
+    }
+    .toc-item:hover .toc-label { color: var(--text-primary); }
+    .toc-item:hover .toc-num   { opacity: 0.7; }
+
     footer { text-align: center; font-size: 12px; color: var(--text-tertiary); margin-top: 2rem; }
   </style>
 </head>
@@ -194,10 +228,35 @@
     <p>A neural network needs a way to measure how wrong its predictions are. This measurement is called the loss (or cost). The training process then adjusts the network's weights to reduce this loss, step by step.</p>
   </header>
 
+  <!-- Clickable TOC -->
+  <nav class="toc-nav" aria-label="Table of contents">
+    <div class="toc-title">Contents</div>
+    <a href="#sec-what-is-loss" class="toc-item">
+      <div class="toc-num">1</div>
+      <span class="toc-label">What is loss?</span>
+    </a>
+    <a href="#sec-loss-landscape" class="toc-item">
+      <div class="toc-num">2</div>
+      <span class="toc-label">The loss landscape</span>
+    </a>
+    <a href="#sec-gradient-descent" class="toc-item">
+      <div class="toc-num">3</div>
+      <span class="toc-label">Gradient descent</span>
+    </a>
+    <a href="#sec-learning-rate" class="toc-item">
+      <div class="toc-num">4</div>
+      <span class="toc-label">The learning rate</span>
+    </a>
+  </nav>
+
   <!-- PART 1: What is loss -->
   <div class="card">
-    <h2>What is loss?</h2>
+    <h2 id="sec-what-is-loss">What is loss?</h2>
     <p class="note">Loss quantifies the gap between what the network predicts and the true answer. A perfect prediction has zero loss. The larger the gap, the larger the loss value.</p>
+
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;margin-bottom:0.75rem;font-size:13px;color:var(--text-secondary);line-height:1.55;border-left:3px solid var(--border-info)">
+      <strong style="color:var(--text-primary)">Concrete example:</strong> Imagine a network trained to predict a patient's blood sugar level (on a scale of 0 to 1, where 0 is very low and 1 is very high). The actual reading is 0.85. The network predicts 0.62. That gap of 0.23 is the loss — the signal the network uses to improve.
+    </div>
 
     <div class="step-label">Interactive: drag the prediction and see the loss change</div>
     <div class="slider-row">
@@ -235,8 +294,10 @@
 
   <!-- PART 2: Loss landscape (3D) -->
   <div class="card">
-    <h2>The loss landscape</h2>
-    <p class="note">The loss is a function of the network's weights — a high-dimensional surface with hills, valleys, and flat regions. Below is a 3D interactive view. <strong>Drag to rotate</strong>, scroll to zoom. Notice how the global minimum, local minimum, and saddle point look completely different from every angle.</p>
+    <h2 id="sec-loss-landscape">The loss landscape</h2>
+    <p class="note">Every neural network has thousands — sometimes billions — of knobs called <strong>weights</strong>. Changing these weights changes the predictions, which changes the loss. If we could plot the loss against every possible combination of weights, we would get a surface called the <strong>loss landscape</strong>. Training is the process of finding the lowest point on this surface.</p>
+
+    <p class="note" style="margin-top:0.5rem">Below is a 3D view of what such a surface looks like. <strong>Drag to rotate</strong>, scroll to zoom. Notice how the global minimum, local minimum, and saddle point look completely different from every angle.</p>
 
     <div id="landscape-3d" style="width:100%;height:340px;border-radius:var(--radius-md);overflow:hidden;border:0.5px solid var(--border-tertiary);cursor:grab;position:relative">
       <div id="ls3d-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text-tertiary)">Loading 3D surface…</div>
@@ -262,32 +323,12 @@
       Real loss landscapes are not 2D or even 3D — they exist in a space with as many dimensions as there are weights in the network, which can be billions. In very high dimensions, local minima are rare — most critical points are saddle points, which gradient descent can usually escape.
     </div>
 
-    <div class="divider"></div>
-
-    <h2>Saddle point — cross-section view</h2>
-    <p class="note">A saddle point has zero gradient in all directions — but it is not a minimum. The cross-section below shows why: in one direction the surface curves <em>downward</em> (like a valley), and in the perpendicular direction it curves <em>upward</em> (like a hill).</p>
-
-    <div class="row">
-      <button class="tab-btn active" id="btn-cross-w1" onclick="setCrossSection('w1')">Slice along w₁ axis</button>
-      <button class="tab-btn" id="btn-cross-w2" onclick="setCrossSection('w2')">Slice along w₂ axis</button>
-    </div>
-
-    <div style="position:relative;width:100%;margin:0.75rem 0;height:180px">
-      <canvas id="cross-canvas" role="img" aria-label="Cross-section through saddle point"></canvas>
-    </div>
-
-    <div id="cross-insight" class="insight warning"></div>
   </div>
 
   <!-- PART 3: Gradient descent -->
   <div class="card">
-    <h2>Gradient descent</h2>
-    <p class="note">Gradient descent is the algorithm that navigates the loss landscape to find the minimum. The gradient of the loss with respect to each weight tells us the direction of steepest ascent. We move in the opposite direction to decrease the loss.</p>
-
-    <div class="eq-box">
-      w ← w − η · (∂L / ∂w)
-      <div class="eq-note">η (eta) is the learning rate — the size of each step. ∂L/∂w is the gradient of the loss with respect to weight w.</div>
-    </div>
+    <h2 id="sec-gradient-descent">Gradient descent</h2>
+    <p class="note">Gradient descent is the algorithm that navigates the loss landscape to find the minimum. Think of it like a ball rolling downhill — it always moves in the direction that reduces the loss the fastest.</p>
 
     <div class="step-label">How one gradient descent step works</div>
     <div class="gd-step-panel">
@@ -301,24 +342,30 @@
       <div class="gd-step-item">
         <div class="gd-step-num">2</div>
         <div class="gd-step-body">
-          <div class="gd-step-title">Compute the gradient ∂L/∂w</div>
-          <div class="gd-step-desc">For each weight, calculate how much a tiny change in that weight would increase or decrease the loss. This is the gradient — a vector pointing in the direction of steepest ascent.</div>
+          <div class="gd-step-title">Find the slope</div>
+          <div class="gd-step-desc">For each weight, ask: "if I nudge this weight slightly, does the loss go up or down — and by how much?" This slope is called the gradient. It points in the direction that increases the loss most steeply.</div>
         </div>
       </div>
       <div class="gd-step-item">
         <div class="gd-step-num">3</div>
         <div class="gd-step-body">
-          <div class="gd-step-title">Step in the opposite direction</div>
-          <div class="gd-step-desc">Subtract a fraction (η) of the gradient from each weight. Moving against the gradient means moving downhill — reducing the loss.</div>
+          <div class="gd-step-title">Step downhill</div>
+          <div class="gd-step-desc">Move each weight a small step in the opposite direction of the slope — downhill, not uphill. This always reduces the loss a little. The size of each step is controlled by the learning rate η.</div>
         </div>
       </div>
       <div class="gd-step-item">
         <div class="gd-step-num">4</div>
         <div class="gd-step-body">
-          <div class="gd-step-title">Repeat until convergence</div>
-          <div class="gd-step-desc">Repeat steps 1–3 for many iterations (epochs). Each step nudges the weights slightly closer to a minimum. The steps get smaller as the gradient flattens near the bottom.</div>
+          <div class="gd-step-title">Repeat until the bottom</div>
+          <div class="gd-step-desc">Repeat steps 1–3 for many iterations. Each step nudges the weights slightly closer to a minimum. The steps get smaller as the slope flattens near the bottom — the network converges.</div>
         </div>
       </div>
+    </div>
+
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;margin:0.75rem 0;border-left:3px solid var(--border-info)">
+      <div style="font-size:12px;font-weight:500;color:var(--text-primary);margin-bottom:3px">Mathematicians write those four steps in one line:</div>
+      <div style="font-family:var(--font-mono);font-size:14px;color:var(--text-primary);margin:4px 0">w ← w − η · (∂L / ∂w)</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">w is the weight, η (eta) is the step size (learning rate), and ∂L/∂w is the slope (gradient) of the loss at the current weight value.</div>
     </div>
 
     <div class="step-label">Interactive: watch gradient descent roll downhill</div>
@@ -357,7 +404,7 @@
 
   <!-- PART 4: Learning rate -->
   <div class="card">
-    <h2>The learning rate</h2>
+    <h2 id="sec-learning-rate">The learning rate</h2>
     <p class="note">Choosing the right learning rate is critical. Too small and training takes forever; too large and it overshoots the minimum; just right and it converges smoothly.</p>
 
     <div class="step-label">Select a scenario</div>
@@ -806,110 +853,6 @@ function flyToPoint(key) {
 
 function drawLandscape() { /* 3D handles itself via animateThree */ }
 
-// ─── Saddle cross-section ─────────────────────────────────────────────────────
-const SADDLE_W1 = 1.10, SADDLE_W2 = 1.10;
-let crossAxis = 'w1';
-
-function setCrossSection(axis) {
-  crossAxis = axis;
-  document.getElementById('btn-cross-w1').classList.toggle('active', axis==='w1');
-  document.getElementById('btn-cross-w2').classList.toggle('active', axis==='w2');
-  drawCrossSection();
-}
-
-function drawCrossSection() {
-  const canvas = document.getElementById('cross-canvas');
-  const W = canvas.parentElement.clientWidth;
-  const H = 180;
-  canvas.width  = W * devicePixelRatio;
-  canvas.height = H * devicePixelRatio;
-  canvas.style.width = W + 'px';
-  canvas.style.height = H + 'px';
-  const ctx = canvas.getContext('2d');
-  ctx.scale(devicePixelRatio, devicePixelRatio);
-
-  const c = themeColors();
-  const padL=52, padR=20, padT=18, padB=36;
-  const cW = W-padL-padR, cH = H-padT-padB;
-
-  const N = 200;
-  const pts = [];
-  for (let i=0; i<=N; i++) {
-    const t = (i/N)*4 - 2;
-    const v = crossAxis==='w1' ? lossLandscape(t, SADDLE_W2) : lossLandscape(SADDLE_W1, t);
-    pts.push({ t, v });
-  }
-  const vMin = Math.min(...pts.map(p=>p.v))*0.95;
-  const vMax = Math.max(...pts.map(p=>p.v))*1.08;
-
-  const toX = t => padL + ((t+2)/4)*cW;
-  const toY = v => padT + (1-(v-vMin)/(vMax-vMin))*cH;
-
-  ctx.strokeStyle=c.border; ctx.lineWidth=0.5;
-  [0,0.5,1].forEach(frac => {
-    const y = padT + frac*cH;
-    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+cW,y); ctx.stroke();
-    const lv = (vMax - frac*(vMax-vMin)).toFixed(2);
-    ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='right';
-    ctx.fillText(lv, padL-4, y+3);
-  });
-  [-2,-1,0,1,2].forEach(w => {
-    const x = toX(w);
-    ctx.strokeStyle=c.border; ctx.lineWidth=0.5;
-    ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,padT+cH); ctx.stroke();
-    ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='center';
-    ctx.fillText(w, x, padT+cH+16);
-  });
-
-  const axLabel = crossAxis==='w1' ? 'w₁  (w₂ fixed at saddle)' : 'w₂  (w₁ fixed at saddle)';
-  ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='center';
-  ctx.fillText(axLabel, padL+cW/2, H-2);
-  ctx.save(); ctx.translate(13, padT+cH/2); ctx.rotate(-Math.PI/2);
-  ctx.fillText('Loss', 0, 0); ctx.restore();
-
-  // Determine if this slice goes downhill or uphill from saddle
-  const saddleX = toX(crossAxis==='w1' ? SADDLE_W1 : SADDLE_W2);
-  const saddleV = lossLandscape(SADDLE_W1, SADDLE_W2);
-  const saddleY = toY(saddleV);
-
-  // Colour the curve by direction from saddle
-  const blue  = isDark() ? '#85b7eb' : '#378ADD';
-  const red   = isDark() ? '#f09595' : '#a32d2d';
-  const green = isDark() ? '#5dcaa5' : '#1D9E75';
-
-  // Check curvature sign at saddle (second derivative numerically)
-  const eps = 0.05;
-  const f0 = crossAxis==='w1' ? lossLandscape(SADDLE_W1, SADDLE_W2) : lossLandscape(SADDLE_W1, SADDLE_W2);
-  const fp = crossAxis==='w1' ? lossLandscape(SADDLE_W1+eps, SADDLE_W2) : lossLandscape(SADDLE_W1, SADDLE_W2+eps);
-  const fm = crossAxis==='w1' ? lossLandscape(SADDLE_W1-eps, SADDLE_W2) : lossLandscape(SADDLE_W1, SADDLE_W2-eps);
-  const curv = (fp - 2*f0 + fm) / (eps*eps);
-  const curvesUp = curv > 0;
-  const lineColor = curvesUp ? red : green;
-
-  ctx.beginPath();
-  pts.forEach((p,i) => { const x=toX(p.t),y=toY(p.v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
-  ctx.strokeStyle = lineColor; ctx.lineWidth = 2; ctx.stroke();
-
-  // Saddle point marker
-  ctx.beginPath(); ctx.arc(saddleX, saddleY, 7, 0, Math.PI*2);
-  ctx.fillStyle = isDark() ? '#b4b2a9' : '#5f5e5a'; ctx.fill();
-  ctx.strokeStyle = isDark() ? '#1c1c1a' : '#fff'; ctx.lineWidth=1.5; ctx.stroke();
-  ctx.fillStyle = isDark() ? '#b4b2a9' : '#5f5e5a';
-  ctx.font = '500 10px sans-serif'; ctx.textAlign='center';
-  ctx.fillText('Saddle', saddleX, saddleY-12);
-
-  // Curvature annotation
-  const curveDir = curvesUp ? 'curves upward (like a hill)' : 'curves downward (like a valley)';
-  const ins = document.getElementById('cross-insight');
-  if (curvesUp) {
-    ins.className = 'insight danger';
-    ins.textContent = `Along the ${crossAxis==='w1'?'w₁':'w₂'} axis: the surface ${curveDir} — curvature is positive (${curv.toFixed(2)}). This is the 'hill' direction. If gradient descent steps along this axis it will climb away from the saddle. Zero gradient but the wrong curvature.`;
-  } else {
-    ins.className = 'insight success';
-    ins.textContent = `Along the ${crossAxis==='w1'?'w₁':'w₂'} axis: the surface ${curveDir} — curvature is negative (${curv.toFixed(2)}). This is the 'valley' direction. Gradient descent would descend if it steps along this axis. But the zero gradient at the saddle means it may stall here.`;
-  }
-}
-
 // ─── PART 3: Gradient descent animation ───────────────────────────────────────
 function lossFunc(w) { return (w - 1.2)*(w - 1.2)*0.5 + 0.08*Math.sin(w*4)*Math.pow(Math.E,-0.3*Math.pow(w-1.2,2)); }
 function gradFunc(w) {
@@ -1219,7 +1162,6 @@ function initAll() {
   updateGap();
   resetGD();
   setLR('good');
-  drawCrossSection();
 }
 
 function loadThree() {
@@ -1232,13 +1174,11 @@ function loadThree() {
 
 initAll();
 loadThree();
-setCrossSection('w1');
 
 window.addEventListener('resize', () => {
   drawGapCanvas();
   drawGDCanvas();
   drawLRCanvas();
-  drawCrossSection();
   if (threeRenderer && threeCamera) {
     const container = document.getElementById('landscape-3d');
     if (container) {
