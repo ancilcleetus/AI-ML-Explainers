@@ -51,7 +51,7 @@ Coming soon 🔜
 | [The Neuron & Forward Pass Explainer](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/neuron_forward_pass_explainer.html) | Step-by-step visualization of how a neuron computes output | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Activation Functions Explainer](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html) | Visualization of various activation functions | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Loss & Gradient Descent Explainer](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html) | Visualization of loss, gradient descent, and how neural networks learn step by step | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Loss Functions Overview Explainer](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_functions_overview_explainer.html) | Visual introduction to loss functions — what loss is, task-to-loss mapping, and interactive deep dive into MSE, MAE, Huber, and Cross-Entropy with a practical decision guide | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
+| [Loss Functions Overview Explainer](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_functions_overview_explainer.html) | Visual introduction to loss functions — what loss is, task-to-loss mapping, and interactive deep dive into MSE, MAE, Huber, and Cross-Entropy with a practical decision guide | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 
 ![rainbow](assets/rainbow-divider.png)
 
@@ -75,7 +75,8 @@ Coming soon 🔜
 
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
-| Transformers Explained | Attention mechanism visualization | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
+| Transformers Explainer | Attention mechanism visualization | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
+| GPT Explainer | To be added | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
 
 ![rainbow](assets/rainbow-divider.png)
 

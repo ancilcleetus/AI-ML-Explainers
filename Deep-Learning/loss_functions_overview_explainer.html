@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loss Functions Overview — Interactive Explainer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f4f0;
+      --bg-tertiary: #eeece6;
+      --bg-info: #e6f1fb;
+      --bg-success: #e1f5ee;
+      --bg-warning: #faeeda;
+      --bg-danger: #fcebeb;
+      --text-primary: #1a1a18;
+      --text-secondary: #5f5e5a;
+      --text-tertiary: #888780;
+      --text-info: #185fa5;
+      --text-success: #0f6e56;
+      --text-warning: #854f0b;
+      --text-danger: #a32d2d;
+      --border-tertiary: rgba(0,0,0,0.12);
+      --border-secondary: rgba(0,0,0,0.22);
+      --border-info: #85b7eb;
+      --border-success: #5dcaa5;
+      --border-warning: #ef9f27;
+      --border-danger: #e24b4a;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1a;
+        --bg-secondary: #252522;
+        --bg-tertiary: #2c2c2a;
+        --bg-info: #042c53;
+        --bg-success: #04342c;
+        --bg-warning: #412402;
+        --bg-danger: #501313;
+        --text-primary: #e8e6de;
+        --text-secondary: #b4b2a9;
+        --text-tertiary: #73726c;
+        --text-info: #85b7eb;
+        --text-success: #5dcaa5;
+        --text-warning: #ef9f27;
+        --text-danger: #f09595;
+        --border-tertiary: rgba(255,255,255,0.10);
+        --border-secondary: rgba(255,255,255,0.20);
+        --border-info: #185fa5;
+        --border-success: #0f6e56;
+        --border-warning: #854f0b;
+        --border-danger: #a32d2d;
+      }
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem 1rem 3rem;
+      line-height: 1.6;
+    }
+
+    .page { max-width: 760px; margin: 0 auto; }
+
+    header { margin-bottom: 2rem; }
+    header h1 { font-size: 24px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+    header p  { font-size: 14px; color: var(--text-secondary); max-width: 580px; line-height: 1.65; }
+
+    .card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    h2 { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+    p.note { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 0.75rem; }
+
+    .step-label {
+      font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+      letter-spacing: .05em; text-transform: uppercase; margin: 1rem 0 6px;
+    }
+
+    .divider { border: none; border-top: 0.5px solid var(--border-tertiary); margin: 1.25rem 0; }
+
+    .eq-box {
+      background: var(--bg-secondary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-md);
+      padding: 0.875rem 1rem;
+      margin: 0.5rem 0;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+    .eq-note { font-family: var(--font); font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+
+    .insight {
+      border-left: 2px solid var(--border-info);
+      padding: 7px 12px;
+      font-size: 13px; color: var(--text-secondary);
+      background: var(--bg-info);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 0.5rem 0; line-height: 1.55;
+    }
+    .insight.success { border-color: var(--border-success); background: var(--bg-success); color: var(--text-success); }
+    .insight.warning { border-color: var(--border-warning); background: var(--bg-warning); color: var(--text-warning); }
+    .insight.danger  { border-color: var(--border-danger);  background: var(--bg-danger);  color: var(--text-danger); }
+
+    .row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 0.75rem; }
+
+    .tab-btn {
+      padding: 6px 14px;
+      border: 0.5px solid var(--border-secondary);
+      border-radius: var(--radius-md);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 13px; font-family: var(--font);
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+    }
+    .tab-btn.active { background: var(--bg-info); border-color: var(--border-info); color: var(--text-info); }
+    .tab-btn:hover:not(.active) { background: var(--bg-secondary); }
+
+    .slider-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+    .slider-name { font-size: 12px; color: var(--text-tertiary); width: 120px; flex-shrink: 0; }
+    .slider-val  { font-size: 13px; color: var(--text-primary); width: 52px; text-align: right; font-family: var(--font-mono); flex-shrink: 0; }
+    input[type=range] { flex: 1; }
+
+    .canvas-wrap { position: relative; width: 100%; margin: 0.75rem 0; }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin: 0.75rem 0; }
+    @media (max-width:520px) { .metric-grid { grid-template-columns: repeat(2,1fr); } }
+    .metric-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 0.65rem 0.875rem; }
+    .metric-card .mc-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing:.04em; margin-bottom: 3px; }
+    .metric-card .mc-val   { font-size: 18px; font-weight: 500; font-family: var(--font-mono); color: var(--text-primary); transition: color 0.3s; }
+
+    .loss-card {
+      border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-md);
+      padding: 0.875rem 1rem; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      margin-bottom: 8px;
+    }
+    .loss-card:hover { background: var(--bg-secondary); }
+    .loss-card.active { border-width: 1.5px; }
+    .loss-card .lc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+    .loss-card .lc-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+    .loss-card .lc-tag { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+    .loss-card .lc-eq   { font-size: 12px; font-family: var(--font-mono); color: var(--text-tertiary); margin-bottom: 5px; }
+    .loss-card .lc-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.55; }
+
+    .task-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0.75rem 0; }
+    @media (max-width:480px) { .task-grid { grid-template-columns: 1fr; } }
+    .task-card { border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-md); padding: 0.875rem 1rem; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+    .task-card:hover { background: var(--bg-secondary); }
+    .task-card.active-reg  { border-color: var(--border-info);    background: var(--bg-info); }
+    .task-card.active-cls  { border-color: var(--border-success);  background: var(--bg-success); }
+    .task-card .tc-tag { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; display: inline-block; margin-bottom: 6px; }
+    .task-card .tc-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 3px; }
+    .task-card .tc-ex { font-size: 11px; color: var(--text-tertiary); }
+
+    .comparison-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 0.75rem 0; }
+    .comparison-table th {
+      text-align: left; padding: 7px 10px;
+      background: var(--bg-secondary); color: var(--text-tertiary);
+      font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing:.04em;
+      border-bottom: 0.5px solid var(--border-tertiary);
+    }
+    .comparison-table td { padding: 7px 10px; border-bottom: 0.5px solid var(--border-tertiary); color: var(--text-secondary); vertical-align: top; }
+    .comparison-table tr:last-child td { border-bottom: none; }
+    .comparison-table tr:hover td { background: var(--bg-secondary); }
+    .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+    .badge-reg { background: var(--bg-info);    color: var(--text-info); }
+    .badge-cls { background: var(--bg-success); color: var(--text-success); }
+    .badge-both{ background: var(--bg-warning); color: var(--text-warning); }
+
+    .stepper-nav { display: flex; align-items: center; justify-content: space-between; margin: 0.75rem 0 0.5rem; }
+    .stepper-dots { display: flex; gap: 6px; }
+    .stepper-dot  { width: 7px; height: 7px; border-radius: 50%; background: var(--border-secondary); transition: background 0.2s; }
+    .stepper-dot.active { background: var(--text-info); }
+    .step-btn { padding: 5px 14px; font-size: 13px; font-family: var(--font); border: 0.5px solid var(--border-secondary); border-radius: var(--radius-md); background: var(--bg-primary); color: var(--text-primary); cursor: pointer; transition: background 0.15s; }
+    .step-btn:hover { background: var(--bg-secondary); }
+    .step-btn:disabled { opacity: 0.35; cursor: default; }
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    /* Clickable TOC */
+    .toc-nav {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-lg);
+      padding: 0.875rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .toc-title {
+      font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+      text-transform: uppercase; letter-spacing: .05em; margin-bottom: 0.5rem;
+    }
+    .toc-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 5px 6px; margin: 2px -6px;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .toc-item:hover { background: var(--bg-secondary); }
+    .toc-num {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      background: var(--bg-info); color: var(--text-info);
+      font-size: 11px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .toc-label {
+      font-size: 13px; color: var(--text-info); font-weight: 500;
+      line-height: 1.45;
+    }
+    .toc-item:hover .toc-label { color: var(--text-primary); }
+    .toc-item:hover .toc-num   { opacity: 0.7; }
+
+    footer { text-align: center; font-size: 12px; color: var(--text-tertiary); margin-top: 2rem; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>Loss Functions Overview Explainer</h1>
+    <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)" target="_blank" rel="noopener">Ancil Cleetus</a></p>
+    <p>Imagine teaching a child by never telling them when they are wrong. They would never improve. A neural network is the same — it needs a way to measure how wrong its predictions are. That measurement is called the <strong>loss</strong>. This explainer builds that intuition from scratch, then shows you which loss function to use for different tasks.</p>
+  </header>
+  
+  <!-- Clickable TOC -->
+  <nav class="toc-nav" aria-label="Table of contents">
+    <div class="toc-title">Contents</div>
+    <a href="#sec-what-is-loss" class="toc-item">
+      <div class="toc-num">1</div>
+      <span class="toc-label">What is loss?</span>
+    </a>
+    <a href="#sec-why-different-formulas" class="toc-item">
+      <div class="toc-num">2</div>
+      <span class="toc-label">Why different formulas? Why can't we just use the gap?</span>
+    </a>
+    <a href="#sec-task-mapping" class="toc-item">
+      <div class="toc-num">3</div>
+      <span class="toc-label">Task-to-loss mapping</span>
+    </a>
+    <a href="#sec-deep-dive" class="toc-item">
+      <div class="toc-num">4</div>
+      <span class="toc-label">The four loss functions — interactive deep dive</span>
+    </a>
+    <a href="#sec-outlier-problem" class="toc-item">
+      <div class="toc-num">4</div>
+      <span class="toc-label">MSE vs MAE vs Huber — the outlier problem</span>
+    </a>
+    <a href="#sec-decision-guide" class="toc-item">
+      <div class="toc-num">4</div>
+      <span class="toc-label">Decision guide — which loss to use</span>
+    </a>
+  </nav>
+
+  <!-- PART 1: What is loss -->
+  <div class="card">
+    <h2 id="sec-what-is-loss">What is loss?</h2>
+
+    <div class="step-label">Phase A — The intuition</div>
+    <p class="note">You are training a neural network to predict house prices. It looks at a house and outputs a prediction. Reality then tells it the actual sale price. The <strong>gap between the prediction and reality is the loss</strong>.</p>
+
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:1rem;margin-bottom:0.75rem">
+      <div style="font-size:12px;color:var(--text-tertiary);margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em;font-weight:500">Interactive: drag the prediction to see the gap</div>
+      <div class="slider-row" style="margin-bottom:0.5rem">
+        <span class="slider-name" style="width:110px">Network predicts</span>
+        <input type="range" id="sl-house" min="100" max="700" step="5" value="300">
+        <span class="slider-val" id="lbl-house" style="width:70px">£300k</span>
+      </div>
+      <div style="position:relative;height:56px;margin:0.5rem 0" id="house-bar-wrap">
+        <canvas id="house-canvas" style="width:100%;height:56px" role="img" aria-label="House price prediction gap visualisation"></canvas>
+      </div>
+      <div id="house-insight" style="font-size:13px;color:var(--text-secondary);margin-top:6px;line-height:1.55"></div>
+    </div>
+
+    <div class="insight">
+      When the prediction exactly matches reality, the loss is zero — perfect. The further off the prediction, the larger the loss. The network uses this loss signal to adjust itself and improve. <strong>No loss signal = no learning.</strong>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="step-label">Phase B — Introducing the notation</div>
+    <p class="note">In machine learning we write the true answer as <strong>y</strong> and the model's prediction as <strong>ŷ</strong> (said "y-hat"). The loss L measures the gap between them. A loss function is just a formula that converts that gap into a single number.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:0.5rem 0 0.75rem">
+      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:8px 10px;text-align:center">
+        <div style="font-size:22px;font-weight:500;font-family:var(--font-mono);color:var(--text-success)">y</div>
+        <div style="font-size:11px;color:var(--text-success);margin-top:2px">True answer<br>(reality)</div>
+      </div>
+      <div style="background:var(--bg-warning);border-radius:var(--radius-md);padding:8px 10px;text-align:center">
+        <div style="font-size:22px;font-weight:500;font-family:var(--font-mono);color:var(--text-warning)">ŷ</div>
+        <div style="font-size:11px;color:var(--text-warning);margin-top:2px">Prediction<br>(model output)</div>
+      </div>
+      <div style="background:var(--bg-danger);border-radius:var(--radius-md);padding:8px 10px;text-align:center">
+        <div style="font-size:22px;font-weight:500;font-family:var(--font-mono);color:var(--text-danger)">L</div>
+        <div style="font-size:11px;color:var(--text-danger);margin-top:2px">Loss<br>(gap formula)</div>
+      </div>
+    </div>
+
+    <div class="slider-row">
+      <span class="slider-name">True value y</span>
+      <input type="range" id="sl-y" min="0" max="1" step="0.01" value="0.7">
+      <span class="slider-val" id="lbl-y">0.70</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-name">Prediction ŷ</span>
+      <input type="range" id="sl-yhat" min="0.001" max="0.999" step="0.01" value="0.3">
+      <span class="slider-val" id="lbl-yhat">0.30</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0.75rem 0">
+      <div class="metric-card">
+        <div class="mc-label">Gap (y − ŷ)</div>
+        <div class="mc-val" id="m-err">0.40</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">|Gap| = raw error</div>
+        <div class="mc-val" id="m-abs-err">0.40</div>
+      </div>
+    </div>
+
+    <div id="whatisloss-insight" class="insight"></div>
+
+    <div class="divider"></div>
+
+    <div class="step-label">Three roles a loss function plays</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:0.25rem">
+      <div style="display:flex;gap:12px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;align-items:flex-start">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--bg-info);color:var(--text-info);font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:2px">Measuring instrument</div>
+          <div style="font-size:12px;color:var(--text-secondary)">Quantifies how wrong the current predictions are. Without a loss, the network has no signal to learn from.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;align-items:flex-start">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--bg-info);color:var(--text-info);font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:2px">Training objective</div>
+          <div style="font-size:12px;color:var(--text-secondary)">The network's entire job during training is to reduce this number. Gradient descent moves the weights in whatever direction makes the loss smaller.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;align-items:flex-start">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--bg-info);color:var(--text-info);font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">3</div>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:2px">Your design choice</div>
+          <div style="font-size:12px;color:var(--text-secondary)">You choose which formula to use. Different tasks need different formulas. Choosing the wrong one produces a network that optimises the wrong thing — even if it appears to train correctly.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PART 1.5: Why different formulas — bridging card -->
+  <div class="card">
+    <h2 id="sec-why-different-formulas">Why different formulas? Why can't we just use the gap?</h2>
+    <p class="note">If loss just measures the gap between y and ŷ, why do we need multiple formulas? Why not always use <code style="font-family:var(--font-mono);font-size:12px;background:var(--bg-secondary);padding:1px 5px;border-radius:4px">L = |y − ŷ|</code> and be done with it?</p>
+
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:0.75rem">
+      <div style="display:flex;gap:12px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;align-items:flex-start">
+        <div style="font-size:16px;flex-shrink:0;margin-top:2px">📐</div>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:2px">Reason 1 — Different tasks have different definitions of "wrong"</div>
+          <div style="font-size:12px;color:var(--text-secondary)">Predicting a house price is different from predicting whether an email is spam. A price can be slightly off; a spam classification is either correct or wrong. The loss formula needs to reflect what "wrong" means for your specific task.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;align-items:flex-start">
+        <div style="font-size:16px;flex-shrink:0;margin-top:2px">🎯</div>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:2px">Reason 2 — Outliers need different treatment</div>
+          <div style="font-size:12px;color:var(--text-secondary)">If one data point has a huge error (an outlier), should it dominate training or be treated like any other error? Different formulas give different answers — and the right answer depends on your data.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;align-items:flex-start">
+        <div style="font-size:16px;flex-shrink:0;margin-top:2px">📉</div>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:2px">Reason 3 — The gradient needs the right shape</div>
+          <div style="font-size:12px;color:var(--text-secondary)">Gradient descent follows the slope of the loss curve. Different formulas produce different slopes — and the wrong slope can make training impossibly slow or push the network in the wrong direction entirely.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight warning">
+      Here is a concrete example of why it matters: if you use MSE (mean squared error) for a classification task, the gradient near the correct answer is nearly zero — the network stops learning even when it is still getting things wrong. Cross-entropy doesn't have this problem. Same task, different loss, completely different training behaviour.
+    </div>
+  </div>
+
+  <!-- PART 2: Task to loss mapping -->
+  <div class="card">
+    <h2 id="sec-task-mapping">Task-to-loss mapping</h2>
+    <p class="note">The most important question when choosing a loss function is: <em>what kind of output is my model producing?</em> Every task type has a natural loss function — using it is not a convention, it is mathematically the correct choice.</p>
+
+    <div class="task-grid">
+      <div class="task-card" id="task-reg" onclick="selectTask('reg')">
+        <span class="tc-tag" style="background:var(--bg-info);color:var(--text-info)">Regression</span>
+        <div class="tc-title">Predicting a continuous number</div>
+        <div class="tc-ex">House price · Temperature · Stock return · Age</div>
+      </div>
+      <div class="task-card" id="task-cls" onclick="selectTask('cls')">
+        <span class="tc-tag" style="background:var(--bg-success);color:var(--text-success)">Classification</span>
+        <div class="tc-title">Predicting a class or probability</div>
+        <div class="tc-ex">Cat or dog · Spam or not · Which digit · Sentiment</div>
+      </div>
+    </div>
+
+    <div id="task-detail" style="margin-top:0.5rem"></div>
+  </div>
+
+  <!-- PART 3: The four loss functions -->
+  <div class="card">
+    <h2 id="sec-deep-dive">The four loss functions — interactive deep dive</h2>
+    <p class="note">Select a loss function to see its equation, its shape, and what it penalises differently from the others.</p>
+
+    <div class="row" id="loss-tabs">
+      <button class="tab-btn active" onclick="selectLoss('mse')">MSE</button>
+      <button class="tab-btn" onclick="selectLoss('mae')">MAE</button>
+      <button class="tab-btn" onclick="selectLoss('huber')">Huber</button>
+      <button class="tab-btn" onclick="selectLoss('ce')">Cross-Entropy</button>
+    </div>
+
+    <div id="loss-detail-panel"></div>
+
+    <div class="canvas-wrap" style="height:200px;margin-top:0.5rem">
+      <canvas id="loss-curve-canvas" role="img" aria-label="Loss function curve"></canvas>
+    </div>
+
+    <div class="step-label">Interactive: drag the slider to see where your error falls on the curve</div>
+    <div class="slider-row">
+      <span class="slider-name" id="slider-axis-label">Error (y − ŷ)</span>
+      <input type="range" id="loss-slider" min="-3" max="3" step="0.05" value="0.5">
+      <span class="slider-val" id="loss-slider-val">0.50</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0.5rem 0">
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.65rem 0.875rem">
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Input value</div>
+        <div style="font-size:20px;font-weight:500;font-family:var(--font-mono)" id="curve-input">0.50</div>
+      </div>
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.65rem 0.875rem">
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Loss value</div>
+        <div style="font-size:20px;font-weight:500;font-family:var(--font-mono);transition:color 0.3s" id="curve-output">0.25</div>
+      </div>
+    </div>
+    <div id="loss-curve-insight" class="insight"></div>
+
+    <div class="divider"></div>
+
+    <div class="step-label">Geometric interpretation — what the loss looks like on real data</div>
+    <p class="note" id="scatter-desc" style="margin-bottom:0.5rem">MSE is literally the average <strong>area</strong> of the shaded squares — one square per data point, with side length equal to the error. Larger errors grow the square area quadratically. Drag the slider to move the regression line and watch all the squares update live.</p>
+
+    <div class="row" id="scatter-tabs" style="margin-bottom:0.5rem">
+      <button class="tab-btn active" onclick="selectScatter('mse')">MSE</button>
+      <button class="tab-btn" onclick="selectScatter('mae')">MAE</button>
+      <button class="tab-btn" onclick="selectScatter('huber')">Huber</button>
+    </div>
+
+    <div class="canvas-wrap" style="height:230px">
+      <canvas id="scatter-canvas" role="img" aria-label="Geometric loss visualisation on scatter data"></canvas>
+    </div>
+
+    <div class="slider-row" style="margin-top:0.25rem">
+      <span class="slider-name">Regression line offset</span>
+      <input type="range" id="scatter-slider" min="-1.2" max="1.2" step="0.02" value="0.35">
+      <span class="slider-val" id="scatter-slider-val">0.35</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0.5rem 0">
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.65rem 0.875rem">
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Total loss</div>
+        <div style="font-size:20px;font-weight:500;font-family:var(--font-mono);transition:color 0.3s" id="scatter-loss">—</div>
+      </div>
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.65rem 0.875rem">
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Residuals</div>
+        <div style="font-size:13px;font-weight:500;font-family:var(--font-mono);padding-top:2px" id="scatter-residuals">—</div>
+      </div>
+    </div>
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.75rem 1rem;margin:0.5rem 0;font-size:12px;font-family:var(--font-mono);line-height:1.9" id="scatter-calc">
+      <div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.05em;font-family:var(--font);margin-bottom:4px">Calculation (mean over 8 errors)</div>
+      <div id="scatter-calc-formula" style="color:var(--text-info)"></div>
+      <div id="scatter-calc-values"  style="color:var(--text-info)"></div>
+      <div id="scatter-calc-result"  style="color:var(--text-info);font-weight:600"></div>
+    </div>
+    <div id="scatter-insight" class="insight"></div>
+  </div>
+
+  <!-- PART 4: MSE vs MAE vs Huber — outlier comparison -->
+  <div class="card">
+    <h2 id="sec-outlier-problem">MSE vs MAE vs Huber — the outlier problem</h2>
+    <p class="note">The biggest practical difference between these three loss functions is how they react to outliers — data points with unusually large errors.</p>
+
+    <p class="note">In the interactive below, the dataset has <strong>6 error values</strong> — 5 small base errors <code style="font-family:var(--font-mono);font-size:11px;background:var(--bg-secondary);padding:1px 5px;border-radius:4px">[0.1, −0.2, 0.15, −0.1, 0.05]</code> plus one outlier whose magnitude you control with the slider. The displayed losses are the <strong>mean</strong> across all 6 errors. Drag the outlier slider to see how each loss function reacts.</p>
+
+    <div class="slider-row">
+      <span class="slider-name">Outlier magnitude</span>
+      <input type="range" id="outlier-slider" min="0" max="5" step="0.1" value="1.0">
+      <span class="slider-val" id="outlier-val">1.0</span>
+    </div>
+
+    <div class="canvas-wrap" style="height:180px">
+      <canvas id="outlier-canvas" role="img" aria-label="MSE vs MAE vs Huber loss comparison under outlier conditions"></canvas>
+    </div>
+
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.75rem 1rem;margin:0.5rem 0;font-size:12px;font-family:var(--font-mono);line-height:1.8" id="outlier-calc">
+      <div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.05em;font-family:var(--font);margin-bottom:4px">Calculation (mean over 6 errors)</div>
+      <div id="calc-mse-line" style="color:var(--text-info)"></div>
+      <div id="calc-mae-line" style="color:var(--text-success)"></div>
+      <div id="calc-hub-line" style="color:var(--text-warning)"></div>
+    </div>
+
+    <div class="step-label">Loss summary</div>
+    <div class="metric-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="metric-card">
+        <div class="mc-label">MSE</div>
+        <div class="mc-val" id="out-mse" style="transition:color 0.3s">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">MAE</div>
+        <div class="mc-val" id="out-mae" style="transition:color 0.3s">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">Huber</div>
+        <div class="mc-val" id="out-hub" style="transition:color 0.3s">—</div>
+      </div>
+    </div>
+
+    <div id="outlier-insight" class="insight"></div>
+  </div>
+
+  <!-- PART 5: Summary & decision guide -->
+  <div class="card">
+    <h2 id="sec-decision-guide">Decision guide — which loss to use</h2>
+    <p class="note">A practical reference for choosing the right loss function for your task.</p>
+
+    <div style="overflow-x:auto">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Loss function</th>
+            <th>Formula</th>
+            <th>Task</th>
+            <th>Outlier sensitivity</th>
+            <th>Use when</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>MSE</strong></td>
+            <td style="font-family:var(--font-mono);font-size:11px">(y − ŷ)²</td>
+            <td><span class="badge badge-reg">Regression</span></td>
+            <td style="color:var(--text-danger)">High — squares errors</td>
+            <td>Outliers are genuine signal, not noise. Clean data.</td>
+          </tr>
+          <tr>
+            <td><strong>MAE</strong></td>
+            <td style="font-family:var(--font-mono);font-size:11px">|y − ŷ|</td>
+            <td><span class="badge badge-reg">Regression</span></td>
+            <td style="color:var(--text-success)">Low — linear penalty</td>
+            <td>Data has real outliers you want to ignore. Median behaviour.</td>
+          </tr>
+          <tr>
+            <td><strong>Huber</strong></td>
+            <td style="font-family:var(--font-mono);font-size:11px">½e² or δ(|e|−½δ)</td>
+            <td><span class="badge badge-reg">Regression</span></td>
+            <td style="color:var(--text-warning)">Medium — best of both</td>
+            <td>Uncertain about outlier prevalence. Robust regression.</td>
+          </tr>
+          <tr>
+            <td><strong>Binary CE</strong></td>
+            <td style="font-family:var(--font-mono);font-size:11px">−[y·log(ŷ)+(1−y)·log(1−ŷ)]</td>
+            <td><span class="badge badge-cls">Classification</span></td>
+            <td style="color:var(--text-danger)">High for confident wrong</td>
+            <td>Two-class problems. Output is a probability via sigmoid.</td>
+          </tr>
+          <tr>
+            <td><strong>Categorical CE</strong></td>
+            <td style="font-family:var(--font-mono);font-size:11px">−Σ yᵢ·log(pᵢ)</td>
+            <td><span class="badge badge-cls">Classification</span></td>
+            <td style="color:var(--text-danger)">High for confident wrong</td>
+            <td>Multi-class problems. Output is softmax probabilities.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight" style="margin-top:0.875rem">
+      The golden rule: if your output is a continuous number, use MSE / MAE / Huber. If your output is a class label or probability, use cross-entropy. Never use MSE for classification — it produces the wrong gradient shape and leads to poor training even when the model is nearly correct.
+    </div>
+  </div>
+
+  <footer>
+    Built with <span style="color:var(--text-danger);font-size:18px;vertical-align:middle">♥</span> by
+    <a href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">Ancil Cleetus</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://ancilcleetus.github.io/AI-ML-Explainers/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">AI ML Explainers</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp; No external dependencies
+    &nbsp;&nbsp;·&nbsp;&nbsp; MIT License
+  </footer>
+
+</div>
+<script>
+const isDark = () => matchMedia('(prefers-color-scheme: dark)').matches;
+
+function tc() {
+  const d = isDark();
+  return {
+    text:   d ? '#b4b2a9' : '#5f5e5a',
+    textP:  d ? '#e8e6de' : '#1a1a18',
+    grid:   d ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)',
+    border: d ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)',
+    bg:     d ? '#1c1c1a' : '#ffffff',
+    bg2:    d ? '#252522' : '#f5f4f0',
+    blue:   d ? '#85b7eb' : '#378ADD',
+    green:  d ? '#5dcaa5' : '#1D9E75',
+    amber:  d ? '#ef9f27' : '#BA7517',
+    red:    d ? '#f09595' : '#a32d2d',
+    purple: d ? '#afa9ec' : '#534AB7',
+  };
+}
+
+// ─── PART 1 Phase A: House price intuition ───────────────────────────────────
+const HOUSE_TRUE = 400; // £400k actual price
+
+function drawHouseCanvas() {
+  const canvas = document.getElementById('house-canvas');
+  const W = canvas.parentElement.clientWidth;
+  const H = 56;
+  canvas.width  = W * devicePixelRatio; canvas.height = H * devicePixelRatio;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  const ctx = canvas.getContext('2d'); ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const pred = +document.getElementById('sl-house').value;
+  const gap  = Math.abs(pred - HOUSE_TRUE);
+  const c = tc();
+
+  const padL=12, padR=12;
+  const cW = W - padL - padR;
+
+  // Scale: 100–700 mapped to bar width
+  const toX = v => padL + ((v - 100) / 600) * cW;
+
+  const trueX = toX(HOUSE_TRUE);
+  const predX = toX(pred);
+  const barY  = 20, barH = 16;
+
+  // Background track
+  ctx.fillStyle = c.bg2;
+  ctx.beginPath(); ctx.roundRect(padL, barY, cW, barH, 4); ctx.fill();
+
+  // Gap fill
+  const gapColor = gap < 50 ? (isDark()?'#04342c':'#e1f5ee') : gap < 150 ? (isDark()?'#412402':'#faeeda') : (isDark()?'#501313':'#fcebeb');
+  const gapBorder = gap < 50 ? 'var(--border-success)' : gap < 150 ? 'var(--border-warning)' : 'var(--border-danger)';
+  ctx.fillStyle = gapColor;
+  ctx.beginPath();
+  ctx.rect(Math.min(predX,trueX), barY, Math.abs(predX-trueX)+0.5, barH);
+  ctx.fill();
+
+  // True value marker
+  ctx.fillStyle = isDark()?'#5dcaa5':'#1D9E75';
+  ctx.fillRect(trueX-1.5, barY-4, 3, barH+8);
+  ctx.font='bold 10px sans-serif'; ctx.textAlign='center'; ctx.fillStyle=isDark()?'#5dcaa5':'#1D9E75';
+  ctx.fillText('Actual £400k', trueX, barY-7);
+
+  // Prediction marker
+  const pColor = gap < 50 ? (isDark()?'#5dcaa5':'#1D9E75') : gap < 150 ? (isDark()?'#ef9f27':'#BA7517') : (isDark()?'#f09595':'#a32d2d');
+  ctx.fillStyle = pColor;
+  ctx.fillRect(predX-1.5, barY-4, 3, barH+8);
+  ctx.font='bold 10px sans-serif'; ctx.textAlign = predX < trueX ? 'right' : 'left';
+  ctx.fillText(`Prediction £${pred}k`, predX + (predX<trueX?-4:4), barY+barH+14);
+
+  // Gap label
+  if (gap > 20) {
+    ctx.fillStyle = pColor; ctx.font='500 10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(`Gap = £${gap}k = loss`, (predX+trueX)/2, barY+barH+14);
+  }
+}
+
+function updateHouseSlider() {
+  const pred = +document.getElementById('sl-house').value;
+  document.getElementById('lbl-house').textContent = `£${pred}k`;
+  drawHouseCanvas();
+  const gap = Math.abs(pred - HOUSE_TRUE);
+  const ins = document.getElementById('house-insight');
+  if (gap < 10) {
+    ins.innerHTML = `<strong style="color:var(--text-success)">Prediction £${pred}k ≈ actual £400k.</strong> Gap ≈ £${gap}k. The loss is nearly zero — the network is doing a great job! It barely needs to adjust.`;
+  } else if (gap < 80) {
+    ins.innerHTML = `<strong style="color:var(--text-warning)">Prediction £${pred}k, actual £400k.</strong> Gap = £${gap}k. Moderate loss — the network receives a clear signal to improve and adjusts its weights accordingly.`;
+  } else {
+    ins.innerHTML = `<strong style="color:var(--text-danger)">Prediction £${pred}k, actual £400k.</strong> Gap = £${gap}k — a large error! The loss is high, the gradient is large, and the network makes a big adjustment to its weights. This is how it learns.`;
+  }
+}
+
+document.getElementById('sl-house').addEventListener('input', updateHouseSlider);
+
+// ─── PART 1 Phase B: y / ŷ notation ──────────────────────────────────────────
+function updateWhatIsLoss() {
+  const y    = +document.getElementById('sl-y').value;
+  const yhat = +document.getElementById('sl-yhat').value;
+  document.getElementById('lbl-y').textContent    = y.toFixed(2);
+  document.getElementById('lbl-yhat').textContent = yhat.toFixed(2);
+
+  const err    = y - yhat;
+  const absErr = Math.abs(err);
+  const fmt    = v => v.toFixed(3);
+
+  document.getElementById('m-err').textContent     = fmt(err);
+  document.getElementById('m-err').style.color     = err > 0 ? 'var(--text-success)' : 'var(--text-danger)';
+  document.getElementById('m-abs-err').textContent = fmt(absErr);
+  document.getElementById('m-abs-err').style.color = absErr < 0.05 ? 'var(--text-success)' : absErr < 0.25 ? 'var(--text-warning)' : 'var(--text-danger)';
+
+  const ins = document.getElementById('whatisloss-insight');
+  if (absErr < 0.05) {
+    ins.className = 'insight success';
+    ins.textContent = `y = ${y.toFixed(2)}, ŷ = ${yhat.toFixed(2)} — near-perfect prediction! Gap ≈ ${fmt(absErr)}. The loss signal is tiny — the network barely needs to adjust.`;
+  } else if (absErr < 0.3) {
+    ins.className = 'insight';
+    ins.textContent = `y = ${y.toFixed(2)}, ŷ = ${yhat.toFixed(2)}. Gap = ${fmt(absErr)}. A moderate error — meaningful enough to produce a useful training signal. The network will make a measured adjustment.`;
+  } else {
+    ins.className = 'insight danger';
+    ins.textContent = `y = ${y.toFixed(2)}, ŷ = ${yhat.toFixed(2)}. Gap = ${fmt(absErr)} — a large disagreement. The loss will be high and the gradient large. The network makes a significant adjustment to its weights. This is exactly what should happen when predictions are far off.`;
+  }
+}
+
+['sl-y','sl-yhat'].forEach(id => document.getElementById(id).addEventListener('input', updateWhatIsLoss));
+
+// ─── PART 2: Task-to-loss mapping ─────────────────────────────────────────────
+const taskDetails = {
+  reg: {
+    title: 'Regression task',
+    losses: [
+      { name:'MSE', tag:'Default choice', tagCls:'badge-reg', why:'Squares errors → penalises large mistakes heavily. Use when outliers are real signal, not noise.' },
+      { name:'MAE', tag:'Outlier-robust', tagCls:'badge-reg', why:'Linear penalty → not dominated by outliers. Use when data is noisy or has genuine anomalies.' },
+      { name:'Huber', tag:'Best of both',tagCls:'badge-both', why:'Quadratic for small errors, linear for large ones. A robust default when you are unsure.' },
+    ],
+    insight: { cls:'', msg:'For regression, the question is not which loss to use — it is how sensitive you want training to be to outliers. MSE is the mathematically "natural" choice (maximum likelihood under Gaussian noise), but Huber is often safer in practice.' }
+  },
+  cls: {
+    title: 'Classification task',
+    losses: [
+      { name:'Binary CE', tag:'2 classes', tagCls:'badge-cls', why:'Output is a single sigmoid probability ŷ ∈ (0,1). One number encodes both classes.' },
+      { name:'Categorical CE', tag:'≥2 classes', tagCls:'badge-cls', why:'Output is softmax probabilities over C classes summing to 1. Penalises confident wrong predictions catastrophically.' },
+    ],
+    insight: { cls:'success', msg:'For classification, cross-entropy is the only correct choice. Using MSE for classification produces the wrong gradient — the model can be 99% wrong and still receive a tiny gradient update near the extremes of the sigmoid.' }
+  }
+};
+
+let currentTask = null;
+function selectTask(type) {
+  currentTask = type;
+  ['reg','cls'].forEach(t => {
+    document.getElementById('task-'+t).className = 'task-card' + (t===type ? (type==='reg'?' active-reg':' active-cls') : '');
+  });
+  const d = taskDetails[type];
+  const html = d.losses.map(l => `
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;margin-bottom:6px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:13px;font-weight:500;color:var(--text-primary)">${l.name}</span>
+        <span class="badge ${l.tagCls}">${l.tag}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary)">${l.why}</div>
+    </div>`).join('');
+  document.getElementById('task-detail').innerHTML = html +
+    `<div class="insight ${d.insight.cls}" style="margin-top:0.5rem">${d.insight.msg}</div>`;
+}
+
+// ─── PART 3: Loss function curve explorer ─────────────────────────────────────
+const DELTA = 1.0; // Huber delta
+
+const lossFns = {
+  mse:   { fn: e => e*e,                  label:'MSE',           color: d=>d?'#85b7eb':'#378ADD',
+            xLabel:'Error (y − ŷ)', xMin:-3, xMax:3, sliderMin:-3, sliderMax:3 },
+  mae:   { fn: e => Math.abs(e),          label:'MAE',           color: d=>d?'#5dcaa5':'#1D9E75',
+            xLabel:'Error (y − ŷ)', xMin:-3, xMax:3, sliderMin:-3, sliderMax:3 },
+  huber: { fn: e => { const ae=Math.abs(e); return ae<=DELTA ? 0.5*e*e : DELTA*(ae-0.5*DELTA); },
+            label:'Huber (δ=1)',    color: d=>d?'#ef9f27':'#BA7517',
+            xLabel:'Error (y − ŷ)', xMin:-3, xMax:3, sliderMin:-3, sliderMax:3 },
+  ce:    { fn: p => p <= 0 ? 10 : -Math.log(Math.min(p, 0.9999)),
+            label:'Cross-Entropy',  color: d=>d?'#afa9ec':'#534AB7',
+            xLabel:'Predicted prob ŷ', xMin:0.01, xMax:0.99, sliderMin:0.01, sliderMax:0.99 },
+};
+
+const lossInsights = {
+  mse:   e => {
+    const v = e*e;
+    if (Math.abs(e) < 0.3) return { cls:'success', msg:`Error = ${e.toFixed(2)}, MSE = ${v.toFixed(4)}. Small error → very small loss. Squaring a number below 1 makes it tiny. The gradient is also small — the model barely adjusts.` };
+    if (Math.abs(e) < 1.2) return { cls:'',        msg:`Error = ${e.toFixed(2)}, MSE = ${v.toFixed(4)}. Moderate error → meaningful penalty and gradient. Training progresses well in this region.` };
+    return { cls:'danger', msg:`Error = ${e.toFixed(2)}, MSE = ${v.toFixed(4)}. Large error → huge penalty. Squaring amplifies this: an error of ${e.toFixed(1)} costs ${v.toFixed(2)} — much more than an error of 1 which costs 1. This is why MSE is sensitive to outliers.` };
+  },
+  mae:   e => {
+    const v = Math.abs(e);
+    return { cls: v < 0.2 ? 'success' : '',
+      msg:`Error = ${e.toFixed(2)}, MAE = ${v.toFixed(4)}. MAE is linear — an error of 2 costs exactly twice as much as an error of 1. No amplification of large errors. The gradient is constant (±1) everywhere, making training stable but slower near the minimum.` };
+  },
+  huber: e => {
+    const ae = Math.abs(e), v = ae<=DELTA ? 0.5*e*e : DELTA*(ae-0.5*DELTA);
+    if (ae <= DELTA) return { cls:'success', msg:`Error = ${e.toFixed(2)} ≤ δ=${DELTA} → quadratic region: loss = ½·${e.toFixed(2)}² = ${v.toFixed(4)}. Behaves like MSE here — smooth gradient near zero.` };
+    return { cls:'warning', msg:`Error = ${e.toFixed(2)} > δ=${DELTA} → linear region: loss = ${v.toFixed(4)}. Behaves like MAE here — the outlier is penalised linearly, not quadratically. This is the robustness of Huber.` };
+  },
+  ce:    p => {
+    const v = p <= 0 ? 10 : -Math.log(Math.min(p, 0.9999));
+    if (p > 0.7) return { cls:'success', msg:`ŷ = ${p.toFixed(2)} → CE loss = ${v.toFixed(4)}. Model is confident and correct — low loss. Gradient is small — only a gentle update needed.` };
+    if (p > 0.3) return { cls:'',        msg:`ŷ = ${p.toFixed(2)} → CE loss = ${v.toFixed(4)}. Model is uncertain. Moderate loss and meaningful gradient push the model toward higher confidence.` };
+    return { cls:'danger', msg:`ŷ = ${p.toFixed(2)} → CE loss = ${v.toFixed(4)}. Model is confidently wrong (assigning low probability to the true class). The −log curve shoots up steeply here — very large gradient, large weight update.` };
+  },
+};
+
+let currentLoss = 'mse';
+let curveChart = null;
+
+function selectLoss(name) {
+  currentLoss = name;
+  ['mse','mae','huber','ce'].forEach((n,i) => {
+    document.querySelectorAll('#loss-tabs .tab-btn')[i].classList.toggle('active', n===name);
+  });
+  const cfg = lossFns[name];
+
+  const detail = {
+    mse: {
+      plain: 'MSE — Mean Squared Error — squares the prediction error. This means big mistakes are penalised much more heavily than small ones. A prediction that is 2 units off gets 4× the penalty of a prediction that is 1 unit off.',
+      eq:'L = (y − ŷ)²',
+      note:'Differentiable everywhere. Gradient = 2·(ŷ − y). Squared errors grow quadratically — large errors penalised much more than small ones.',
+      props:[['Task','Regression'],['Sensitivity','High — outliers dominate'],['Gradient','2·e — proportional to error'],['Differentiable','Everywhere']]
+    },
+    mae: {
+      plain: 'MAE — Mean Absolute Error — takes the absolute value of the error. Every unit of error costs exactly the same — there is no extra penalty for big mistakes. This makes it more robust when your data has outliers.',
+      eq:'L = |y − ŷ|',
+      note:'Not differentiable at zero (subgradient used in practice). Gradient is ±1 everywhere — constant magnitude regardless of error size.',
+      props:[['Task','Regression'],['Sensitivity','Low — linear in error'],['Gradient','±1 — constant magnitude'],['Differentiable','Everywhere except 0']]
+    },
+    huber: {
+      plain: 'Huber loss is a hybrid of MSE and MAE. For small errors it behaves like MSE (smooth, quadratic). For large errors it switches to MAE (linear, robust). The switch-over point δ (delta) is a setting you control.',
+      eq:'L = ½e²  if |e| ≤ δ\n    δ(|e| − ½δ)  if |e| > δ',
+      note:'δ (delta) is a hyperparameter controlling the transition between quadratic and linear regions. Common default: δ = 1.',
+      props:[['Task','Regression'],['Sensitivity','Medium — tunable via δ'],['Gradient','Smooth at transition'],['Differentiable','Everywhere']]
+    },
+    ce: {
+      plain: 'Cross-Entropy loss is designed for classification tasks where the model outputs a probability between 0 and 1. It uses −log(ŷ) — which is very small when the model is confidently correct, and shoots to infinity when the model is confidently wrong.',
+      eq:'L = −log(ŷ)',
+      note:'Derived from maximum likelihood estimation under a Bernoulli/Categorical distribution. Penalises confident wrong predictions with near-infinite loss as ŷ → 0.',
+      props:[['Task','Classification'],['Sensitivity','Very high for low ŷ'],['Gradient','−1/ŷ — large when ŷ small'],['Differentiable','Yes (ŷ > 0)']]
+    },
+  }[name];
+
+  document.getElementById('loss-detail-panel').innerHTML = `
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.75rem 1rem;margin-bottom:0.5rem;font-size:13px;color:var(--text-secondary);line-height:1.6;border-left:3px solid var(--border-info)">${detail.plain}</div>
+    <div class="eq-box" style="white-space:pre-line">${detail.eq}
+      <div class="eq-note">${detail.note}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:0.5rem">
+      ${detail.props.map(([k,v])=>`<div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:6px 8px"><div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">${k}</div><div style="font-size:11px;font-weight:500;color:var(--text-primary)">${v}</div></div>`).join('')}
+    </div>`;
+
+  // Update slider axis label and range
+  document.getElementById('slider-axis-label').textContent = cfg.xLabel;
+  const sl = document.getElementById('loss-slider');
+  sl.min = cfg.sliderMin; sl.max = cfg.sliderMax;
+  if (name === 'ce') { sl.step = 0.01; sl.value = Math.max(cfg.sliderMin, Math.min(cfg.sliderMax, 0.5)); }
+  else               { sl.step = 0.05; sl.value = Math.max(cfg.sliderMin, Math.min(cfg.sliderMax, parseFloat(sl.value))); }
+  document.getElementById('loss-slider-val').textContent = parseFloat(sl.value).toFixed(2);
+
+  drawLossCurve();
+  updateCurvePoint();
+}
+
+function drawLossCurve() {
+  const canvas = document.getElementById('loss-curve-canvas');
+  const W = canvas.parentElement.clientWidth;
+  const H = 200;
+  canvas.width  = W * devicePixelRatio; canvas.height = H * devicePixelRatio;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  const ctx = canvas.getContext('2d'); ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const c = tc();
+  const cfg = lossFns[currentLoss];
+  const color = cfg.color(isDark());
+  const padL=52, padR=20, padT=16, padB=36;
+  const cW=W-padL-padR, cH=H-padT-padB;
+  const N=300;
+  const xs=[], ys=[];
+  for(let i=0;i<=N;i++) {
+    const x=cfg.xMin + (i/N)*(cfg.xMax-cfg.xMin);
+    xs.push(x); ys.push(Math.min(cfg.fn(x), 6));
+  }
+  const yMax=Math.max(...ys)*1.08, yMin=0;
+
+  const toX=x=>padL+((x-cfg.xMin)/(cfg.xMax-cfg.xMin))*cW;
+  const toY=y=>padT+(1-(y-yMin)/(yMax-yMin))*cH;
+
+  ctx.strokeStyle=c.border; ctx.lineWidth=0.5;
+  [0,0.33,0.67,1].forEach(t=>{
+    const y=padT+t*cH;
+    ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(padL+cW,y);ctx.stroke();
+    ctx.fillStyle=c.text;ctx.font='10px sans-serif';ctx.textAlign='right';
+    ctx.fillText((yMax-t*(yMax-yMin)).toFixed(2),padL-4,y+3);
+  });
+  // x-axis ticks
+  const xRange=cfg.xMax-cfg.xMin, xStep=xRange<=1?0.2:1;
+  for(let xv=Math.ceil(cfg.xMin/xStep)*xStep; xv<=cfg.xMax+0.001; xv+=xStep){
+    const x=toX(xv);
+    ctx.strokeStyle=c.border;ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,padT+cH);ctx.stroke();
+    ctx.fillStyle=c.text;ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText(xv.toFixed(1),x,padT+cH+16);
+  }
+  ctx.fillStyle=c.text;ctx.font='10px sans-serif';ctx.textAlign='center';
+  ctx.fillText(cfg.xLabel,padL+cW/2,H-2);
+  ctx.save();ctx.translate(13,padT+cH/2);ctx.rotate(-Math.PI/2);
+  ctx.fillText('Loss',0,0);ctx.restore();
+
+  // Zero line for MSE/MAE/Huber
+  if(currentLoss!=='ce'){
+    const y0=toY(0);
+    ctx.strokeStyle=c.border;ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.moveTo(padL,y0);ctx.lineTo(padL+cW,y0);ctx.stroke();
+    // vertical x=0
+    const x0=toX(0);
+    ctx.beginPath();ctx.moveTo(x0,padT);ctx.lineTo(x0,padT+cH);ctx.stroke();
+  }
+
+  // Main curve
+  ctx.beginPath();
+  xs.forEach((x,i)=>{const px=toX(x),py=toY(ys[i]);i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);});
+  ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.stroke();
+
+  // Huber threshold markers
+  if(currentLoss==='huber'){
+    [DELTA,-DELTA].forEach(xv=>{
+      const x=toX(xv);
+      ctx.strokeStyle=color+'88';ctx.lineWidth=1;ctx.setLineDash([4,3]);
+      ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,padT+cH);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle=color;ctx.font='500 10px sans-serif';ctx.textAlign='center';
+      ctx.fillText(`δ=${xv>0?'+':''}${xv}`,x,padT+10);
+    });
+  }
+
+  // Store for dot update
+  canvas._toX=toX; canvas._toY=toY; canvas._cfg=cfg; canvas._ys=ys; canvas._xs=xs;
+}
+
+function updateCurvePoint() {
+  const canvas = document.getElementById('loss-curve-canvas');
+  if(!canvas._toX) return;
+  const cfg=lossFns[currentLoss];
+  const raw=+document.getElementById('loss-slider').value;
+  const x=Math.max(cfg.xMin, Math.min(cfg.xMax, raw));
+  const lv=Math.min(cfg.fn(x), 6);
+  const px=canvas._toX(x), py=canvas._toY(lv);
+  const c=tc(); const color=cfg.color(isDark());
+
+  // Redraw curve and add dot
+  drawLossCurve();
+  const ctx=canvas.getContext('2d'); ctx.scale(devicePixelRatio,devicePixelRatio);
+
+  // Vertical guide
+  ctx.strokeStyle=color+'66';ctx.lineWidth=1;ctx.setLineDash([4,3]);
+  ctx.beginPath();ctx.moveTo(px,canvas._toY(0));ctx.lineTo(px,py);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Dot
+  ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);
+  ctx.fillStyle=color;ctx.fill();
+  ctx.strokeStyle=isDark()?'#1c1c1a':'#fff';ctx.lineWidth=1.5;ctx.stroke();
+
+  document.getElementById('curve-input').textContent=x.toFixed(3);
+  const outEl=document.getElementById('curve-output');
+  outEl.textContent=lv.toFixed(4);
+  outEl.style.color=lv<0.1?'var(--text-success)':lv<1?'var(--text-warning)':'var(--text-danger)';
+
+  const ins=lossInsights[currentLoss](x);
+  document.getElementById('loss-curve-insight').className='insight '+ins.cls;
+  document.getElementById('loss-curve-insight').textContent=ins.msg;
+}
+
+document.getElementById('loss-slider').addEventListener('input',function(){
+  document.getElementById('loss-slider-val').textContent=parseFloat(this.value).toFixed(2);
+  updateCurvePoint();
+});
+
+// ─── PART 4: Outlier comparison ───────────────────────────────────────────────
+// 5 base data points: errors [0.1, -0.2, 0.15, -0.1, 0.05]
+// Plus one outlier whose magnitude is controlled by the slider
+const BASE_ERRORS = [0.1, -0.2, 0.15, -0.1, 0.05];
+
+function huberLoss(e, delta=1) { const ae=Math.abs(e); return ae<=delta?0.5*e*e:delta*(ae-0.5*delta); }
+function mseTotal(errors)   { return errors.reduce((s,e)=>s+e*e,0)/errors.length; }
+function maeTotal(errors)   { return errors.reduce((s,e)=>s+Math.abs(e),0)/errors.length; }
+function huberTotal(errors) { return errors.reduce((s,e)=>s+huberLoss(e),0)/errors.length; }
+
+function updateOutlier() {
+  const mag = +document.getElementById('outlier-slider').value;
+  document.getElementById('outlier-val').textContent = mag.toFixed(1);
+  const errors = [...BASE_ERRORS, mag];
+  const n = errors.length;
+  const mse = mseTotal(errors), mae = maeTotal(errors), hub = huberTotal(errors);
+
+  const fmt4 = v => v.toFixed(4);
+  const fmt3 = v => v.toFixed(3);
+
+  // ── Computation: individual terms ─────────────────────────────────────────
+  const mseTerms = errors.map(e => e*e);
+  const maeTerms = errors.map(e => Math.abs(e));
+  const hubTerms = errors.map(e => huberLoss(e));
+  const mseSum   = mseTerms.reduce((s,v)=>s+v,0);
+  const maeSum   = maeTerms.reduce((s,v)=>s+v,0);
+  const hubSum   = hubTerms.reduce((s,v)=>s+v,0);
+
+  // ── Two-line descriptive calculation display ───────────────────────────────
+  // Line 1: formula applied to each value (e.g. 0.1², |−0.2|, h(0.05))
+  // Line 2: computed numeric result for each term, then sum/n = result
+
+  const baseEs = BASE_ERRORS; // [0.1, -0.2, 0.15, -0.1, 0.05]
+
+  const mseFmla = [...baseEs.map(e=>`${Math.abs(e)}²`), `${fmt3(mag)}²`].join(' + ');
+  const mseTerm = mseTerms.map(v=>fmt3(v)).join(' + ');
+  document.getElementById('calc-mse-line').innerHTML =
+    `MSE&nbsp; = (${mseFmla}) / ${n}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= (${mseTerm}) / ${n} = ${fmt3(mseSum)} / ${n} = <strong>${fmt4(mse)}</strong>`;
+
+  const maeFmla = [...baseEs.map(e=>`|${e}|`), `|${fmt3(mag)}|`].join(' + ');
+  const maeTerm = maeTerms.map(v=>fmt3(v)).join(' + ');
+  document.getElementById('calc-mae-line').innerHTML =
+    `MAE&nbsp; = (${maeFmla}) / ${n}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= (${maeTerm}) / ${n} = ${fmt3(maeSum)} / ${n} = <strong>${fmt4(mae)}</strong>`;
+
+  const hubFmla = [...baseEs.map(e=>`h(${Math.abs(e)})`), `h(${fmt3(mag)})`].join(' + ');
+  const hubNote = mag > 1
+    ? `h(${fmt3(mag)})=${fmt3(huberLoss(mag))} [linear: δ(|e|−0.5δ)=1×(${fmt3(mag)}−0.5)]`
+    : `h(${fmt3(mag)})=${fmt3(huberLoss(mag))} [quadratic: 0.5×${fmt3(mag)}²]`;
+  const hubTerm = hubTerms.map(v=>fmt3(v)).join(' + ');
+  document.getElementById('calc-hub-line').innerHTML =
+    `Huber = (${hubFmla}) / ${n}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= (${hubTerm}) / ${n} = ${fmt3(hubSum)} / ${n} = <strong>${fmt4(hub)}</strong><br><span style="font-size:10px;opacity:0.75">${hubNote}</span>`;
+
+  // ── Summary metric cards ────────────────────────────────────────────────────
+  const colLoss = (id, v) => {
+    document.getElementById(id).textContent = fmt4(v);
+    document.getElementById(id).style.color = v < 0.1 ? 'var(--text-success)' : v < 0.5 ? 'var(--text-warning)' : 'var(--text-danger)';
+  };
+  colLoss('out-mse', mse); colLoss('out-mae', mae); colLoss('out-hub', hub);
+
+  drawOutlierCanvas(errors, mse, mae, hub, mag);
+
+  // ── Insight: derived entirely from actual computed ordering ────────────────
+  const ins = document.getElementById('outlier-insight');
+  // Determine ordering dynamically — never use slider position as proxy
+  const vals = [['MSE',mse], ['MAE',mae], ['Huber',hub]];
+  const sortedAsc = [...vals].sort((a,b)=>a[1]-b[1]);
+  const lowest  = sortedAsc[0];
+  const highest = sortedAsc[2];
+  const mid     = sortedAsc[1];
+  // Ordered label string e.g. "Huber (0.0279) < MSE (0.0558) < MAE (0.1833)"
+  const orderStr = sortedAsc.map(([name,v])=>`${name} ${fmt4(v)}`).join(' < ');
+
+  const outlierMseTerm  = fmt3(mseTerms[n-1]);
+  const outlierMaeTerm  = fmt3(maeTerms[n-1]);
+  const outlierHubTerm  = fmt3(hubTerms[n-1]);
+  const huberRegime     = mag > 1 ? 'linear' : 'quadratic';
+
+  if (mag < 0.001) {
+    // Outlier = 0: no outlier at all
+    ins.className = 'insight success';
+    ins.textContent = `No outlier (magnitude = 0). The dataset has only the 5 small base errors. All three losses are small and close to each other: ${orderStr}.`;
+
+  } else if (mag < 1.0) {
+    // Outlier < 1: squaring reduces it → MSE < MAE always. Huber also quadratic.
+    ins.className = 'insight success';
+    ins.textContent = `Outlier = ${fmt3(mag)} < 1. Since the outlier is less than 1, squaring it makes it smaller (${fmt3(mag)}² = ${outlierMseTerm} < ${fmt3(mag)}), so MSE is actually less than MAE here. Huber is also in its quadratic regime. Ordering: ${orderStr}. At this scale, all three losses behave similarly.`;
+
+  } else if (Math.abs(mag - 1.0) < 0.05) {
+    // Near threshold
+    ins.className = 'insight';
+    ins.textContent = `Outlier ≈ 1.0 — right at the Huber δ threshold. MSE and Huber are equal at the boundary (0.5×1²=0.5 each). MAE is largest at 1.0. Ordering: ${orderStr}.`;
+
+  } else if (mag < 1.4) {
+    // Transition zone: Huber switches to linear, MSE still below MAE
+    ins.className = 'insight warning';
+    ins.textContent = `Outlier = ${fmt3(mag)}. Huber has switched to its linear regime — outlier contribution = δ(|e|−0.5δ) = ${outlierHubTerm}, lower than MSE (${outlierMseTerm}) and MAE (${outlierMaeTerm}). MSE is still below MAE here because ${fmt3(mag)}² = ${outlierMseTerm} < ${outlierMaeTerm}. Ordering: ${orderStr}.`;
+
+  } else if (mag < 2.0) {
+    // MSE has overtaken MAE, Huber still lowest
+    ins.className = 'insight warning';
+    ins.textContent = `Outlier = ${fmt3(mag)}. MSE has overtaken MAE — squaring now amplifies the outlier (${fmt3(mag)}² = ${outlierMseTerm} > ${outlierMaeTerm}). Huber remains the lowest with linear capping (${outlierHubTerm}). Ordering: ${orderStr}.`;
+
+  } else {
+    // Large outlier: MSE explodes
+    ins.className = 'insight danger';
+    ins.textContent = `Outlier = ${fmt3(mag)}. MSE has exploded: the squared term ${fmt3(mag)}² = ${outlierMseTerm} dominates the entire sum. MAE grows only linearly (${outlierMaeTerm}). Huber caps the outlier at δ(|e|−0.5δ) = ${outlierHubTerm} — the lowest of the three. Ordering: ${orderStr}.`;
+  }
+}
+
+function drawOutlierCanvas(errors, mse, mae, hub, mag) {
+  const canvas=document.getElementById('outlier-canvas');
+  const W=canvas.parentElement.clientWidth, H=180;
+  canvas.width=W*devicePixelRatio; canvas.height=H*devicePixelRatio;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d'); ctx.scale(devicePixelRatio,devicePixelRatio);
+  const c=tc();
+
+  // Bar chart: MSE, MAE, Huber for each magnitude from 0 to max
+  const padL=52,padR=20,padT=16,padB=36;
+  const cW=W-padL-padR, cH=H-padT-padB;
+
+  const steps=50;
+  const mags=[]; const mses=[],maes=[],hubs=[];
+  for(let i=0;i<=steps;i++){
+    const m=(i/steps)*5;
+    mags.push(m);
+    const errs=[...BASE_ERRORS,m];
+    mses.push(mseTotal(errs)); maes.push(maeTotal(errs)); hubs.push(huberTotal(errs));
+  }
+  const yMax=Math.max(...mses)*1.1, yMin=0;
+  const toX=m=>padL+(m/5)*cW;
+  const toY=v=>padT+(1-(v-yMin)/(yMax-yMin))*cH;
+
+  ctx.strokeStyle=c.border; ctx.lineWidth=0.5;
+  [0,0.5,1].forEach(t=>{
+    const y=padT+t*cH;
+    ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(padL+cW,y);ctx.stroke();
+    ctx.fillStyle=c.text;ctx.font='10px sans-serif';ctx.textAlign='right';
+    ctx.fillText((yMax-t*(yMax-yMin)).toFixed(2),padL-4,y+3);
+  });
+  [0,1,2,3,4,5].forEach(v=>{
+    const x=toX(v);
+    ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,padT+cH);ctx.stroke();
+    ctx.fillStyle=c.text;ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText(v,x,padT+cH+16);
+  });
+  ctx.fillStyle=c.text;ctx.font='10px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Outlier magnitude',padL+cW/2,H-2);
+  ctx.save();ctx.translate(13,padT+cH/2);ctx.rotate(-Math.PI/2);
+  ctx.fillText('Mean loss',0,0);ctx.restore();
+
+  const drawCurve=(vals,color,dash=[])=>{
+    ctx.beginPath();
+    mags.forEach((m,i)=>{const x=toX(m),y=toY(vals[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.setLineDash(dash);ctx.stroke();ctx.setLineDash([]);
+  };
+  drawCurve(mses,c.blue,[]);
+  drawCurve(maes,c.green,[5,4]);
+  drawCurve(hubs,c.amber,[2,3]);
+
+  // Current position marker
+  const cx=toX(mag);
+  ctx.strokeStyle=c.text+'66';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+  ctx.beginPath();ctx.moveTo(cx,padT);ctx.lineTo(cx,padT+cH);ctx.stroke();ctx.setLineDash([]);
+
+  [[mse,c.blue],[mae,c.green],[hub,c.amber]].forEach(([v,col])=>{
+    const cy=toY(v);
+    ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);
+    ctx.fillStyle=col;ctx.fill();
+    ctx.strokeStyle=isDark()?'#1c1c1a':'#fff';ctx.lineWidth=1.5;ctx.stroke();
+  });
+
+  // Legend
+  const leg=[['MSE',c.blue,[]],['MAE',c.green,[5,4]],['Huber',c.amber,[2,3]]];
+  leg.forEach(([label,color,dash],i)=>{
+    const lx=padL+8+i*80, ly=padT+12;
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.setLineDash(dash);
+    ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(lx+22,ly);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=c.text;ctx.font='10px sans-serif';ctx.textAlign='left';
+    ctx.fillText(label,lx+26,ly+3);
+  });
+}
+
+document.getElementById('outlier-slider').addEventListener('input', updateOutlier);
+
+// ─── Scatter geometric visualisation ─────────────────────────────────────────
+// Fixed data points: (x, y) pairs representing a small regression dataset
+const SCATTER_PTS = [
+  { x: 0.10, y: 0.18 },
+  { x: 0.22, y: 0.30 },
+  { x: 0.35, y: 0.22 },
+  { x: 0.48, y: 0.45 },
+  { x: 0.55, y: 0.60 },
+  { x: 0.68, y: 0.55 },
+  { x: 0.75, y: 0.78 },
+  { x: 0.88, y: 0.85 },
+];
+
+const SLOPE = 0.85, INTERCEPT = 0.05;
+const HUBER_DELTA = 0.18;
+let currentScatter = 'mse';
+
+const scatterDescs = {
+  mse:   'MSE is literally the average <strong>area</strong> of the shaded squares — one square per data point, with side length equal to the error. Larger errors grow the square area quadratically. Drag the slider to move the regression line and watch all the squares update live.',
+  mae:   'MAE is the average <strong>length</strong> of the vertical lines — one line per data point from the data point to the regression line. Every unit of error costs exactly the same, no matter how large. There is no amplification for big mistakes.',
+  huber: 'Huber combines both: <strong>small errors</strong> (|e| ≤ δ) are shown as squares (quadratic, like MSE), while <strong>large errors</strong> (|e| > δ) are shown as capped rectangles (linear, like MAE). The dashed lines mark the δ threshold.',
+};
+
+function selectScatter(name) {
+  currentScatter = name;
+  ['mse','mae','huber'].forEach((n,i) => {
+    document.querySelectorAll('#scatter-tabs .tab-btn')[i].classList.toggle('active', n===name);
+  });
+  document.getElementById('scatter-desc').innerHTML = scatterDescs[name];
+  drawScatterCanvas();
+}
+
+function drawScatterCanvas() {
+  const canvas = document.getElementById('scatter-canvas');
+  if (!canvas) return;
+  const W = canvas.parentElement.clientWidth;
+  const H = 230;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const c = tc();
+  const offset = +document.getElementById('scatter-slider').value;
+  const padL=46, padR=16, padT=20, padB=32;
+  const cW = W-padL-padR, cH = H-padT-padB;
+
+  const toCanX = x => padL + x * cW;
+  const toCanY = y => padT + (1 - y) * cH;
+  const predict = x => SLOPE * x + INTERCEPT + offset;
+
+  // Grid lines
+  ctx.strokeStyle = c.grid; ctx.lineWidth = 0.5;
+  [0, 0.25, 0.5, 0.75, 1].forEach(t => {
+    const y = padT + t*cH;
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+cW,y); ctx.stroke();
+    ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='right';
+    ctx.fillText((1-t).toFixed(2), padL-4, y+3);
+  });
+  [0, 0.25, 0.5, 0.75, 1].forEach(t => {
+    const x = padL + t*cW;
+    ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,padT+cH); ctx.stroke();
+    ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(t.toFixed(2), x, padT+cH+16);
+  });
+  ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('x', padL+cW/2, H-2);
+  ctx.save(); ctx.translate(12, padT+cH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('y', 0, 0); ctx.restore();
+
+  // Compute residuals
+  const residuals = SCATTER_PTS.map(p => {
+    const yhat = predict(p.x);   // raw prediction — no clamping
+    return { ...p, yhat, e: p.y - yhat };
+  });
+
+  const errFill = currentScatter==='mse'
+    ? (isDark()?'rgba(133,183,235,0.28)':'rgba(55,138,221,0.20)')
+    : currentScatter==='mae'
+    ? (isDark()?'rgba(93,202,165,0.28)':'rgba(29,158,117,0.20)')
+    : (isDark()?'rgba(239,159,39,0.28)':'rgba(186,117,23,0.20)');
+  const errStroke = currentScatter==='mse'
+    ? (isDark()?'#85b7eb':'#378ADD')
+    : currentScatter==='mae'
+    ? (isDark()?'#5dcaa5':'#1D9E75')
+    : (isDark()?'#ef9f27':'#BA7517');
+
+  // Draw residual indicators
+  residuals.forEach(r => {
+    const cx = toCanX(r.x), cy = toCanY(r.y), hy = toCanY(r.yhat);
+    const ae = Math.abs(r.e);
+
+    if (currentScatter === 'mse') {
+      const side = ae * cH;
+      const sqLeft = cx - side * 0.5;
+      const sqTop  = r.e >= 0 ? hy - side : hy;
+      ctx.fillStyle = errFill;
+      ctx.fillRect(sqLeft, sqTop, side, side);
+      ctx.strokeStyle = errStroke; ctx.lineWidth = 1;
+      ctx.strokeRect(sqLeft, sqTop, side, side);
+      ctx.strokeStyle = errStroke; ctx.lineWidth = 1; ctx.setLineDash([3,2]);
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, hy); ctx.stroke();
+      ctx.setLineDash([]);
+
+    } else if (currentScatter === 'mae') {
+      ctx.strokeStyle = errStroke; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, hy); ctx.stroke();
+      // end ticks
+      ctx.lineWidth = 1.5;
+      [cy, hy].forEach(ty => {
+        ctx.beginPath(); ctx.moveTo(cx-5, ty); ctx.lineTo(cx+5, ty); ctx.stroke();
+      });
+
+    } else {
+      // Huber
+      const deltaCanH = HUBER_DELTA * cH;
+      if (ae <= HUBER_DELTA) {
+        const side = ae * cH;
+        const sqLeft = cx - side * 0.5;
+        const sqTop  = r.e >= 0 ? hy - side : hy;
+        ctx.fillStyle = errFill;
+        ctx.fillRect(sqLeft, sqTop, side, side);
+        ctx.strokeStyle = errStroke; ctx.lineWidth = 1;
+        ctx.strokeRect(sqLeft, sqTop, side, side);
+      } else {
+        const rectW   = Math.min(deltaCanH * 0.9, 22);
+        const rectTop = r.e >= 0 ? hy - deltaCanH : hy;
+        ctx.fillStyle = errFill;
+        ctx.fillRect(cx - rectW/2, rectTop, rectW, deltaCanH);
+        ctx.strokeStyle = errStroke; ctx.lineWidth = 1;
+        ctx.strokeRect(cx - rectW/2, rectTop, rectW, deltaCanH);
+        ctx.strokeStyle = errStroke; ctx.lineWidth = 1; ctx.setLineDash([3,2]);
+        const capEdge = r.e >= 0 ? hy - deltaCanH : hy + deltaCanH;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, capEdge); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+  });
+
+  // Huber delta envelope
+  if (currentScatter === 'huber') {
+    const deltaCanH = HUBER_DELTA * cH;
+    ctx.strokeStyle = errStroke + '66'; ctx.lineWidth = 1; ctx.setLineDash([5,4]);
+    const ex0=toCanX(0.02), ex1=toCanX(0.98);
+    const ey0up=toCanY(predict(0.02)+HUBER_DELTA), ey1up=toCanY(predict(0.98)+HUBER_DELTA);
+    const ey0dn=toCanY(predict(0.02)-HUBER_DELTA), ey1dn=toCanY(predict(0.98)-HUBER_DELTA);
+    ctx.beginPath(); ctx.moveTo(ex0, ey0up); ctx.lineTo(ex1, ey1up); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ex0, ey0dn); ctx.lineTo(ex1, ey1dn); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=errStroke; ctx.font='9px sans-serif'; ctx.textAlign='left';
+    if (ey1up > padT+4) ctx.fillText('δ', toCanX(0.98)+3, ey1up+3);
+  }
+
+  // Regression line — draw only within the visible [0,1]×[0,1] domain
+  // Solve for x where predict(x) = 0 and predict(x) = 1 to find entry/exit points
+  const lineColor = isDark()?'#5dcaa5':'#1D9E75';
+  ctx.strokeStyle = lineColor; ctx.lineWidth = 2;
+
+  // predict(x) = SLOPE*x + INTERCEPT + offset
+  // x where y=0: x = (0 - INTERCEPT - offset) / SLOPE
+  // x where y=1: x = (1 - INTERCEPT - offset) / SLOPE
+  const xAtY0 = (0 - INTERCEPT - offset) / SLOPE;
+  const xAtY1 = (1 - INTERCEPT - offset) / SLOPE;
+  const xLo   = Math.max(0, Math.min(xAtY0, xAtY1));  // leftmost valid x
+  const xHi   = Math.min(1, Math.max(xAtY0, xAtY1));  // rightmost valid x
+
+  if (xLo < xHi) {
+    ctx.beginPath();
+    ctx.moveTo(toCanX(xLo), toCanY(predict(xLo)));
+    ctx.lineTo(toCanX(xHi), toCanY(predict(xHi)));
+    ctx.stroke();
+  }
+
+  // Data points (on top)
+  const dotFill = isDark()?'#e8e6de':'#1a1a18';
+  SCATTER_PTS.forEach(p => {
+    const cx=toCanX(p.x), cy=toCanY(p.y);
+    ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI*2);
+    ctx.fillStyle=dotFill; ctx.fill();
+    ctx.strokeStyle=isDark()?'#252522':'#fff'; ctx.lineWidth=1.5; ctx.stroke();
+  });
+
+  // Legend (top of plot)
+  const leg = [
+    { color:dotFill,    label:'Data points',      shape:'dot'  },
+    { color:lineColor,  label:'Regression line',  shape:'line' },
+    { color:errStroke,  label:currentScatter==='mse'?'Squared errors':currentScatter==='mae'?'Absolute errors':'Huber errors', shape:'rect' },
+  ];
+  let lx = padL + 2;
+  leg.forEach(l => {
+    if (l.shape==='dot') {
+      ctx.beginPath(); ctx.arc(lx+5, padT-7, 4, 0, Math.PI*2);
+      ctx.fillStyle=l.color; ctx.fill();
+      ctx.strokeStyle=isDark()?'#252522':'#fff'; ctx.lineWidth=1; ctx.stroke();
+    } else if (l.shape==='line') {
+      ctx.strokeStyle=l.color; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(lx, padT-7); ctx.lineTo(lx+14, padT-7); ctx.stroke();
+    } else {
+      ctx.fillStyle=errFill;
+      ctx.fillRect(lx, padT-12, 14, 10);
+      ctx.strokeStyle=l.color; ctx.lineWidth=1;
+      ctx.strokeRect(lx, padT-12, 14, 10);
+    }
+    ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='left';
+    ctx.fillText(l.label, lx+18, padT-4);
+    lx += ctx.measureText(l.label).width + 32;
+  });
+
+  // Update metric displays
+  const n = residuals.length;
+  const totalLoss = (() => {
+    if (currentScatter==='mse')   return residuals.reduce((s,r)=>s+r.e*r.e,0)/n;
+    if (currentScatter==='mae')   return residuals.reduce((s,r)=>s+Math.abs(r.e),0)/n;
+    return residuals.reduce((s,r)=>{
+      const ae=Math.abs(r.e);
+      return s+(ae<=HUBER_DELTA?0.5*r.e*r.e:HUBER_DELTA*(ae-0.5*HUBER_DELTA));
+    },0)/n;
+  })();
+
+  const lossEl = document.getElementById('scatter-loss');
+  lossEl.textContent = totalLoss.toFixed(4);
+  lossEl.style.color = totalLoss<0.01?'var(--text-success)':totalLoss<0.05?'var(--text-warning)':'var(--text-danger)';
+  document.getElementById('scatter-residuals').textContent =
+    residuals.map(r=>`${r.e>=0?'+':''}${r.e.toFixed(2)}`).join('  ');
+
+  // ── Calculation block ──────────────────────────────────────────────────────
+  const f3 = v => v.toFixed(3);
+  const f4 = v => v.toFixed(4);
+  const calcColor = currentScatter==='mse'
+    ? (isDark()?'#85b7eb':'#378ADD')
+    : currentScatter==='mae'
+    ? (isDark()?'#5dcaa5':'#1D9E75')
+    : (isDark()?'#ef9f27':'#BA7517');
+
+  let formulaStr, valuesStr, resultStr;
+
+  if (currentScatter === 'mse') {
+    const terms    = residuals.map(r => r.e*r.e);
+    const termSum  = terms.reduce((s,v)=>s+v, 0);
+    const fmlaVals = residuals.map(r => `(${f3(r.e)})²`).join(' + ');
+    const numVals  = terms.map(v => f3(v)).join(' + ');
+    formulaStr = `MSE = (${fmlaVals}) / ${n}`;
+    valuesStr  = `    = (${numVals}) / ${n}`;
+    resultStr  = `    = ${f3(termSum)} / ${n} = ${f4(totalLoss)}`;
+
+  } else if (currentScatter === 'mae') {
+    const terms    = residuals.map(r => Math.abs(r.e));
+    const termSum  = terms.reduce((s,v)=>s+v, 0);
+    const fmlaVals = residuals.map(r => `|${f3(r.e)}|`).join(' + ');
+    const numVals  = terms.map(v => f3(v)).join(' + ');
+    formulaStr = `MAE = (${fmlaVals}) / ${n}`;
+    valuesStr  = `    = (${numVals}) / ${n}`;
+    resultStr  = `    = ${f3(termSum)} / ${n} = ${f4(totalLoss)}`;
+
+  } else {
+    // Huber
+    const terms    = residuals.map(r => {
+      const ae = Math.abs(r.e);
+      return ae <= HUBER_DELTA ? 0.5*r.e*r.e : HUBER_DELTA*(ae-0.5*HUBER_DELTA);
+    });
+    const termSum  = terms.reduce((s,v)=>s+v, 0);
+    const fmlaVals = residuals.map((r,i) => {
+      const ae = Math.abs(r.e);
+      return ae <= HUBER_DELTA ? `0.5×(${f3(r.e)})²` : `δ×(|${f3(r.e)}|−δ/2)`;
+    }).join(' + ');
+    const numVals  = terms.map(v => f3(v)).join(' + ');
+    formulaStr = `Huber = (${fmlaVals}) / ${n}`;
+    valuesStr  = `      = (${numVals}) / ${n}`;
+    resultStr  = `      = ${f3(termSum)} / ${n} = ${f4(totalLoss)}`;
+  }
+
+  const setCalcLine = (id, text) => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = text; el.style.color = calcColor; }
+  };
+  setCalcLine('scatter-calc-formula', formulaStr);
+  setCalcLine('scatter-calc-values',  valuesStr);
+  setCalcLine('scatter-calc-result',  resultStr);
+
+  const ins = document.getElementById('scatter-insight');
+  if (currentScatter==='mse') {
+    ins.className='insight';
+    ins.textContent=`MSE = ${totalLoss.toFixed(4)}. The data points furthest from the line have the largest squares — and those squares dominate the total loss disproportionately because area grows as the square of the side. Drag the line toward the data to see all squares shrink.`;
+  } else if (currentScatter==='mae') {
+    ins.className='insight success';
+    ins.textContent=`MAE = ${totalLoss.toFixed(4)}. All residuals contribute equally. A line twice as long costs exactly twice as much — no amplification of large errors. This makes MAE more robust to data points that are far from the line.`;
+  } else {
+    const nLarge=residuals.filter(r=>Math.abs(r.e)>HUBER_DELTA).length;
+    ins.className='insight warning';
+    ins.textContent=`Huber = ${totalLoss.toFixed(4)}. ${nLarge} point${nLarge!==1?'s':''} exceed${nLarge===1?'s':''} δ=${HUBER_DELTA} and receive linear (capped) treatment. The remaining ${n-nLarge} point${n-nLarge!==1?'s':''} are within δ and receive quadratic (square) treatment.`;
+  }
+}
+
+document.getElementById('scatter-slider').addEventListener('input', function() {
+  document.getElementById('scatter-slider-val').textContent = parseFloat(this.value).toFixed(2);
+  drawScatterCanvas();
+});
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+function initAll() {
+  updateHouseSlider();
+  updateWhatIsLoss();
+  selectScatter('mse');
+  selectTask('reg');
+  selectLoss('mse');
+  updateCurvePoint();
+  updateOutlier();
+}
+
+initAll();
+if(document.getElementById("scatter-canvas")) { selectScatter("mse"); }
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  initAll();
+  drawScatterCanvas();
+});
+window.addEventListener('resize', () => {
+  drawHouseCanvas();
+  drawScatterCanvas();
+  drawLossCurve();
+  updateCurvePoint();
+  updateOutlier();
+});
+</script>
+</body>
+</html>
