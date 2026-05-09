@@ -101,11 +101,11 @@
     <div id="category-bars"></div>
   </div>
 
-  <!-- 1. Neuron & forward pass -->
+  <!-- 1. Foundations: Neuron, Tensors, Activations, Embeddings -->
   <div class="section">
     <div class="section-header">
       <span class="section-tag" style="background:var(--bg-info);color:var(--text-info)">Foundations</span>
-      <span class="section-title">The neuron &amp; forward pass</span>
+      <span class="section-title">Foundations</span>
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
@@ -116,36 +116,42 @@
         </div>
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
-    </div>
-  </div>
-
-  <!-- 2. Activation functions -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-info);color:var(--text-info)">Foundations</span>
-      <span class="section-title">Activation functions</span>
-    </div>
-    <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">2</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">2</div>
+        <div class="row-body">
+          <div class="row-title">Tensors — the language of deep learning</div>
+          <div class="row-concept">Scalars, vectors, matrices, tensors, shape and dimensions, batch / channel / spatial axes, broadcasting, simple tensor operations, why everything in deep learning is a tensor</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">3</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html" target="_blank" rel="noopener">Activation Functions Explainer ↗</a></div>
           <div class="row-concept">Why nonlinearity, Sigmoid, Tanh, ReLU, Leaky ReLU, GELU — interactive curve explorer with live gradient f′(z), vanishing gradient in saturation zones, GELU deep dive, activation function summary table</div>
         </div>
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">4</div>
+        <div class="row-body">
+          <div class="row-title">Embeddings — representing discrete data as vectors</div>
+          <div class="row-concept">Why one-hot fails at scale, learnable embedding lookup tables, dense vector representations, similarity in embedding space, the embedding layer, applications across NLP, recommender systems and tabular DL</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
     </div>
   </div>
 
-  <!-- 3. Loss functions -->
+  <!-- 2. Loss & probability outputs -->
   <div class="section">
     <div class="section-header">
       <span class="section-tag" style="background:var(--bg-warning);color:var(--text-warning)">Loss</span>
-      <span class="section-title">Loss functions</span>
+      <span class="section-title">Loss Functions</span>
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">3</div>
+        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">5</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_functions_overview_explainer.html" target="_blank" rel="noopener">Loss Functions Overview Explainer ↗</a></div>
           <div class="row-concept">What is loss, task-to-loss mapping: MSE for regression, Cross-Entropy for classification, MAE, Huber loss — when to use which and why</div>
@@ -153,33 +159,49 @@
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">4</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">6</div>
+        <div class="row-body">
+          <div class="row-title">Softmax &amp; Probability Outputs Explainer</div>
+          <div class="row-concept">Logits to probabilities, exponentiation and normalisation, the max-subtraction trick for numerical stability, temperature scaling, softmax vs sigmoid, why softmax always sums to 1</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">7</div>
         <div class="row-body">
           <div class="row-title">Cross-Entropy Loss Explainer</div>
-          <div class="row-concept">Information theory intuition, −log(p) curve, binary vs categorical cross-entropy, penalising confident wrong predictions, multiclass worked example</div>
+          <div class="row-concept">Information theory intuition, −log(p) curve, binary vs categorical cross-entropy, penalising confident wrong predictions, multiclass worked example with softmax outputs</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
     </div>
   </div>
 
-  <!-- 4. Optimization -->
+  <!-- 3. Optimization & gradient descent -->
   <div class="section">
     <div class="section-header">
       <span class="section-tag" style="background:var(--bg-warning);color:var(--text-warning)">Optimization</span>
-      <span class="section-title">Optimization &amp; gradient descent</span>
+      <span class="section-title">Optimization &amp; Gradient Descent</span>
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">5</div>
+        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">8</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html" target="_blank" rel="noopener">Loss &amp; Gradient Descent Explainer ↗</a></div>
-          <div class="row-concept">What is loss, loss landscape with interactive contour map, gradient descent algorithm, weight update rule w ← w − η·∂L/∂w, learning rate effect (too small / too large / just right)</div>
+          <div class="row-concept">Loss landscape with interactive contour map, gradient descent algorithm, weight update rule w ← w − η·∂L/∂w, learning rate effect (too small / too large / just right)</div>
         </div>
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">6</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">9</div>
+        <div class="row-body">
+          <div class="row-title">Mini-batch Gradient Descent &amp; Batch Size Explainer</div>
+          <div class="row-concept">Batch GD vs SGD vs mini-batch GD, gradient noise and its regularising effect, the bias-variance trade-off of batch size, large batch vs small batch generalisation, GPU memory limits</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">10</div>
         <div class="row-body">
           <div class="row-title">Optimizers Explainer</div>
           <div class="row-concept">SGD, SGD with Momentum, RMSProp, Adam, AdamW — adaptive learning rates, momentum, bias correction, comparison on a loss landscape, when to use each in practice</div>
@@ -189,7 +211,7 @@
     </div>
   </div>
 
-  <!-- 5. Backpropagation -->
+  <!-- 4. Backpropagation -->
   <div class="section">
     <div class="section-header">
       <span class="section-tag" style="background:var(--bg-danger);color:var(--text-danger)">Backprop</span>
@@ -197,7 +219,7 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">7</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">11</div>
         <div class="row-body">
           <div class="row-title">Chain Rule &amp; Computation Graph Explainer</div>
           <div class="row-concept">The chain rule of calculus, computation graphs, forward pass vs backward pass, local gradients at each node, interactive graph where you click nodes to see gradient flow</div>
@@ -205,7 +227,7 @@
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">8</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">12</div>
         <div class="row-body">
           <div class="row-title">Backward Pass &amp; Full Network Backpropagation Explainer</div>
           <div class="row-concept">Backpropagating through a full network layer by layer, gradient accumulation, weight updates end to end, delta rule, numerical gradient verification</div>
@@ -215,7 +237,7 @@
     </div>
   </div>
 
-  <!-- 6. Gradient flow problems -->
+  <!-- 5. Gradient flow problems -->
   <div class="section">
     <div class="section-header">
       <span class="section-tag" style="background:var(--bg-danger);color:var(--text-danger)">Gradients</span>
@@ -223,7 +245,7 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">9</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">13</div>
         <div class="row-body">
           <div class="row-title">Vanishing &amp; Exploding Gradients Explainer</div>
           <div class="row-concept">Why gradients shrink or explode with depth, sigmoid saturation causing vanishing, gradient norms across layers, gradient clipping, depth slider showing gradient magnitude decay</div>
@@ -231,7 +253,7 @@
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">10</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">14</div>
         <div class="row-body">
           <div class="row-title">Weight Initialization Explainer</div>
           <div class="row-concept">Why initialization matters, zero-init failure (symmetry breaking), random init problems, Xavier/Glorot initialization, He initialization, interactive visualisation of activation distributions at initialization</div>
@@ -241,15 +263,15 @@
     </div>
   </div>
 
-  <!-- 7. Multi-layer networks -->
+  <!-- 6. Building & understanding networks -->
   <div class="section">
     <div class="section-header">
       <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Architecture</span>
-      <span class="section-title">Building a multi-layer network</span>
+      <span class="section-title">Building &amp; understanding networks</span>
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">11</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">15</div>
         <div class="row-body">
           <div class="row-title">From Neuron to Network Explainer</div>
           <div class="row-concept">From one neuron to a layer, layer types (input, hidden, output), fully connected layers &amp; weight matrices, depth vs width trade-off, interactive network builder</div>
@@ -257,17 +279,25 @@
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">12</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">16</div>
         <div class="row-body">
           <div class="row-title">Universal Approximation Theorem Explainer</div>
           <div class="row-concept">What the UAT says and what it does not, width vs depth, practical implications for network design, interactive demo fitting arbitrary functions</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">17</div>
+        <div class="row-body">
+          <div class="row-title">MLP Worked Example — A Complete Network Solving a Task</div>
+          <div class="row-concept">Capstone explainer tying everything together: a small MLP solving a real classification task end to end — forward pass, loss, backprop, gradient descent, training over epochs, watching loss decrease and predictions improve in real time</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
     </div>
   </div>
 
-  <!-- 8. Normalization -->
+  <!-- 7. Normalization -->
   <div class="section">
     <div class="section-header">
       <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Architecture</span>
@@ -275,7 +305,7 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">13</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">18</div>
         <div class="row-body">
           <div class="row-title">Batch Normalization Explainer</div>
           <div class="row-concept">Internal covariate shift, normalizing activations per mini-batch, learnable scale &amp; shift parameters γ and β, training vs inference behaviour, effect on gradient flow</div>
@@ -285,44 +315,78 @@
     </div>
   </div>
 
-  <!-- 9. Regularization -->
+  <!-- 8. Regularization & generalisation -->
   <div class="section">
     <div class="section-header">
       <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Training</span>
-      <span class="section-title">Regularization</span>
+      <span class="section-title">Regularization &amp; Generalisation</span>
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">14</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">19</div>
         <div class="row-body">
           <div class="row-title">Dropout &amp; Weight Decay Explainer</div>
-          <div class="row-concept">Overfitting, dropout mechanism and stochastic regularisation, train vs test mode difference, weight decay (L2 regularization), interactive overfitting demo</div>
+          <div class="row-concept">Dropout mechanism and stochastic regularisation, train vs test mode difference, weight decay (L2 regularization), why both help, interactive demonstration on a network</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">20</div>
+        <div class="row-body">
+          <div class="row-title">Overfitting &amp; Generalisation — Visualised</div>
+          <div class="row-concept">What overfitting actually looks like — train vs validation loss curves diverging, the bias-variance trade-off, capacity vs data, early stopping as a regulariser, the role of dropout and weight decay in closing the gap</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
     </div>
   </div>
 
-  <!-- 10. Training loop -->
+  <!-- 9. Training in practice -->
   <div class="section">
     <div class="section-header">
       <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Training</span>
-      <span class="section-title">Training loop &amp; convergence</span>
+      <span class="section-title">Training in Practice</span>
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">15</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">21</div>
         <div class="row-body">
           <div class="row-title">Training Loop &amp; Convergence Explainer</div>
-          <div class="row-concept">The full training loop, mini-batches and epochs, overfitting vs underfitting, bias-variance trade-off, train/val/test split, early stopping</div>
+          <div class="row-concept">The conceptual training loop — epochs and steps, forward pass, loss computation, backward pass, weight update — train/val/test split, monitoring training, recognising convergence and divergence</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">16</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">22</div>
+        <div class="row-body">
+          <div class="row-title">PyTorch Training Loop in Practice</div>
+          <div class="row-concept">The conceptual loop translated to real code — optimizer.zero_grad(), loss.backward(), optimizer.step(), model.train() vs model.eval(), with torch.no_grad(), DataLoader, the standard PyTorch training pattern</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. Hyperparameters -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--bg-warning);color:var(--text-warning)">Hyperparameters</span>
+      <span class="section-title">Learning Rate &amp; Hyperparameter Tuning</span>
+    </div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">23</div>
         <div class="row-body">
           <div class="row-title">Learning Rate Schedules Explainer</div>
-          <div class="row-concept">Constant LR, step decay, cosine annealing, warmup + cosine (modern default), cyclical LR — all visualised as interactive schedule curves with live loss simulation</div>
+          <div class="row-concept">Constant LR, step decay, cosine annealing, warmup + cosine (modern default), cyclical LR, 1cycle — all visualised as interactive schedule curves with live loss simulation</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">24</div>
+        <div class="row-body">
+          <div class="row-title">Hyperparameter Tuning Explainer</div>
+          <div class="row-concept">What hyperparameters are and which matter most (LR, batch size, weight decay, depth, width, dropout rate), grid search vs random search vs Bayesian optimisation, sensible defaults, the LR finder technique</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
@@ -337,15 +401,16 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">17</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">25</div>
         <div class="row-body">
           <div class="row-title">Evaluation Metrics Explainer</div>
-          <div class="row-concept">Accuracy, precision, recall, F1 score, ROC curve, AUC — interactive confusion matrix, when each metric matters and when it misleads (class imbalance)</div>
+          <div class="row-concept">Accuracy, precision, recall, F1 score, ROC curve, AUC — interactive confusion matrix, when each metric matters and when it misleads (class imbalance), threshold selection</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
     </div>
   </div>
+
 
   <!-- Design principles -->
   <div class="summary-card">
