@@ -233,7 +233,7 @@
 <div class="page">
 
   <header>
-    <h1>Loss Functions Overview Explainer</h1>
+    <h1>Loss Functions Overview — Interactive Explainer</h1>
     <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)" target="_blank" rel="noopener">Ancil Cleetus</a></p>
     <p>Imagine teaching a child by never telling them when they are wrong. They would never improve. A neural network is the same — it needs a way to measure how wrong its predictions are. That measurement is called the <strong>loss</strong>. This explainer builds that intuition from scratch, then shows you which loss function to use for different tasks.</p>
   </header>
@@ -258,11 +258,11 @@
       <span class="toc-label">The four loss functions — interactive deep dive</span>
     </a>
     <a href="#sec-outlier-problem" class="toc-item">
-      <div class="toc-num">4</div>
+      <div class="toc-num">5</div>
       <span class="toc-label">MSE vs MAE vs Huber — the outlier problem</span>
     </a>
     <a href="#sec-decision-guide" class="toc-item">
-      <div class="toc-num">4</div>
+      <div class="toc-num">6</div>
       <span class="toc-label">Decision guide — which loss to use</span>
     </a>
   </nav>
@@ -596,6 +596,41 @@
     <div class="insight" style="margin-top:0.875rem">
       The golden rule: if your output is a continuous number, use MSE / MAE / Huber. If your output is a class label or probability, use cross-entropy. Never use MSE for classification — it produces the wrong gradient shape and leads to poor training even when the model is nearly correct.
     </div>
+
+    <div class="step-label" style="margin-top:1rem">In code — using each loss in PyTorch</div>
+    <p class="note" style="margin-bottom:0.5rem">All five losses are one-liners in PyTorch. Two ways to use each — as a function from <code style="font-family:var(--font-mono);font-size:12px">torch.nn.functional</code> or as a module that drops into your model code:</p>
+
+    <pre style="background:var(--bg-secondary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-md);padding:0.75rem 1rem;margin:0.5rem 0;font-family:var(--font-mono);font-size:13px;color:var(--text-primary);overflow-x:auto;line-height:1.5;white-space:pre"><span style="color:var(--text-info)">import</span> torch
+<span style="color:var(--text-info)">import</span> torch.nn <span style="color:var(--text-info)">as</span> nn
+<span style="color:var(--text-info)">import</span> torch.nn.functional <span style="color:var(--text-info)">as</span> F
+
+<span style="color:var(--text-tertiary)"># --- Regression losses --------------------------------------------------</span>
+y_pred = torch.tensor([<span style="color:var(--text-warning)">2.5</span>, <span style="color:var(--text-warning)">0.0</span>, <span style="color:var(--text-warning)">2.0</span>])
+y_true = torch.tensor([<span style="color:var(--text-warning)">3.0</span>, <span style="color:var(--text-warning)">-0.5</span>, <span style="color:var(--text-warning)">2.0</span>])
+
+mse_loss  = F.mse_loss(y_pred, y_true)             <span style="color:var(--text-tertiary)"># Mean squared error</span>
+mae_loss  = F.l1_loss(y_pred, y_true)              <span style="color:var(--text-tertiary)"># Mean absolute error (L1)</span>
+huber     = F.smooth_l1_loss(y_pred, y_true)       <span style="color:var(--text-tertiary)"># Huber loss (default δ = 1.0)</span>
+
+<span style="color:var(--text-tertiary)"># --- Classification losses ---------------------------------------------</span>
+<span style="color:var(--text-tertiary)"># Binary: one logit per example, target is 0 or 1</span>
+logits_bin = torch.tensor([<span style="color:var(--text-warning)">1.5</span>, <span style="color:var(--text-warning)">-0.8</span>, <span style="color:var(--text-warning)">2.1</span>])
+labels_bin = torch.tensor([<span style="color:var(--text-warning)">1.0</span>, <span style="color:var(--text-warning)">0.0</span>, <span style="color:var(--text-warning)">1.0</span>])
+bce_loss = F.binary_cross_entropy_with_logits(logits_bin, labels_bin)
+
+<span style="color:var(--text-tertiary)"># Multi-class: shape (B, num_classes) logits, target is class index</span>
+logits = torch.tensor([[<span style="color:var(--text-warning)">2.0</span>, <span style="color:var(--text-warning)">0.1</span>, <span style="color:var(--text-warning)">-1.0</span>],
+                       [<span style="color:var(--text-warning)">0.5</span>, <span style="color:var(--text-warning)">1.8</span>, <span style="color:var(--text-warning)">-0.2</span>]])
+labels = torch.tensor([<span style="color:var(--text-warning)">0</span>, <span style="color:var(--text-warning)">1</span>])
+ce_loss = F.cross_entropy(logits, labels)          <span style="color:var(--text-tertiary)"># applies softmax internally</span>
+
+<span style="color:var(--text-tertiary)"># --- Module form — drops into nn.Module subclasses ---------------------</span>
+loss_fn = nn.<span style="color:var(--text-info)">CrossEntropyLoss</span>()     <span style="color:var(--text-tertiary)"># or MSELoss(), L1Loss(), SmoothL1Loss(), BCEWithLogitsLoss()</span>
+loss    = loss_fn(logits, labels)</pre>
+
+    <div class="insight" style="margin-top:0.625rem">
+      Note that <code style="font-family:var(--font-mono);font-size:12px">F.cross_entropy</code> applies softmax internally — pass it <em>raw logits</em>, not probabilities. Similarly, <code style="font-family:var(--font-mono);font-size:12px">F.binary_cross_entropy_with_logits</code> applies sigmoid internally. Doing softmax / sigmoid yourself before these functions causes silent bugs.
+    </div>
   </div>
 
   <footer>
@@ -847,7 +882,8 @@ function selectLoss(name) {
       plain: 'Cross-Entropy loss is designed for classification tasks where the model outputs a probability between 0 and 1. It uses −log(ŷ) — which is very small when the model is confidently correct, and shoots to infinity when the model is confidently wrong.',
       eq:'L = −log(ŷ)',
       note:'Derived from maximum likelihood estimation under a Bernoulli/Categorical distribution. Penalises confident wrong predictions with near-infinite loss as ŷ → 0.',
-      props:[['Task','Classification'],['Sensitivity','Very high for low ŷ'],['Gradient','−1/ŷ — large when ŷ small'],['Differentiable','Yes (ŷ > 0)']]
+      props:[['Task','Classification'],['Sensitivity','Very high for low ŷ'],['Gradient','−1/ŷ — large when ŷ small'],['Differentiable','Yes (ŷ > 0)']],
+      forwardRef: 'Cross-Entropy gets its own dedicated explainer two stops ahead in the roadmap — the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/cross_entropy_loss_explainer.html" target="_blank" rel="noopener" style="color:inherit;border-bottom:0.5px solid currentColor;text-decoration:none">Cross-Entropy Loss Explainer</a> covers the information-theory derivation, binary vs categorical variants, and the worked example end-to-end. For now, see how its curve behaves above.'
     },
   }[name];
 
@@ -858,7 +894,8 @@ function selectLoss(name) {
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:0.5rem">
       ${detail.props.map(([k,v])=>`<div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:6px 8px"><div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">${k}</div><div style="font-size:11px;font-weight:500;color:var(--text-primary)">${v}</div></div>`).join('')}
-    </div>`;
+    </div>
+    ${detail.forwardRef ? `<div class="insight" style="margin-top:0.625rem">${detail.forwardRef}</div>` : ''}`;
 
   // Update slider axis label and range
   document.getElementById('slider-axis-label').textContent = cfg.xLabel;
