@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cross-Entropy Loss — Interactive Explainer</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg-primary:#ffffff;--bg-secondary:#f5f4f0;--bg-tertiary:#eeece6;
+      --bg-info:#e6f1fb;--bg-success:#e1f5ee;--bg-warning:#faeeda;--bg-danger:#fcebeb;
+      --text-primary:#1a1a18;--text-secondary:#5f5e5a;--text-tertiary:#888780;
+      --text-info:#185fa5;--text-success:#0f6e56;--text-warning:#854f0b;--text-danger:#a32d2d;
+      --border-tertiary:rgba(0,0,0,0.12);--border-secondary:rgba(0,0,0,0.22);
+      --border-info:#85b7eb;--border-success:#5dcaa5;--border-warning:#ef9f27;--border-danger:#e24b4a;
+      --radius-md:8px;--radius-lg:12px;
+      --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      --font-mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+    }
+    @media(prefers-color-scheme:dark){
+      :root{
+        --bg-primary:#1c1c1a;--bg-secondary:#252522;--bg-tertiary:#2c2c2a;
+        --bg-info:#042c53;--bg-success:#04342c;--bg-warning:#412402;--bg-danger:#501313;
+        --text-primary:#e8e6de;--text-secondary:#b4b2a9;--text-tertiary:#73726c;
+        --text-info:#85b7eb;--text-success:#5dcaa5;--text-warning:#ef9f27;--text-danger:#f09595;
+        --border-tertiary:rgba(255,255,255,0.10);--border-secondary:rgba(255,255,255,0.20);
+        --border-info:#185fa5;--border-success:#0f6e56;--border-warning:#854f0b;--border-danger:#a32d2d;
+      }
+    }
+    body{font-family:var(--font);background:var(--bg-tertiary);color:var(--text-primary);min-height:100vh;padding:2rem 1rem 3rem;line-height:1.6}
+    .page{max-width:760px;margin:0 auto}
+    header{margin-bottom:2rem}
+    header h1{font-size:24px;font-weight:500;color:var(--text-primary);margin-bottom:6px}
+    header p{font-size:14px;color:var(--text-secondary);max-width:580px;line-height:1.65}
+    a.xref{color:inherit;border-bottom:0.5px solid currentColor;text-decoration:none}
+    .card{background:var(--bg-primary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.25rem}
+    h2{font-size:15px;font-weight:500;color:var(--text-primary);margin-bottom:8px}
+    p.note{font-size:13px;color:var(--text-secondary);line-height:1.65;margin-bottom:0.75rem}
+    .step-label{font-size:11px;font-weight:500;color:var(--text-tertiary);letter-spacing:.05em;text-transform:uppercase;margin:1rem 0 6px}
+    .divider{border:none;border-top:0.5px solid var(--border-tertiary);margin:1.25rem 0}
+    .eq-box{background:var(--bg-secondary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-md);padding:0.875rem 1rem;margin:0.5rem 0;font-family:var(--font-mono);font-size:14px;color:var(--text-primary)}
+    .eq-note{font-family:var(--font);font-size:12px;color:var(--text-secondary);margin-top:6px}
+    .code-box{background:var(--bg-secondary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-md);padding:0.75rem 1rem;margin:0.5rem 0;font-family:var(--font-mono);font-size:13px;color:var(--text-primary);white-space:pre;overflow-x:auto;line-height:1.5}
+    .code-comment{color:var(--text-tertiary)}
+    .code-blue{color:var(--text-info)}
+    .code-amber{color:var(--text-warning)}
+    .code-green{color:var(--text-success)}
+    .insight{border-left:2px solid var(--border-info);padding:7px 12px;font-size:13px;color:var(--text-secondary);background:var(--bg-info);border-radius:0 var(--radius-md) var(--radius-md) 0;margin:0.5rem 0;line-height:1.55}
+    .insight.success{border-color:var(--border-success);background:var(--bg-success);color:var(--text-success)}
+    .insight.warning{border-color:var(--border-warning);background:var(--bg-warning);color:var(--text-warning)}
+    .insight.danger{border-color:var(--border-danger);background:var(--bg-danger);color:var(--text-danger)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:0.75rem}
+    .tab-btn{padding:6px 14px;border:0.5px solid var(--border-secondary);border-radius:var(--radius-md);background:var(--bg-primary);color:var(--text-primary);font-size:13px;font-family:var(--font);cursor:pointer;transition:background 0.15s,border-color 0.15s}
+    .tab-btn.active{background:var(--bg-info);border-color:var(--border-info);color:var(--text-info)}
+    .tab-btn:hover:not(.active){background:var(--bg-secondary)}
+    .slider-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+    .slider-name{font-size:12px;color:var(--text-tertiary);width:130px;flex-shrink:0}
+    .slider-val{font-size:13px;color:var(--text-primary);width:60px;text-align:right;font-family:var(--font-mono);flex-shrink:0}
+    input[type=range]{flex:1}
+    .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0.75rem 0}
+    @media(max-width:480px){.metric-grid{grid-template-columns:repeat(2,1fr)}}
+    .metric-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.65rem 0.875rem}
+    .metric-card .mc-label{font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+    .metric-card .mc-val{font-size:18px;font-weight:500;font-family:var(--font-mono);color:var(--text-primary);transition:color 0.3s}
+    .summary-table{width:100%;border-collapse:collapse;font-size:12px;margin:0.75rem 0}
+    .summary-table th{text-align:left;padding:7px 10px;background:var(--bg-secondary);color:var(--text-tertiary);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:0.5px solid var(--border-tertiary)}
+    .summary-table td{padding:7px 10px;border-bottom:0.5px solid var(--border-tertiary);color:var(--text-secondary);vertical-align:top}
+    .summary-table tr:last-child td{border-bottom:none}
+    .summary-table tr:hover td{background:var(--bg-secondary)}
+    .bar-row{display:flex;align-items:center;gap:8px;margin:5px 0}
+    .bar-label{font-size:12px;color:var(--text-secondary);width:96px;flex-shrink:0;font-family:var(--font-mono)}
+    .bar-track{flex:1;height:24px;background:var(--bg-secondary);border-radius:6px;overflow:hidden;border:0.5px solid var(--border-tertiary)}
+    .bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:500;color:#fff;transition:width 0.3s,background 0.3s;min-width:2px}
+    .bar-pct{font-size:12px;width:62px;text-align:right;font-family:var(--font-mono);flex-shrink:0;color:var(--text-primary)}
+    .panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0.75rem 0}
+    @media(max-width:600px){.panel-grid{grid-template-columns:1fr}}
+    .panel{background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 14px}
+    .panel-title{font-size:11px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+    canvas{display:block;max-width:100%}
+    .toc-nav{background:var(--bg-primary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);padding:0.875rem 1.25rem;margin-bottom:1.5rem}
+    .toc-title{font-size:11px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:0.5rem}
+    .toc-item{display:flex;align-items:flex-start;gap:10px;padding:5px 6px;margin:2px -6px;border-radius:var(--radius-md);text-decoration:none;transition:background 0.15s}
+    .toc-item:hover{background:var(--bg-secondary)}
+    .toc-num{width:22px;height:22px;border-radius:50%;flex-shrink:0;background:var(--bg-info);color:var(--text-info);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-top:1px}
+    .toc-label{font-size:13px;color:var(--text-info);font-weight:500;line-height:1.45}
+    .toc-item:hover .toc-label{color:var(--text-primary)}
+    .toc-item:hover .toc-num{opacity:0.7}
+    footer{text-align:center;font-size:12px;color:var(--text-tertiary);margin-top:2rem}
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>Cross-Entropy Loss — Interactive Explainer</h1>
+    <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)" target="_blank" rel="noopener">Ancil Cleetus</a></p>
+    <p>In the <a class="xref" href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_functions_overview_explainer.html" target="_blank" rel="noopener">Loss Functions Overview Explainer</a> you saw that classification uses <em>cross-entropy</em>. In the <a class="xref" href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/softmax_explainer.html" target="_blank" rel="noopener">Softmax & Probability Outputs Explainer</a> you saw how raw logits become probabilities. This explainer connects the two — answering <em>why</em> cross-entropy is the right loss for classification, where the −log(p) shape comes from, and how it pairs perfectly with softmax outputs.</p>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc-nav" aria-label="Table of contents">
+    <div class="toc-title">Contents</div>
+    <a href="#sec-why-not-mse" class="toc-item"><div class="toc-num">1</div><span class="toc-label">Why MSE doesn't work for classification</span></a>
+    <a href="#sec-info-theory" class="toc-item"><div class="toc-num">2</div><span class="toc-label">The information theory intuition</span></a>
+    <a href="#sec-log-curve"   class="toc-item"><div class="toc-num">3</div><span class="toc-label">The −log(p) curve</span></a>
+    <a href="#sec-bce"         class="toc-item"><div class="toc-num">4</div><span class="toc-label">Binary cross-entropy</span></a>
+    <a href="#sec-cce"         class="toc-item"><div class="toc-num">5</div><span class="toc-label">Categorical cross-entropy</span></a>
+    <a href="#sec-worked"      class="toc-item"><div class="toc-num">6</div><span class="toc-label">Worked example end-to-end</span></a>
+  </nav>
+
+  <!-- PART 1 -->
+  <div class="card">
+    <h2 id="sec-why-not-mse">Why MSE doesn't work for classification</h2>
+    <p class="note">In the <a class="xref" href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_functions_overview_explainer.html" target="_blank" rel="noopener">Loss Functions Overview Explainer</a> you learned about MSE — squared error between prediction and truth. A natural first instinct: the network outputs probabilities, the truth is a one-hot vector, why not just use MSE on those? It turns out this fails badly. Two reasons.</p>
+
+    <div class="step-label">Interactive — same scenario, MSE vs Cross-Entropy</div>
+    <p class="note" style="margin-bottom:0.5rem">A 3-class classifier. The true class is <strong>"Cat"</strong> (one-hot = [1, 0, 0]). The slider controls the predicted probability of Cat. The other two probabilities split the remainder evenly.</p>
+
+    <div class="slider-row">
+      <span class="slider-name">P(Cat) — predicted</span>
+      <input type="range" id="sl-mse-p" min="0.01" max="0.99" step="0.01" value="0.7">
+      <span class="slider-val" id="lbl-mse-p">0.70</span>
+    </div>
+
+    <div class="panel-grid">
+      <div class="panel">
+        <div class="panel-title" style="color:var(--text-warning)">MSE loss (the wrong choice)</div>
+        <div class="mc-val" id="mse-loss-val" style="font-size:22px;font-weight:500;color:var(--text-warning);font-family:var(--font-mono)">—</div>
+        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;font-family:var(--font-mono)" id="mse-calc-txt">—</div>
+      </div>
+      <div class="panel">
+        <div class="panel-title" style="color:var(--text-success)">Cross-entropy loss (the right choice)</div>
+        <div class="mc-val" id="ce-loss-val" style="font-size:22px;font-weight:500;color:var(--text-success);font-family:var(--font-mono)">—</div>
+        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;font-family:var(--font-mono)" id="ce-calc-txt">—</div>
+      </div>
+    </div>
+
+    <div class="step-label">Three concrete scenarios</div>
+    <table class="summary-table">
+      <thead><tr><th>Scenario</th><th>P(Cat)</th><th>MSE loss</th><th>Cross-entropy loss</th></tr></thead>
+      <tbody>
+        <tr><td>Confidently right</td><td style="font-family:var(--font-mono)">0.99</td><td style="font-family:var(--font-mono);color:var(--text-success)">0.0001</td><td style="font-family:var(--font-mono);color:var(--text-success)">0.01</td></tr>
+        <tr><td>Coin-flip uncertain</td><td style="font-family:var(--font-mono)">0.50</td><td style="font-family:var(--font-mono);color:var(--text-warning)">0.1250</td><td style="font-family:var(--font-mono);color:var(--text-warning)">0.69</td></tr>
+        <tr><td>Confidently wrong</td><td style="font-family:var(--font-mono)">0.01</td><td style="font-family:var(--font-mono);color:var(--text-danger)">0.49 (capped at 1.0)</td><td style="font-family:var(--font-mono);color:var(--text-danger)">4.61 (no cap)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="step-label">Two problems with MSE for probabilities</div>
+    <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:0.75rem">
+      <div style="background:var(--bg-danger);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-danger);margin-bottom:3px">Problem 1 — Bounded penalty for wrong answers</div>
+        <div style="font-size:12px;color:var(--text-danger);line-height:1.55">For a probability between 0 and 1, MSE caps at 1.0 — no matter how confidently wrong. A network predicting P(cat) = 0.01 when the truth is cat receives essentially the same MSE as one predicting 0.5. Cross-entropy has <em>no upper bound</em>: confidently wrong predictions are punished severely.</div>
+      </div>
+      <div style="background:var(--bg-danger);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-danger);margin-bottom:3px">Problem 2 — Tiny gradients near the wrong answer</div>
+        <div style="font-size:12px;color:var(--text-danger);line-height:1.55">The slope of MSE is roughly 2(p − target). When p is very wrong (near 0 with target 1), the slope is barely large enough to learn from. Cross-entropy's slope is −1/p — when p is small, the gradient is huge, so the network learns very fast from its worst mistakes.</div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <strong>The question this explainer answers:</strong> What loss function rewards confident correct predictions, catastrophically punishes confident wrong predictions, and pairs naturally with the softmax output of a classifier? That function is <em>cross-entropy</em>, and it comes from information theory.
+    </div>
+  </div>
+
+  <!-- PART 2 -->
+  <div class="card">
+    <h2 id="sec-info-theory">The information theory intuition</h2>
+    <p class="note">Cross-entropy is not a random formula. It comes from <strong>information theory</strong> — a precise mathematical framework for measuring <em>surprise</em>. Once you see the connection, the −log(p) shape stops being arbitrary and becomes the only choice that makes sense.</p>
+
+    <div class="step-label">Information content (surprise) of an event</div>
+    <p class="note" style="margin-bottom:0.5rem">Information theory says: the amount of information in observing an event with probability p is <strong>−log(p)</strong>. The lower the probability, the more surprising the event, and the more information it carries.</p>
+
+    <div class="eq-box">
+      I(p) = −log(p)
+      <div class="eq-note">When the log uses base 2, I(p) is measured in bits. In deep learning we use the natural log (base e) — the units don't change the optimization, only the scale. p = 1 → 0 surprise. p → 0 → infinite surprise.</div>
+    </div>
+
+    <div class="step-label">Concrete intuitions</div>
+    <table class="summary-table">
+      <thead><tr><th>Event</th><th>Probability</th><th>Surprise (−ln p)</th><th>Plain English</th></tr></thead>
+      <tbody>
+        <tr><td>Sun rises tomorrow</td><td>≈ 1.000</td><td style="color:var(--text-success)">≈ 0</td><td>"As expected"</td></tr>
+        <tr><td>Coin lands heads</td><td>0.500</td><td style="color:var(--text-info)">0.69</td><td>"Mildly informative"</td></tr>
+        <tr><td>Roll a six on a die</td><td>0.167</td><td style="color:var(--text-warning)">1.79</td><td>"Notable"</td></tr>
+        <tr><td>Win a lottery ticket</td><td>0.001</td><td style="color:var(--text-danger)">6.91</td><td>"Very surprising"</td></tr>
+        <tr><td>"Impossible" event happening</td><td>→ 0</td><td style="color:var(--text-danger)">→ ∞</td><td>"Shocking"</td></tr>
+      </tbody>
+    </table>
+
+    <div class="step-label">Interactive — drag the probability and watch the surprise</div>
+
+    <div class="slider-row">
+      <span class="slider-name">P(event)</span>
+      <input type="range" id="sl-surprise" min="0.001" max="1" step="0.001" value="0.5">
+      <span class="slider-val" id="lbl-surprise">0.500</span>
+    </div>
+
+    <div class="metric-grid" style="grid-template-columns:1fr 1fr">
+      <div class="metric-card"><div class="mc-label">Surprise (−ln p)</div><div class="mc-val" id="surprise-val" style="transition:color 0.3s">—</div></div>
+      <div class="metric-card"><div class="mc-label">Plain English</div><div class="mc-val" id="surprise-text" style="font-size:13px;padding-top:4px">—</div></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="step-label">From surprise to loss — the conceptual leap</div>
+    <p class="note" style="margin-bottom:0.5rem">Now connect this to neural networks. The model produces a probability distribution over classes. The truth is one specific class. <strong>The loss is the surprise of the truth, under the model's distribution:</strong></p>
+
+    <div class="eq-box">
+      L = −log(p<sub>true</sub>)
+      <div class="eq-note">p<sub>true</sub> = probability the model assigned to the correct answer. If the model assigned high probability (near 1) → low surprise → low loss. If the model assigned low probability (near 0) → huge surprise → huge loss.</div>
+    </div>
+
+    <div class="insight success">
+      This is why cross-entropy is the principled choice for classification. It is literally the surprise of the correct answer under the model's predicted distribution — minimising it teaches the model to be unsurprised by the truth.
+    </div>
+  </div>
+
+  <!-- PART 3 -->
+  <div class="card">
+    <h2 id="sec-log-curve">The −log(p) curve</h2>
+    <p class="note">The shape of −log(p) is what gives cross-entropy its punishing behaviour for wrong predictions. Three regions tell the whole story.</p>
+
+    <div style="position:relative;width:100%;height:280px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px;margin:0.75rem 0">
+      <canvas id="log-canvas" role="img" aria-label="−log(p) loss curve"></canvas>
+    </div>
+
+    <div class="slider-row">
+      <span class="slider-name">P(true class)</span>
+      <input type="range" id="sl-logcurve" min="0.001" max="1" step="0.001" value="0.5">
+      <span class="slider-val" id="lbl-logcurve">0.500</span>
+    </div>
+
+    <div class="metric-grid" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="metric-card"><div class="mc-label">P(true class)</div><div class="mc-val" id="lc-p">—</div></div>
+      <div class="metric-card"><div class="mc-label">Cross-entropy loss</div><div class="mc-val" id="lc-loss" style="transition:color 0.3s">—</div></div>
+      <div class="metric-card"><div class="mc-label">Gradient ∂L/∂p</div><div class="mc-val" id="lc-grad" style="font-size:14px;padding-top:2px">—</div></div>
+    </div>
+
+    <div id="lc-region" class="insight"></div>
+
+    <div class="step-label">The three regions of the curve</div>
+    <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:0.75rem">
+      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-success);margin-bottom:3px">Near p = 1 — confident right</div>
+        <div style="font-size:12px;color:var(--text-success);line-height:1.55">Loss ≈ 0. The model assigned nearly all probability to the truth. Reward: nothing further to learn from this example.</div>
+      </div>
+      <div style="background:var(--bg-info);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-info);margin-bottom:3px">Near p = 0.5 — coin-flip uncertain</div>
+        <div style="font-size:12px;color:var(--text-info);line-height:1.55">Loss ≈ 0.69 (which is ln 2). The model is hedging. Penalty: moderate — the model needs to be more decisive on this example.</div>
+      </div>
+      <div style="background:var(--bg-danger);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-danger);margin-bottom:3px">Near p = 0 — confident wrong</div>
+        <div style="font-size:12px;color:var(--text-danger);line-height:1.55">Loss → ∞. The model confidently picked the <em>wrong</em> answer. Penalty: unbounded. The gradient is huge (−1/p with small p) — the model will dramatically overhaul its weights to fix this.</div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <strong>The unbounded penalty is by design.</strong> A network that confidently mislabels a cat as a plane must change a lot — and the huge gradient ensures it does. This is the opposite of MSE's tiny gradient in the same regime.
+    </div>
+  </div>
+
+  <!-- PART 4 -->
+  <div class="card">
+    <h2 id="sec-bce">Binary cross-entropy</h2>
+    <p class="note">The simplest case: a binary classifier — one output neuron, one true label. The output neuron uses <strong>sigmoid</strong> (which you saw in the <a class="xref" href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html" target="_blank" rel="noopener">Activation Functions Explainer</a>) to produce a probability between 0 and 1. Cross-entropy then measures the loss based on what the truth was.</p>
+
+    <div class="eq-box">
+      L = −[y · log(p) + (1 − y) · log(1 − p)]
+      <div class="eq-note">y ∈ {0, 1} is the true label. p ∈ (0, 1) is the predicted probability of class 1. When y = 1: only −log(p) survives. When y = 0: only −log(1 − p) survives.</div>
+    </div>
+
+    <div class="step-label">Why both terms — and only one is "active" at a time</div>
+    <p class="note" style="margin-bottom:0.5rem">If the truth is positive (y = 1), the second term is multiplied by 0 and disappears. Loss = −log(p). High loss if p is low.</p>
+    <p class="note" style="margin-bottom:0.5rem">If the truth is negative (y = 0), the first term is multiplied by 0 and disappears. Loss = −log(1 − p). High loss if p is high (because then 1 − p is low).</p>
+
+    <div class="step-label">Interactive — slide the prediction and toggle the true label</div>
+
+    <div class="slider-row">
+      <span class="slider-name">Predicted P(class = 1)</span>
+      <input type="range" id="sl-bce-p" min="0.01" max="0.99" step="0.01" value="0.7">
+      <span class="slider-val" id="lbl-bce-p">0.70</span>
+    </div>
+
+    <div class="row">
+      <button class="tab-btn active" id="btn-bce-1" onclick="setBceTrue(1)">True label = 1 (positive)</button>
+      <button class="tab-btn" id="btn-bce-0" onclick="setBceTrue(0)">True label = 0 (negative)</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Computation</div>
+      <div id="bce-calc" style="font-family:var(--font-mono);font-size:12px;line-height:1.8;color:var(--text-secondary)"></div>
+    </div>
+
+    <div class="metric-grid" style="grid-template-columns:1fr 1fr">
+      <div class="metric-card"><div class="mc-label">BCE loss</div><div class="mc-val" id="bce-loss" style="transition:color 0.3s">—</div></div>
+      <div class="metric-card"><div class="mc-label">Active term</div><div class="mc-val" id="bce-active" style="font-size:13px;padding-top:4px">—</div></div>
+    </div>
+
+    <div id="bce-insight" class="insight"></div>
+
+    <div class="step-label">In code — and why _with_logits is preferred</div>
+    <div class="code-box"><span class="code-comment"># Standard PyTorch — accepts raw logits directly (preferred)</span>
+logits = model(x)                                        <span class="code-comment"># shape (B,)</span>
+loss   = F.<span class="code-blue">binary_cross_entropy_with_logits</span>(logits, targets.float())
+
+<span class="code-comment"># If you already applied sigmoid yourself (rarely needed):</span>
+probs  = torch.sigmoid(logits)
+loss   = F.<span class="code-blue">binary_cross_entropy</span>(probs, targets.float())
+
+<span class="code-comment"># NEVER apply sigmoid then call binary_cross_entropy_with_logits — that</span>
+<span class="code-comment"># would apply sigmoid twice and silently destroy your gradients.</span></div>
+
+    <div class="insight warning">
+      <strong>Why the "with logits" version exists:</strong> calling sigmoid then BCE separately can overflow for large logits — similarly to the numerical stability issue you saw in the <a class="xref" href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/softmax_explainer.html" target="_blank" rel="noopener">Softmax & Probability Outputs Explainer</a>. The combined version is mathematically equivalent but numerically stable.
+    </div>
+  </div>
+
+  <!-- PART 5 -->
+  <div class="card">
+    <h2 id="sec-cce">Categorical cross-entropy</h2>
+    <p class="note">For multi-class classification (more than 2 classes), the network outputs <em>num_classes</em> logits, softmax converts them to probabilities, and <strong>categorical cross-entropy</strong> is the loss. This is the loss used in 99% of classification tasks.</p>
+
+    <div class="eq-box">
+      L = −Σ<sub>i</sub> y<sub>i</sub> · log(p<sub>i</sub>)
+      <div class="eq-note">y is the one-hot true label vector. p is the softmax output. Sum over all classes.</div>
+    </div>
+
+    <div class="step-label">A beautiful simplification — the sum collapses</div>
+    <p class="note" style="margin-bottom:0.5rem">The true label y is one-hot — exactly one element is 1, the rest are 0. So all terms in the sum vanish except the one for the true class:</p>
+
+    <div class="eq-box">
+      L = −log(p<sub>true</sub>)
+      <div class="eq-note">Where p<sub>true</sub> is the probability the model assigned to the correct class. This is exactly the surprise of the truth (Section 2). The categorical case reduces to the simple −log(p) form.</div>
+    </div>
+
+    <div class="step-label">The "softmax + cross-entropy" pairing</div>
+    <p class="note" style="margin-bottom:0.5rem">In the <a class="xref" href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/softmax_explainer.html" target="_blank" rel="noopener">Softmax & Probability Outputs Explainer</a> you learned that p<sub>i</sub> = e<sup>z<sub>i</sub></sup> / Σ e<sup>z<sub>j</sub></sup>. Substitute that into the loss:</p>
+
+    <div class="eq-box">
+      L = −log( e<sup>z<sub>true</sub></sup> / Σ<sub>j</sub> e<sup>z<sub>j</sub></sup> ) = −z<sub>true</sub> + log(Σ<sub>j</sub> e<sup>z<sub>j</sub></sup>)
+      <div class="eq-note">This combined form has a beautiful gradient that flows cleanly back through the network. Softmax and cross-entropy are designed for each other.</div>
+    </div>
+
+    <div class="step-label">Interactive — 5 logits, choose the true class, watch the loss</div>
+
+    <div class="row" id="cce-class-btns" style="margin-bottom:0.75rem"></div>
+
+    <div id="cce-sliders"></div>
+
+    <div class="panel" style="margin-top:0.5rem">
+      <div class="panel-title">Softmax probabilities</div>
+      <div id="cce-bars"></div>
+    </div>
+
+    <div class="metric-grid" style="grid-template-columns:1fr 1fr">
+      <div class="metric-card"><div class="mc-label">P(true class)</div><div class="mc-val" id="cce-p-true" style="transition:color 0.3s">—</div></div>
+      <div class="metric-card"><div class="mc-label">Cross-entropy loss</div><div class="mc-val" id="cce-loss" style="transition:color 0.3s">—</div></div>
+    </div>
+
+    <div id="cce-insight" class="insight"></div>
+
+    <div class="step-label">In PyTorch — F.cross_entropy does both at once</div>
+    <div class="code-box">logits = model(x)                                <span class="code-comment"># shape (B, num_classes) — RAW LOGITS</span>
+loss   = F.<span class="code-blue">cross_entropy</span>(logits, targets)         <span class="code-comment"># targets is shape (B,) with class indices (NOT one-hot)</span>
+loss.backward()                                  <span class="code-comment"># gradients flow back</span></div>
+
+    <div class="insight danger">
+      <strong>Common beginner mistake:</strong> never apply softmax before <code style="font-family:var(--font-mono);font-size:12px">F.cross_entropy</code>. It does softmax internally as part of the combined stable computation. Doing it twice silently destroys gradients and the network won't train. Pass <em>raw logits</em> directly.
+    </div>
+  </div>
+
+  <!-- PART 6 -->
+  <div class="card">
+    <h2 id="sec-worked">Worked example end-to-end</h2>
+    <p class="note">A batch of 4 images, 5-class classifier. Each image has a true label and the network outputs 5 raw logits. You will see the full pipeline: logits → softmax → cross-entropy per example → mean over the batch (the actual training loss).</p>
+
+    <div class="insight">
+      <strong>Recall:</strong> from the <a class="xref" href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/tensors_explainer.html" target="_blank" rel="noopener">Tensors Explainer</a>, batched inputs have shape (B, …). Here logits are shape (4, 5) and labels are shape (4,) with class indices. The loss reduces this to a single scalar that backpropagates through the network.
+    </div>
+
+    <div class="step-label">The 4-image batch</div>
+    <div id="batch-display"></div>
+
+    <div class="divider"></div>
+
+    <div class="step-label">Per-example losses combined into the batch loss</div>
+    <div class="panel">
+      <div class="panel-title">Computation</div>
+      <div id="batch-summary" style="font-family:var(--font-mono);font-size:12px;line-height:1.9;color:var(--text-secondary)"></div>
+    </div>
+
+    <div class="metric-grid" style="grid-template-columns:1fr 1fr">
+      <div class="metric-card"><div class="mc-label">Sum of losses</div><div class="mc-val" id="batch-sum" style="font-size:14px;padding-top:2px">—</div></div>
+      <div class="metric-card"><div class="mc-label">Mean loss (the actual training loss)</div><div class="mc-val" id="batch-mean" style="font-size:14px;padding-top:2px;color:var(--text-warning)">—</div></div>
+    </div>
+
+    <div id="batch-insight" class="insight"></div>
+
+    <div class="step-label">The complete classification loss in PyTorch — 2 lines</div>
+    <div class="code-box">logits = model(images)                       <span class="code-comment"># shape (B, num_classes) — raw scores</span>
+loss   = F.<span class="code-blue">cross_entropy</span>(logits, labels)      <span class="code-comment"># softmax + cross-entropy, combined and stable</span>
+loss.backward()                              <span class="code-comment"># gradients flow back through the network</span></div>
+
+    <div class="divider"></div>
+    <div class="step-label">Cross-entropy in PyTorch — a complete reference</div>
+    <p class="note" style="margin-bottom:0.5rem">All the patterns covered in this explainer plus the most common production options, in one consolidated code block. Every flag shown here gets used somewhere in real classifier training.</p>
+
+    <pre style="background:var(--bg-secondary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-md);padding:0.75rem 1rem;margin:0.5rem 0;font-family:var(--font-mono);font-size:13px;color:var(--text-primary);overflow-x:auto;line-height:1.5;white-space:pre"><span style="color:var(--text-info)">import</span> torch
+<span style="color:var(--text-info)">import</span> torch.nn <span style="color:var(--text-info)">as</span> nn
+<span style="color:var(--text-info)">import</span> torch.nn.functional <span style="color:var(--text-info)">as</span> F
+
+<span style="color:var(--text-tertiary)"># ── Binary classification (Section 4) ──────────────────────────────────</span>
+<span style="color:var(--text-tertiary)"># Logits are raw scores; targets are 0.0 / 1.0 floats.</span>
+logits_bin = torch.tensor([<span style="color:var(--text-warning)">1.5</span>, -<span style="color:var(--text-warning)">0.8</span>, <span style="color:var(--text-warning)">2.1</span>])
+targets    = torch.tensor([<span style="color:var(--text-warning)">1.</span>, <span style="color:var(--text-warning)">0.</span>, <span style="color:var(--text-warning)">1.</span>])
+
+bce = F.binary_cross_entropy_with_logits(logits_bin, targets)     <span style="color:var(--text-tertiary)"># ✓ preferred (stable)</span>
+
+<span style="color:var(--text-tertiary)"># Module form — drops into nn.Module subclasses</span>
+loss_fn = nn.BCEWithLogitsLoss()
+bce     = loss_fn(logits_bin, targets)
+
+
+<span style="color:var(--text-tertiary)"># ── Multi-class classification (Section 5) ─────────────────────────────</span>
+<span style="color:var(--text-tertiary)"># Logits shape (B, C). Labels are class INDICES, shape (B,) — NOT one-hot.</span>
+logits = torch.tensor([[<span style="color:var(--text-warning)">2.0</span>, <span style="color:var(--text-warning)">0.1</span>, -<span style="color:var(--text-warning)">1.0</span>],
+                       [<span style="color:var(--text-warning)">0.5</span>, <span style="color:var(--text-warning)">1.8</span>, -<span style="color:var(--text-warning)">0.2</span>]])
+labels = torch.tensor([<span style="color:var(--text-warning)">0</span>, <span style="color:var(--text-warning)">1</span>])
+
+ce = F.cross_entropy(logits, labels)                              <span style="color:var(--text-tertiary)"># ✓ softmax + CE in one call</span>
+
+<span style="color:var(--text-tertiary)"># Module form</span>
+loss_fn = nn.CrossEntropyLoss()
+ce      = loss_fn(logits, labels)
+
+
+<span style="color:var(--text-tertiary)"># ── Production-grade options you will see in real codebases ────────────</span>
+
+<span style="color:var(--text-tertiary)"># reduction — how to aggregate the per-example losses</span>
+ce_mean = F.cross_entropy(logits, labels, reduction=<span style="color:var(--text-warning)">'mean'</span>)   <span style="color:var(--text-tertiary)"># default — single scalar (avg)</span>
+ce_sum  = F.cross_entropy(logits, labels, reduction=<span style="color:var(--text-warning)">'sum'</span>)    <span style="color:var(--text-tertiary)"># single scalar (total)</span>
+ce_none = F.cross_entropy(logits, labels, reduction=<span style="color:var(--text-warning)">'none'</span>)   <span style="color:var(--text-tertiary)"># shape (B,) — per-example losses</span>
+
+<span style="color:var(--text-tertiary)"># weight — per-class weighting for class imbalance</span>
+<span style="color:var(--text-tertiary)"># Boost loss on the rare class so the model doesn't ignore it.</span>
+class_weights = torch.tensor([<span style="color:var(--text-warning)">1.0</span>, <span style="color:var(--text-warning)">3.0</span>, <span style="color:var(--text-warning)">1.0</span>])         <span style="color:var(--text-tertiary)"># class 1 is rare → weight 3x</span>
+ce_w = F.cross_entropy(logits, labels, weight=class_weights)
+
+<span style="color:var(--text-tertiary)"># ignore_index — skip specific labels in the loss</span>
+<span style="color:var(--text-tertiary)"># Used in language modelling to skip [PAD] tokens, or in segmentation</span>
+<span style="color:var(--text-tertiary)"># to skip "unlabelled" pixels.</span>
+ce_pad = F.cross_entropy(logits, labels, ignore_index=-<span style="color:var(--text-warning)">100</span>)
+
+<span style="color:var(--text-tertiary)"># label_smoothing — soften the target distribution</span>
+<span style="color:var(--text-tertiary)"># Instead of all probability on the true class, distribute a tiny amount</span>
+<span style="color:var(--text-tertiary)"># to other classes. Helps regularisation and prevents overconfident outputs.</span>
+ce_ls = F.cross_entropy(logits, labels, label_smoothing=<span style="color:var(--text-warning)">0.1</span>)
+
+
+<span style="color:var(--text-tertiary)"># ── The full training loop — putting it all together ──────────────────</span>
+<span style="color:var(--text-blue">for</span> images, labels <span style="color:var(--text-blue">in</span> dataloader:
+    logits = model(images)
+    loss   = F.cross_entropy(logits, labels)
+    loss.backward()
+    optimizer.step()
+    optimizer.zero_grad()</pre>
+
+    <div class="insight">
+      <strong>The two flags you'll meet most often:</strong> <code style="font-family:var(--font-mono);font-size:12px">weight</code> handles class imbalance (medical classifiers, fraud detection); <code style="font-family:var(--font-mono);font-size:12px">label_smoothing</code> is standard in modern vision and language model training (used in the original Transformer paper, BERT, and Vision Transformer). <code style="font-family:var(--font-mono);font-size:12px">ignore_index=-100</code> is the default PyTorch convention for "skip this label" — language modelling tokenisers like Hugging Face pad with -100 specifically so this works out of the box.
+    </div>
+
+    <div class="divider"></div>
+    <div class="step-label">The three losses we have seen so far — at a glance</div>
+    <table class="summary-table">
+      <thead><tr><th>Loss</th><th>Used for</th><th>Loss range</th><th>Punishes confident wrong?</th><th>Pairs with</th></tr></thead>
+      <tbody>
+        <tr><td><strong>MSE</strong></td><td>Regression</td><td>[0, 1] for probabilities</td><td style="color:var(--text-danger)">No (capped)</td><td>Linear output</td></tr>
+        <tr><td><strong>Binary cross-entropy</strong></td><td>Binary classification</td><td>[0, ∞)</td><td style="color:var(--text-success)">Yes</td><td>Sigmoid</td></tr>
+        <tr><td><strong>Categorical cross-entropy</strong></td><td>Multi-class classification</td><td>[0, ∞)</td><td style="color:var(--text-success)">Yes</td><td>Softmax</td></tr>
+      </tbody>
+    </table>
+
+    <div class="insight success">
+      You now understand the principled choice behind cross-entropy — why it is the right loss for classification, where the −log(p) shape comes from, why softmax + cross-entropy is the standard pairing, and how to use it in PyTorch. Every classifier you build from now on uses this loss.
+    </div>
+  </div>
+
+  <footer>
+    Built with <span style="color:var(--text-danger);font-size:18px;vertical-align:middle">♥</span> by
+    <a href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">Ancil Cleetus</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://ancilcleetus.github.io/AI-ML-Explainers/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">AI ML Explainers</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp; No external dependencies
+    &nbsp;&nbsp;·&nbsp;&nbsp; MIT License
+  </footer>
+
+</div>
+<script>
+const isDark = () => matchMedia('(prefers-color-scheme:dark)').matches;
+const CLASSES = ['🐱 Cat', '🐶 Dog', '🐦 Bird', '🚗 Car', '✈️ Plane'];
+const COLORS  = ['#378ADD', '#1D9E75', '#BA7517', '#534AB7', '#a32d2d'];
+
+function softmax(logits) {
+  const m = Math.max(...logits);
+  const exps = logits.map(z => Math.exp(z - m));
+  const s = exps.reduce((a, b) => a + b, 0);
+  return exps.map(e => e / s);
+}
+function crossEntropy(probs, trueIdx) {
+  return -Math.log(Math.max(probs[trueIdx], 1e-12));
+}
+function fmtPosBar(value, label, maxVal, color, showVal) {
+  const pct = Math.max(0, Math.min(100, (value / maxVal) * 100));
+  return `<div class="bar-row">
+    <span class="bar-label">${label}</span>
+    <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+    <span class="bar-pct">${showVal}</span>
+  </div>`;
+}
+
+// ─── PART 1: MSE vs CE ───────────────────────────────────────────────────────
+function updateMseVsCe() {
+  const p = +document.getElementById('sl-mse-p').value;
+  document.getElementById('lbl-mse-p').textContent = p.toFixed(2);
+  // 3-class scenario, true = "Cat" = index 0, one-hot = [1, 0, 0]
+  // pred = [p, (1-p)/2, (1-p)/2]
+  const others = (1 - p) / 2;
+  const pred = [p, others, others];
+  const truth = [1, 0, 0];
+  // MSE = mean of squared errors over the 3 components
+  const mse = ((p - 1) ** 2 + others ** 2 + others ** 2) / 3;
+  // CE = -log(p_true)
+  const ce = -Math.log(Math.max(p, 1e-12));
+
+  document.getElementById('mse-loss-val').textContent = mse.toFixed(4);
+  document.getElementById('mse-calc-txt').innerHTML =
+    `((${p.toFixed(2)}−1)² + ${others.toFixed(2)}² + ${others.toFixed(2)}²) / 3<br>= ${mse.toFixed(4)}`;
+  document.getElementById('ce-loss-val').textContent = ce.toFixed(4);
+  document.getElementById('ce-calc-txt').innerHTML =
+    `−ln(${p.toFixed(2)})<br>= ${ce.toFixed(4)}`;
+}
+
+// ─── PART 2: Surprise calculator ─────────────────────────────────────────────
+function updateSurprise() {
+  const p = +document.getElementById('sl-surprise').value;
+  document.getElementById('lbl-surprise').textContent = p.toFixed(3);
+  const surprise = -Math.log(p);
+  const valEl = document.getElementById('surprise-val');
+  valEl.textContent = surprise.toFixed(3);
+  let txt, color;
+  if (p > 0.95) { txt = 'Almost expected'; color = 'var(--text-success)'; }
+  else if (p > 0.6) { txt = 'Mildly informative'; color = 'var(--text-info)'; }
+  else if (p > 0.2) { txt = 'Notable'; color = 'var(--text-warning)'; }
+  else if (p > 0.05) { txt = 'Surprising'; color = 'var(--text-warning)'; }
+  else { txt = 'Shocking'; color = 'var(--text-danger)'; }
+  valEl.style.color = color;
+  document.getElementById('surprise-text').textContent = txt;
+  document.getElementById('surprise-text').style.color = color;
+}
+
+// ─── PART 3: -log curve ──────────────────────────────────────────────────────
+function drawLogCurve() {
+  const canvas = document.getElementById('log-canvas');
+  const W = canvas.parentElement.clientWidth - 16;
+  const H = 264;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0, 0, W, H);
+
+  const d = isDark();
+  const padL = 44, padR = 16, padT = 14, padB = 30;
+  const cW = W - padL - padR, cH = H - padT - padB;
+
+  const yMax = 5;
+  const gridC = d ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+  const textC = d ? '#b4b2a9' : '#5f5e5a';
+  const blue  = d ? '#85b7eb' : '#378ADD';
+  const green = d ? '#5dcaa5' : '#1D9E75';
+
+  // Grid + axis labels
+  ctx.strokeStyle = gridC; ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 5; i++) {
+    const y = padT + (i / 5) * cH;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + cW, y); ctx.stroke();
+    ctx.fillStyle = textC; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText((yMax - (i / 5) * yMax).toFixed(0), padL - 4, y + 3);
+  }
+  for (let i = 0; i <= 4; i++) {
+    const x = padL + (i / 4) * cW;
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + cH); ctx.stroke();
+    ctx.fillStyle = textC; ctx.textAlign = 'center';
+    ctx.fillText((i / 4).toFixed(2), x, padT + cH + 16);
+  }
+  ctx.fillStyle = textC;
+  ctx.textAlign = 'center'; ctx.fillText('P(true class)', padL + cW / 2, H - 4);
+  ctx.save(); ctx.translate(12, padT + cH / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('Loss = −ln(p)', 0, 0); ctx.restore();
+
+  // Curve
+  ctx.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    const p = 0.005 + (i / 200) * 0.995;
+    const loss = Math.min(yMax, -Math.log(p));
+    const x = padL + p * cW;
+    const y = padT + (1 - loss / yMax) * cH;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.strokeStyle = blue; ctx.lineWidth = 2.5; ctx.stroke();
+
+  // Operating point
+  const p = +document.getElementById('sl-logcurve').value;
+  const loss = Math.min(yMax, -Math.log(p));
+  const px = padL + p * cW;
+  const py = padT + (1 - loss / yMax) * cH;
+  ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI * 2);
+  ctx.fillStyle = green; ctx.fill();
+  ctx.strokeStyle = d ? '#1c1c1a' : '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = green; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(`p = ${p.toFixed(3)}`, px, Math.max(padT + 14, py - 12));
+}
+
+function updateLogCurve() {
+  const p = +document.getElementById('sl-logcurve').value;
+  document.getElementById('lbl-logcurve').textContent = p.toFixed(3);
+  document.getElementById('lc-p').textContent = p.toFixed(3);
+  const loss = -Math.log(Math.max(p, 1e-12));
+  const grad = -1 / Math.max(p, 1e-12);
+  const lossEl = document.getElementById('lc-loss');
+  lossEl.textContent = loss.toFixed(3);
+  lossEl.style.color = loss < 0.2 ? 'var(--text-success)' : loss < 1 ? 'var(--text-info)' : loss < 2.5 ? 'var(--text-warning)' : 'var(--text-danger)';
+  document.getElementById('lc-grad').textContent = grad.toFixed(2);
+
+  const ins = document.getElementById('lc-region');
+  if (p > 0.85) {
+    ins.className = 'insight success';
+    ins.textContent = `p = ${p.toFixed(3)} → loss = ${loss.toFixed(3)}. The model assigned high probability to the truth — confident and right. Loss is small, gradient is gentle (${grad.toFixed(2)}). Little to learn from this example.`;
+  } else if (p > 0.3) {
+    ins.className = 'insight';
+    ins.textContent = `p = ${p.toFixed(3)} → loss = ${loss.toFixed(3)}. The model is unsure. Moderate loss, moderate gradient (${grad.toFixed(2)}). The network needs to be more decisive on this example.`;
+  } else if (p > 0.05) {
+    ins.className = 'insight warning';
+    ins.textContent = `p = ${p.toFixed(3)} → loss = ${loss.toFixed(3)}. The model is leaning the wrong way. Loss climbing fast, gradient growing (${grad.toFixed(2)}).`;
+  } else {
+    ins.className = 'insight danger';
+    ins.textContent = `p = ${p.toFixed(3)} → loss = ${loss.toFixed(3)}. The model is confidently wrong. Loss is huge, gradient is huge (${grad.toFixed(2)}). The next gradient step will dramatically change the weights to fix this.`;
+  }
+  drawLogCurve();
+}
+
+// ─── PART 4: BCE ─────────────────────────────────────────────────────────────
+let bceTrue = 1;
+function setBceTrue(y) {
+  bceTrue = y;
+  document.getElementById('btn-bce-1').classList.toggle('active', y === 1);
+  document.getElementById('btn-bce-0').classList.toggle('active', y === 0);
+  updateBce();
+}
+function updateBce() {
+  const p = +document.getElementById('sl-bce-p').value;
+  document.getElementById('lbl-bce-p').textContent = p.toFixed(2);
+  const term1 = bceTrue === 1 ? -Math.log(Math.max(p, 1e-12)) : 0;
+  const term2 = bceTrue === 0 ? -Math.log(Math.max(1 - p, 1e-12)) : 0;
+  const loss = term1 + term2;
+
+  let calc;
+  if (bceTrue === 1) {
+    calc = `y = 1 (positive)<br>` +
+      `L = −[1 · log(${p.toFixed(2)}) + (1 − 1) · log(1 − ${p.toFixed(2)})]<br>` +
+      `  = −log(${p.toFixed(2)}) + 0<br>` +
+      `  = <span style="color:var(--text-primary);font-weight:600">${loss.toFixed(4)}</span>`;
+  } else {
+    calc = `y = 0 (negative)<br>` +
+      `L = −[0 · log(${p.toFixed(2)}) + (1 − 0) · log(1 − ${p.toFixed(2)})]<br>` +
+      `  = 0 + −log(${(1 - p).toFixed(2)})<br>` +
+      `  = <span style="color:var(--text-primary);font-weight:600">${loss.toFixed(4)}</span>`;
+  }
+  document.getElementById('bce-calc').innerHTML = calc;
+
+  const lossEl = document.getElementById('bce-loss');
+  lossEl.textContent = loss.toFixed(4);
+  lossEl.style.color = loss < 0.2 ? 'var(--text-success)' : loss < 1 ? 'var(--text-info)' : loss < 2.5 ? 'var(--text-warning)' : 'var(--text-danger)';
+
+  document.getElementById('bce-active').textContent = bceTrue === 1 ? '−log(p)' : '−log(1 − p)';
+
+  const ins = document.getElementById('bce-insight');
+  if ((bceTrue === 1 && p > 0.8) || (bceTrue === 0 && p < 0.2)) {
+    ins.className = 'insight success';
+    ins.textContent = `Confident and right — loss is small (${loss.toFixed(3)}). The model gave high probability to the correct class.`;
+  } else if ((bceTrue === 1 && p < 0.2) || (bceTrue === 0 && p > 0.8)) {
+    ins.className = 'insight danger';
+    ins.textContent = `Confidently wrong — loss is huge (${loss.toFixed(3)}). The model gave high probability to the wrong class. Big gradient incoming.`;
+  } else {
+    ins.className = 'insight';
+    ins.textContent = `Loss = ${loss.toFixed(3)}. Move the slider to extremes to see how loss changes when the model is confidently right vs confidently wrong.`;
+  }
+}
+
+// ─── PART 5: Categorical CE ──────────────────────────────────────────────────
+let cceLogits = [3.2, 1.5, 0.8, -0.5, 1.0];
+let cceTrue = 0;
+
+function buildCceUi() {
+  document.getElementById('cce-class-btns').innerHTML =
+    CLASSES.map((c, i) => `<button class="tab-btn${i === cceTrue ? ' active' : ''}" onclick="setCceTrue(${i})">${c}${i === cceTrue ? ' ★' : ''}</button>`).join('');
+  document.getElementById('cce-sliders').innerHTML = CLASSES.map((c, i) => `
+    <div class="slider-row">
+      <span class="slider-name" style="width:90px">${c}</span>
+      <input type="range" id="cce-sl-${i}" min="-5" max="5" step="0.1" value="${cceLogits[i]}">
+      <span class="slider-val" id="cce-lv-${i}">${cceLogits[i].toFixed(1)}</span>
+    </div>`).join('');
+  CLASSES.forEach((_, i) => {
+    document.getElementById(`cce-sl-${i}`).addEventListener('input', function () {
+      cceLogits[i] = +this.value;
+      document.getElementById(`cce-lv-${i}`).textContent = this.value;
+      updateCce();
+    });
+  });
+}
+function setCceTrue(i) {
+  cceTrue = i;
+  buildCceUi();
+  updateCce();
+}
+function updateCce() {
+  const probs = softmax(cceLogits);
+  const pTrue = probs[cceTrue];
+  const loss = crossEntropy(probs, cceTrue);
+
+  document.getElementById('cce-bars').innerHTML = probs.map((p, i) => {
+    const color = i === cceTrue ? COLORS[i] : (isDark() ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)');
+    const label = i === cceTrue ? `${CLASSES[i]} ★` : CLASSES[i];
+    return fmtPosBar(p, label, 1, color, (p * 100).toFixed(1) + '%');
+  }).join('');
+
+  const pEl = document.getElementById('cce-p-true');
+  pEl.textContent = (pTrue * 100).toFixed(2) + '%';
+  pEl.style.color = pTrue > 0.7 ? 'var(--text-success)' : pTrue > 0.3 ? 'var(--text-info)' : pTrue > 0.05 ? 'var(--text-warning)' : 'var(--text-danger)';
+
+  const lossEl = document.getElementById('cce-loss');
+  lossEl.textContent = loss.toFixed(4);
+  lossEl.style.color = loss < 0.2 ? 'var(--text-success)' : loss < 1 ? 'var(--text-info)' : loss < 2.5 ? 'var(--text-warning)' : 'var(--text-danger)';
+
+  const ins = document.getElementById('cce-insight');
+  if (pTrue > 0.85) {
+    ins.className = 'insight success';
+    ins.textContent = `The model assigned ${(pTrue * 100).toFixed(1)}% to the truth (${CLASSES[cceTrue]}) — confident and right. Loss = ${loss.toFixed(3)}.`;
+  } else if (pTrue > 0.4) {
+    ins.className = 'insight';
+    ins.textContent = `The model assigned ${(pTrue * 100).toFixed(1)}% to the truth (${CLASSES[cceTrue]}) — leaning right but not certain. Loss = ${loss.toFixed(3)}.`;
+  } else if (pTrue > 0.1) {
+    ins.className = 'insight warning';
+    ins.textContent = `The model assigned only ${(pTrue * 100).toFixed(1)}% to the truth (${CLASSES[cceTrue]}). Some other class is winning. Loss = ${loss.toFixed(3)}.`;
+  } else {
+    ins.className = 'insight danger';
+    ins.textContent = `The model assigned just ${(pTrue * 100).toFixed(1)}% to the truth (${CLASSES[cceTrue]}) — confidently wrong. Loss = ${loss.toFixed(3)} — large gradient incoming to fix this.`;
+  }
+}
+
+// ─── PART 6: Worked example end-to-end ───────────────────────────────────────
+const BATCH = [
+  { name: 'Image 1', trueIdx: 0, logits: [3.2, 0.8, -0.5, -1.0, 1.1], descr: 'Confident right' },
+  { name: 'Image 2', trueIdx: 1, logits: [1.5, 1.2, 0.5, -0.3, 0.8], descr: 'Uncertain right' },
+  { name: 'Image 3', trueIdx: 2, logits: [2.0, 1.8, -0.5, -1.2, -0.5], descr: 'Confident WRONG' },
+  { name: 'Image 4', trueIdx: 4, logits: [0.1, 0.2, 0.3, -0.5, 1.5], descr: 'Confident right' },
+];
+
+function renderBatch() {
+  const display = document.getElementById('batch-display');
+  const losses = [];
+  display.innerHTML = BATCH.map((img, idx) => {
+    const probs = softmax(img.logits);
+    const pTrue = probs[img.trueIdx];
+    const loss = crossEntropy(probs, img.trueIdx);
+    losses.push(loss);
+    const lossColor = loss < 0.2 ? 'var(--text-success)' : loss < 1 ? 'var(--text-info)' : loss < 2.5 ? 'var(--text-warning)' : 'var(--text-danger)';
+    const descrColor = img.descr.includes('WRONG') ? 'var(--text-danger)' : 'var(--text-success)';
+
+    const probBars = probs.map((p, i) => {
+      const color = i === img.trueIdx ? COLORS[i] : (isDark() ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.10)');
+      const label = i === img.trueIdx ? `${CLASSES[i]} ★` : CLASSES[i];
+      return fmtPosBar(p, label, 1, color, (p * 100).toFixed(1) + '%');
+    }).join('');
+
+    return `<div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-primary)">${img.name} — true class: <span style="color:${COLORS[img.trueIdx]}">${CLASSES[img.trueIdx]}</span></div>
+          <div style="font-size:11px;color:${descrColor}">${img.descr}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em">Loss</div>
+          <div style="font-family:var(--font-mono);font-size:18px;font-weight:500;color:${lossColor}">${loss.toFixed(4)}</div>
+        </div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary);margin-bottom:6px">logits = [${img.logits.map(z => z.toFixed(1)).join(', ')}]</div>
+      ${probBars}
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary);margin-top:6px">L = −ln(${pTrue.toFixed(4)}) = <span style="color:${lossColor};font-weight:600">${loss.toFixed(4)}</span></div>
+    </div>`;
+  }).join('');
+
+  const sum = losses.reduce((a, b) => a + b, 0);
+  const mean = sum / losses.length;
+
+  document.getElementById('batch-summary').innerHTML =
+    `Per-example losses: [${losses.map(l => l.toFixed(4)).join(', ')}]<br>` +
+    `Sum = ${losses.map(l => l.toFixed(4)).join(' + ')} = ${sum.toFixed(4)}<br>` +
+    `Mean (batch loss) = ${sum.toFixed(4)} / 4 = <span style="color:var(--text-primary);font-weight:600">${mean.toFixed(4)}</span>`;
+  document.getElementById('batch-sum').textContent = sum.toFixed(4);
+  document.getElementById('batch-mean').textContent = mean.toFixed(4);
+
+  const ins = document.getElementById('batch-insight');
+  ins.className = 'insight';
+  ins.innerHTML = `Notice how Image 3 (the confidently wrong one) dominates — its loss of ${losses[2].toFixed(2)} pulls up the batch mean. This is by design: the network is incentivised to fix its worst mistakes first because they contribute the most to the gradient.`;
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+function initAll() {
+  document.getElementById('sl-mse-p').addEventListener('input', updateMseVsCe);
+  updateMseVsCe();
+  document.getElementById('sl-surprise').addEventListener('input', updateSurprise);
+  updateSurprise();
+  document.getElementById('sl-logcurve').addEventListener('input', updateLogCurve);
+  updateLogCurve();
+  document.getElementById('sl-bce-p').addEventListener('input', updateBce);
+  updateBce();
+  buildCceUi();
+  updateCce();
+  renderBatch();
+}
+
+initAll();
+window.addEventListener('resize', () => { drawLogCurve(); renderBatch(); });
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change', () => { drawLogCurve(); renderBatch(); updateCce(); });
+</script>
+</body>
+</html>
