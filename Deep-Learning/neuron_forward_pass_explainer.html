@@ -250,33 +250,73 @@
 <div class="page">
 
   <header>
-    <h1>The Neuron &amp; Forward Pass Explainer</h1>
+    <h1>The Neuron &amp; Forward Pass — Interactive Explainer</h1>
     <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)" target="_blank" rel="noopener">Ancil Cleetus</a></p>
-    <p>Every neural network, no matter how large, is built from a single repeating unit: the neuron. Understand one neuron and you understand the whole stack.</p>
+    <p>Every neural network, no matter how large or sophisticated, is built from a single repeating unit: the <strong>neuron</strong>. The same building block, repeated thousands or millions of times, gives rise to image classifiers, language models, and everything in between. <strong>Understand one neuron and you understand the whole stack.</strong> By the end of this explainer, you will know exactly what a single neuron computes — and why it is the foundation of every later concept in the roadmap.</p>
   </header>
 
   <!-- Clickable TOC -->
   <nav class="toc-nav" aria-label="Table of contents">
     <div class="toc-title">Contents</div>
-    <a href="#sec-bio-vs-art" class="toc-item">
+    <a href="#sec-what-is" class="toc-item">
       <div class="toc-num">1</div>
-      <span class="toc-label">Biological vs. artificial neuron</span>
+      <span class="toc-label">What is a neuron?</span>
     </a>
-    <a href="#sec-interactive" class="toc-item">
+    <a href="#sec-bio-vs-art" class="toc-item">
       <div class="toc-num">2</div>
-      <span class="toc-label">Interactive: adjust weights &amp; inputs</span>
+      <span class="toc-label">Biological vs. artificial neuron</span>
     </a>
     <a href="#sec-forward-pass" class="toc-item">
       <div class="toc-num">3</div>
       <span class="toc-label">The forward pass — step by step</span>
     </a>
-    <a href="#sec-equations" class="toc-item">
+    <a href="#sec-interactive" class="toc-item">
       <div class="toc-num">4</div>
-      <span class="toc-label">Key equations</span>
+      <span class="toc-label">Interactive: adjust weights &amp; inputs</span>
+    </a>
+    <a href="#sec-boundary" class="toc-item">
+      <div class="toc-num">5</div>
+      <span class="toc-label">What this neuron actually computes</span>
+    </a>
+    <a href="#sec-equations" class="toc-item">
+      <div class="toc-num">6</div>
+      <span class="toc-label">Key equations &amp; code</span>
     </a>
   </nav>
 
-  <!-- PART 1: Bio vs Artificial -->
+  <!-- PART 1: What is a neuron? (NEW) -->
+  <div class="card">
+    <h2 id="sec-what-is">What is a neuron?</h2>
+    <p class="note">Before going into the mechanics, let us frame what we are about to learn.</p>
+
+    <div class="step-label">The big picture</div>
+    <p class="note" style="margin-bottom:0.5rem">A <strong>neural network</strong> is a function. You give it some input (an image, a sentence, a row of numbers), and it produces some output (a prediction, a classification, a generated word). Inside, the network is built from one repeating unit — the <strong>neuron</strong>.</p>
+    <p class="note" style="margin-bottom:0.5rem">One neuron does one small thing: it takes a few input numbers, combines them in a specific way, and produces one output number. Stack many neurons in layers, and you get a network that can solve image recognition, machine translation, protein folding, and more.</p>
+
+    <div class="insight">
+      <strong>The pattern of this roadmap:</strong> understand the neuron first → then stack neurons into layers → then train the stack with data. This explainer covers the first step. Every later explainer assumes you understand it.
+    </div>
+
+    <div class="step-label">Three things a single neuron has</div>
+    <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:0.75rem">
+      <div style="background:var(--bg-info);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-info);margin-bottom:3px">1. Inputs</div>
+        <div style="font-size:12px;color:var(--text-info);line-height:1.55">A few numbers coming in. In a real network these are either raw data (pixel values, word embeddings) or outputs from neurons in the previous layer.</div>
+      </div>
+      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-success);margin-bottom:3px">2. Weights &amp; bias (learnable parameters)</div>
+        <div style="font-size:12px;color:var(--text-success);line-height:1.55">One weight per input — these decide how much each input matters. One extra number called the bias. The weights and bias <em>are what the network learns during training.</em></div>
+      </div>
+      <div style="background:var(--bg-warning);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-warning);margin-bottom:3px">3. An activation function</div>
+        <div style="font-size:12px;color:var(--text-warning);line-height:1.55">A non-linear function applied at the end — without it, every neuron would just compute a straight line, no matter how many you stack. The <a class="xref" href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html" target="_blank" rel="noopener" style="color:inherit;border-bottom:0.5px solid currentColor;text-decoration:none">Activation Functions Explainer</a> covers why this matters.</div>
+      </div>
+    </div>
+
+    <p class="note">Put these three together and the neuron computes a single output number. That is everything. The rest of this explainer shows you exactly how — visually, interactively, and in code.</p>
+  </div>
+
+  <!-- PART 2: Bio vs Artificial -->
   <div class="card">
     <h2 id="sec-bio-vs-art">Biological vs. artificial neuron</h2>
     <p class="note">The artificial neuron is loosely inspired by biology. Dendrites → inputs, synaptic strength → weights, cell body → weighted sum + activation, axon → output.</p>
@@ -367,7 +407,21 @@
     </div>
   </div>
 
-  <!-- PART 2: Interactive neuron -->
+  <!-- PART 3: Forward pass stepper -->
+  <div class="card">
+    <h2 id="sec-forward-pass">The forward pass — step by step</h2>
+    <p class="note">Data flows left to right through the neuron. Click through each stage using the example values (x₁=1.5, x₂=−2.0, x₃=0.8 with ReLU).</p>
+
+    <div class="stepper-nav">
+      <button class="step-btn" id="prev-btn" onclick="stepNav(-1)" disabled>← Prev</button>
+      <div class="stepper-dots" id="stepper-dots"></div>
+      <button class="step-btn" id="next-btn" onclick="stepNav(1)">Next →</button>
+    </div>
+
+    <div id="step-panels"></div>
+  </div>
+
+  <!-- PART 4: Interactive neuron -->
   <div class="card">
     <h2 id="sec-interactive">Interactive: adjust weights &amp; inputs</h2>
     <p class="note">Drag the sliders to change input values and weights. Watch the weighted sum z and final output a update in real time.</p>
@@ -441,23 +495,55 @@
     <div id="live-insight" class="insight"></div>
   </div>
 
-  <!-- PART 3: Forward pass stepper -->
+  <!-- PART 5: What this neuron actually computes (NEW) -->
   <div class="card">
-    <h2 id="sec-forward-pass">The forward pass — step by step</h2>
-    <p class="note">Data flows left to right through the neuron. Click through each stage using the example values (x₁=1.5, x₂=−2.0, x₃=0.8 with ReLU).</p>
+    <h2 id="sec-boundary">What this neuron actually computes</h2>
+    <p class="note">A neuron with two inputs is computing <strong>a straight line</strong> across the input space. Inputs on one side of the line make the neuron output a high value (the neuron <em>fires</em>); inputs on the other side make it output a low value. The weights and bias are exactly the numbers that decide where this line sits.</p>
 
-    <div class="stepper-nav">
-      <button class="step-btn" id="prev-btn" onclick="stepNav(-1)" disabled>← Prev</button>
-      <div class="stepper-dots" id="stepper-dots"></div>
-      <button class="step-btn" id="next-btn" onclick="stepNav(1)">Next →</button>
+    <div class="step-label">The mathematics, very briefly</div>
+    <p class="note" style="margin-bottom:0.5rem">With two inputs, the weighted sum is <code style="font-family:var(--font-mono);font-size:12px">z = w₁·x₁ + w₂·x₂ + b</code>. The boundary where the neuron switches between "fire" and "don't fire" is where <code style="font-family:var(--font-mono);font-size:12px">z = 0</code> — which rearranges to <code style="font-family:var(--font-mono);font-size:12px">x₂ = −(w₁/w₂)·x₁ − b/w₂</code>. That is the equation of a straight line. <strong>Every single neuron in a network is, geometrically, just a line (or hyperplane in higher dimensions).</strong></p>
+
+    <div class="step-label">Interactive — drag the weights and watch the line move</div>
+    <p class="note" style="margin-bottom:0.5rem">The shaded regions show where the neuron outputs a positive value (blue, "fires") and a negative value (amber, "doesn't fire"). Drag the sliders to change the decision boundary.</p>
+
+    <div class="slider-row">
+      <span class="slider-name">w₁</span>
+      <input type="range" id="bw1" min="-2" max="2" step="0.05" value="1.0">
+      <span class="slider-val" id="bw1v">1.00</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-name">w₂</span>
+      <input type="range" id="bw2" min="-2" max="2" step="0.05" value="1.0">
+      <span class="slider-val" id="bw2v">1.00</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-name">b (bias)</span>
+      <input type="range" id="bb" min="-2" max="2" step="0.05" value="0.0">
+      <span class="slider-val" id="bbv">0.00</span>
     </div>
 
-    <div id="step-panels"></div>
+    <div style="position:relative;width:100%;height:300px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px;margin:0.5rem 0">
+      <canvas id="canvas-bnd" role="img" aria-label="2D decision boundary"></canvas>
+    </div>
+
+    <div id="bnd-insight" class="insight"></div>
+
+    <div class="divider"></div>
+    <div class="step-label">The limitation — one neuron cannot solve XOR</div>
+    <p class="note" style="margin-bottom:0.5rem">Consider four points arranged in a square: (0,0) and (1,1) should output 0, while (0,1) and (1,0) should output 1. This is the classic <strong>XOR problem</strong>. Try as you might — there is no single straight line that separates the green from the red points below.</p>
+
+    <div style="position:relative;width:100%;height:240px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px;margin:0.5rem 0">
+      <canvas id="canvas-xor" role="img" aria-label="The XOR problem"></canvas>
+    </div>
+
+    <div class="insight warning">
+      One neuron can only draw <em>one</em> straight line. That is its hard limit. To solve XOR — or recognise faces, translate languages, or beat humans at Go — you need <strong>many neurons stacked into layers</strong>. That is what the <a class="xref" href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/tensors_explainer.html" target="_blank" rel="noopener" style="color:inherit;border-bottom:0.5px solid currentColor;text-decoration:none">Tensors Explainer</a> sets up next — and what the rest of the roadmap explores.
+    </div>
   </div>
 
-  <!-- PART 4: Key equations -->
+  <!-- PART 6: Key equations & code -->
   <div class="card">
-    <h2 id="sec-equations">Key equations</h2>
+    <h2 id="sec-equations">Key equations &amp; code</h2>
 
     <div class="step-label">Weighted sum</div>
     <div class="eq-box">
@@ -468,7 +554,7 @@
     <div class="step-label" style="margin-top:1rem">ReLU activation</div>
     <div class="eq-box">
       a = max(0, z)
-      <div class="eq-note">Returns z if positive, 0 otherwise. Most widely used in deep networks.</div>
+      <div class="eq-note">Returns z if positive, 0 otherwise. Most widely used in deep networks. See the <a class="xref" href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html" target="_blank" rel="noopener" style="color:inherit;border-bottom:0.5px solid currentColor;text-decoration:none">Activation Functions Explainer</a> for a deep dive.</div>
     </div>
 
     <div class="step-label" style="margin-top:1rem">Sigmoid activation</div>
@@ -481,6 +567,25 @@
     <div class="eq-box">
       a = (eᶻ − e⁻ᶻ) / (eᶻ + e⁻ᶻ)
       <div class="eq-note">Squashes output to (−1, 1). Zero-centred — often preferred over sigmoid in hidden layers.</div>
+    </div>
+
+    <div class="step-label" style="margin-top:1rem">In code — building this neuron in PyTorch</div>
+    <pre style="background:var(--bg-secondary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-md);padding:0.75rem 1rem;margin:0.5rem 0;font-family:var(--font-mono);font-size:13px;color:var(--text-primary);overflow-x:auto;line-height:1.5;white-space:pre"><span style="color:var(--text-tertiary)"># A single neuron with 3 inputs and 1 output, followed by ReLU.</span>
+<span style="color:var(--text-tertiary)"># nn.Linear(3, 1) creates the weights (w₁, w₂, w₃) and bias b for you.</span>
+<span style="color:var(--text-info)">import</span> torch
+<span style="color:var(--text-info)">import</span> torch.nn <span style="color:var(--text-info)">as</span> nn
+
+neuron = nn.Sequential(
+    nn.Linear(<span style="color:var(--text-warning)">3</span>, <span style="color:var(--text-warning)">1</span>),  <span style="color:var(--text-tertiary)"># 3 inputs → 1 output (the weighted sum z)</span>
+    nn.ReLU()        <span style="color:var(--text-tertiary)"># the activation function</span>
+)
+
+<span style="color:var(--text-tertiary)"># Use it on some input — exactly the example from the sliders</span>
+x = torch.tensor([[<span style="color:var(--text-warning)">1.5</span>, -<span style="color:var(--text-warning)">2.0</span>, <span style="color:var(--text-warning)">0.8</span>]])
+y = neuron(x)        <span style="color:var(--text-tertiary)"># y is the output a = f(z)</span></pre>
+
+    <div class="insight">
+      That is it — three lines of code build a real, working neuron. A full neural network is just <code style="font-family:var(--font-mono);font-size:12px">nn.Linear</code> stacked with more activations in between. The <a class="xref" href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/tensors_explainer.html" target="_blank" rel="noopener" style="color:inherit;border-bottom:0.5px solid currentColor;text-decoration:none">Tensors Explainer</a> shows how this scales up to layers of many neurons at once.
     </div>
 
     <div class="divider"></div>
@@ -807,15 +912,244 @@ function svgStep2() { return neuronSVGBase('sum'); }
 function svgStep3() { return neuronSVGBase('all'); }
 function svgStep4() { return neuronSVGBase('output'); }
 
+// ─── PART 5: Decision boundary + XOR ─────────────────────────────────────────
+const isDarkBnd = () => matchMedia('(prefers-color-scheme: dark)').matches;
+
+function drawBoundary() {
+  const canvas = document.getElementById('canvas-bnd');
+  if (!canvas) return;
+  const W = canvas.parentElement.clientWidth - 16;
+  const H = 284;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0, 0, W, H);
+
+  const d = isDarkBnd();
+  const padL = 36, padR = 16, padT = 14, padB = 28;
+  const cW = W - padL - padR, cH = H - padT - padB;
+
+  const XMIN = -3, XMAX = 3, YMIN = -3, YMAX = 3;
+  const xToPx = x => padL + ((x - XMIN) / (XMAX - XMIN)) * cW;
+  const yToPx = y => padT + ((YMAX - y) / (YMAX - YMIN)) * cH;
+
+  const w1 = +document.getElementById('bw1').value;
+  const w2 = +document.getElementById('bw2').value;
+  const b  = +document.getElementById('bb').value;
+  document.getElementById('bw1v').textContent = w1.toFixed(2);
+  document.getElementById('bw2v').textContent = w2.toFixed(2);
+  document.getElementById('bbv').textContent  = b.toFixed(2);
+
+  // Shaded regions via per-pixel sampling
+  const N = 60;
+  const cellW = cW / N, cellH = cH / N;
+  for (let j = 0; j < N; j++) {
+    for (let i = 0; i < N; i++) {
+      const x1 = XMIN + ((i + 0.5) / N) * (XMAX - XMIN);
+      const x2 = YMAX - ((j + 0.5) / N) * (YMAX - YMIN);
+      const z = w1 * x1 + w2 * x2 + b;
+      let r, g, bl;
+      if (z > 0) {
+        // Blue — neuron fires
+        const intensity = Math.min(1, Math.abs(z) / 4);
+        if (d) {
+          r = 30 + intensity * 60; g = 80 + intensity * 40; bl = 140 + intensity * 60;
+        } else {
+          r = 230 - intensity * 80; g = 240 - intensity * 50; bl = 252 - intensity * 12;
+        }
+      } else {
+        // Amber — doesn't fire
+        const intensity = Math.min(1, Math.abs(z) / 4);
+        if (d) {
+          r = 110 + intensity * 50; g = 60 + intensity * 20; bl = 20 + intensity * 10;
+        } else {
+          r = 252 - intensity * 8; g = 240 - intensity * 50; bl = 220 - intensity * 90;
+        }
+      }
+      ctx.fillStyle = `rgb(${r|0}, ${g|0}, ${bl|0})`;
+      ctx.fillRect(padL + i * cellW, padT + j * cellH, cellW + 1, cellH + 1);
+    }
+  }
+
+  // Grid lines
+  ctx.strokeStyle = d ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.10)';
+  ctx.lineWidth = 0.5;
+  for (let i = -3; i <= 3; i++) {
+    if (i === 0) continue;
+    const x = xToPx(i); ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + cH); ctx.stroke();
+    const y = yToPx(i); ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + cW, y); ctx.stroke();
+  }
+
+  // Axes (x = 0, y = 0)
+  ctx.strokeStyle = d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)';
+  ctx.lineWidth = 1;
+  const yAx = yToPx(0); ctx.beginPath(); ctx.moveTo(padL, yAx); ctx.lineTo(padL + cW, yAx); ctx.stroke();
+  const xAx = xToPx(0); ctx.beginPath(); ctx.moveTo(xAx, padT); ctx.lineTo(xAx, padT + cH); ctx.stroke();
+
+  // Decision boundary line: w1*x1 + w2*x2 + b = 0
+  // Find two endpoints inside the view box
+  ctx.strokeStyle = d ? '#ef9f27' : '#BA7517';
+  ctx.lineWidth = 2.5;
+  const linePts = [];
+  if (Math.abs(w2) > 1e-3) {
+    // Solve for x2 at x1 = XMIN and XMAX
+    const x2L = (-w1 * XMIN - b) / w2;
+    const x2R = (-w1 * XMAX - b) / w2;
+    linePts.push([XMIN, x2L], [XMAX, x2R]);
+  } else if (Math.abs(w1) > 1e-3) {
+    const x1V = -b / w1;
+    linePts.push([x1V, YMIN], [x1V, YMAX]);
+  }
+  if (linePts.length === 2) {
+    ctx.beginPath();
+    ctx.moveTo(xToPx(linePts[0][0]), yToPx(linePts[0][1]));
+    ctx.lineTo(xToPx(linePts[1][0]), yToPx(linePts[1][1]));
+    ctx.stroke();
+  }
+
+  // Axis labels
+  ctx.fillStyle = d ? '#b4b2a9' : '#5f5e5a';
+  ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('x₁', padL + cW - 6, yAx - 6);
+  ctx.textAlign = 'left';
+  ctx.fillText('x₂', xAx + 6, padT + 12);
+
+  // Legend in corner
+  ctx.fillStyle = d ? '#85b7eb' : '#185fa5';
+  ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('neuron fires (z > 0)', padL + 6, padT + 14);
+  ctx.fillStyle = d ? '#ef9f27' : '#854f0b';
+  ctx.fillText("doesn't fire (z < 0)", padL + 6, padT + cH - 6);
+
+  // Insight
+  const ins = document.getElementById('bnd-insight');
+  const slope = Math.abs(w2) > 1e-3 ? (-w1 / w2).toFixed(2) : '∞';
+  ins.className = 'insight';
+  ins.innerHTML = `Current boundary: <strong style="font-family:var(--font-mono);font-size:12px">${w1.toFixed(2)}·x₁ + ${w2.toFixed(2)}·x₂ + ${b.toFixed(2)} = 0</strong>. Slope ≈ ${slope}. Increase |w₁| and |w₂| to make the line tilt more sharply; change b to shift it parallel to itself.`;
+}
+
+function drawXor() {
+  const canvas = document.getElementById('canvas-xor');
+  if (!canvas) return;
+  const W = canvas.parentElement.clientWidth - 16;
+  const H = 224;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0, 0, W, H);
+
+  const d = isDarkBnd();
+  const padL = 36, padR = 16, padT = 14, padB = 28;
+  const cW = W - padL - padR, cH = H - padT - padB;
+
+  // Use a 0..1 box for XOR
+  const xToPx = x => padL + x * cW;
+  const yToPx = y => padT + (1 - y) * cH;
+
+  // Background
+  ctx.fillStyle = d ? '#252522' : '#f5f4f0';
+  ctx.fillRect(padL, padT, cW, cH);
+
+  // Grid
+  ctx.strokeStyle = d ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.10)';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 4; i++) {
+    const x = padL + (i / 4) * cW;
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + cH); ctx.stroke();
+    const y = padT + (i / 4) * cH;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + cW, y); ctx.stroke();
+  }
+
+  // Plot four XOR points: (0,0)=0, (0,1)=1, (1,0)=1, (1,1)=0
+  const points = [
+    { x: 0, y: 0, label: 0 },
+    { x: 0, y: 1, label: 1 },
+    { x: 1, y: 0, label: 1 },
+    { x: 1, y: 1, label: 0 },
+  ];
+  points.forEach(p => {
+    const px = xToPx(p.x), py = yToPx(p.y);
+    ctx.beginPath();
+    ctx.arc(px, py, 12, 0, Math.PI * 2);
+    if (p.label === 1) {
+      ctx.fillStyle = d ? '#5dcaa5' : '#1D9E75';
+    } else {
+      ctx.fillStyle = d ? '#f09595' : '#a32d2d';
+    }
+    ctx.fill();
+    ctx.strokeStyle = d ? '#1c1c1a' : '#fff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(p.label.toString(), px, py);
+    ctx.textBaseline = 'alphabetic';
+  });
+
+  // Two ghost attempted boundary lines to show no line works
+  ctx.strokeStyle = d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5, 4]);
+  // Diagonal
+  ctx.beginPath();
+  ctx.moveTo(xToPx(-0.1), yToPx(1.05));
+  ctx.lineTo(xToPx(1.1),  yToPx(-0.05));
+  ctx.stroke();
+  // Other diagonal
+  ctx.beginPath();
+  ctx.moveTo(xToPx(-0.1), yToPx(-0.05));
+  ctx.lineTo(xToPx(1.1),  yToPx(1.05));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Axis labels
+  ctx.fillStyle = d ? '#b4b2a9' : '#5f5e5a';
+  ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('x₁', padL + cW / 2, padT + cH + 18);
+  ctx.save();
+  ctx.translate(14, padT + cH / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('x₂', 0, 0); ctx.restore();
+
+  // Title
+  ctx.fillStyle = d ? '#e8e6de' : '#1a1a18';
+  ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('XOR — green dots (label 1) cannot be separated from red dots (label 0) by any straight line', padL + cW / 2, padT - 2);
+}
+
+function setupBoundary() {
+  ['bw1', 'bw2', 'bb'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', drawBoundary);
+  });
+  drawBoundary();
+  drawXor();
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
 applyBioColors();
 buildStepper();
 updateComputation();
+setupBoundary();
+
+window.addEventListener('resize', () => {
+  drawBoundary();
+  drawXor();
+});
 
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
   applyBioColors();
   buildStepper();
   updateComputation();
+  drawBoundary();
+  drawXor();
 });
 </script>
 </body>
