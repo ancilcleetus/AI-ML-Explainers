@@ -112,7 +112,7 @@
         <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">1</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/neuron_forward_pass_explainer.html" target="_blank" rel="noopener">The Neuron &amp; Forward Pass — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Inputs, weights, bias, weighted sum z, activation functions, forward pass step by step with live sliders. Biological vs artificial neuron comparison</div>
+          <div class="row-concept">The smallest building block of every neural network — explained from zero AI background. Covers what a neuron is, the biological vs artificial mapping, weighted sum z, activation functions, a step-by-step forward pass walkthrough, interactive sliders for weights and inputs, the 2D decision boundary, the XOR limitation, and a runnable PyTorch nn.Linear example.</div>
         </div>
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
@@ -120,7 +120,7 @@
         <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">2</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/tensors_explainer.html" target="_blank" rel="noopener">Tensors — The Language of Deep Learning — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Scalars, vectors, matrices, tensors, shape and dimensions, batch / channel / spatial axes, broadcasting, simple tensor operations, why everything in deep learning is a tensor</div>
+          <div class="row-concept">The data structure every neural network operates on. From scalars to 4D tensors, shape and ndim, batch / channel / spatial axes, broadcasting rules, tensor operations (add, multiply, ReLU, sum, matmul), and a capstone tying the Neuron explainer's forward pass to batched matrix multiplication with runnable PyTorch code (X = torch.randn(32, 3) → nn.Linear(3, 1) → Z = layer(X)).</div>
         </div>
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
@@ -128,7 +128,7 @@
         <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">3</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html" target="_blank" rel="noopener">Activation Functions — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Why nonlinearity, Sigmoid, Tanh, ReLU, Leaky ReLU, GELU — interactive curve explorer with live gradient f′(z), vanishing gradient in saturation zones, GELU deep dive, activation function summary table</div>
+          <div class="row-concept">Why neural networks need nonlinearity. Interactive curve explorer for the five most-used activations (Sigmoid, Tanh, ReLU, Leaky ReLU, GELU) with live f(z) and gradient f′(z), the vanishing gradient problem with saturation-zone visualisation, the dying ReLU problem with a worked numerical example, GELU deep dive, and a consolidated PyTorch reference using both functional and module forms.</div>
         </div>
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
@@ -136,7 +136,7 @@
         <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">4</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/embeddings_explainer.html" target="_blank" rel="noopener">Embeddings — Representing Discrete Data as Vectors — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Why one-hot fails at scale, learnable embedding lookup tables, dense vector representations, similarity in embedding space, the embedding layer, applications across NLP, recommender systems and tabular DL</div>
+          <div class="row-concept">How discrete things (words, user IDs, categories) become dense learnable vectors. Why one-hot fails at scale (memory + no similarity), the embedding lookup table, the matrix as a learnable parameter (same status as nn.Linear weights), cosine similarity, the king − man + woman ≈ queen analogy, an interactive training simulator that minimises ‖cat − kitten‖², and applications across NLP, recommenders, and tabular DL.</div>
         </div>
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
@@ -153,26 +153,26 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">5</div>
         <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_functions_overview_explainer.html" target="_blank" rel="noopener">Loss Functions Overview Explainer ↗</a></div>
-          <div class="row-concept">What is loss, task-to-loss mapping: MSE for regression, Cross-Entropy for classification, MAE, Huber loss — when to use which and why</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_functions_overview_explainer.html" target="_blank" rel="noopener">Loss Functions Overview — Interactive Explainer ↗</a></div>
+          <div class="row-concept">What loss is, why we need different loss functions for different tasks, task-to-loss mapping (regression → MSE / MAE / Huber, classification → Cross-Entropy), a four-loss interactive deep dive with curve plots and geometric scatter views, the outlier sensitivity problem with a live demo, the decision guide, and a consolidated PyTorch reference for all five loss functions.</div>
         </div>
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">6</div>
+        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">6</div>
         <div class="row-body">
-          <div class="row-title">Softmax &amp; Probability Outputs Explainer</div>
-          <div class="row-concept">Logits to probabilities, exponentiation and normalisation, the max-subtraction trick for numerical stability, temperature scaling, softmax vs sigmoid, why softmax always sums to 1</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/softmax_explainer.html" target="_blank" rel="noopener">Softmax &amp; Probability Outputs — Interactive Explainer ↗</a></div>
+          <div class="row-concept">How a network's raw logits become a probability distribution over classes. Why simple normalisation fails, why exponentiation, why softmax always sums to 1, the max-subtraction trick for numerical stability with a live overflow demo, temperature scaling (the ChatGPT knob), softmax vs sigmoid (with the surprising 2-class-softmax equivalence), and a consolidated PyTorch reference covering F.softmax, F.log_softmax, the dim parameter trap, and temperature.</div>
         </div>
-        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+        <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">7</div>
+        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">7</div>
         <div class="row-body">
-          <div class="row-title">Cross-Entropy Loss Explainer</div>
-          <div class="row-concept">Information theory intuition, −log(p) curve, binary vs categorical cross-entropy, penalising confident wrong predictions, multiclass worked example with softmax outputs</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/cross_entropy_loss_explainer.html" target="_blank" rel="noopener">Cross-Entropy Loss — Interactive Explainer ↗</a></div>
+          <div class="row-concept">Why MSE fails for classification (bounded penalty + tiny gradients) with a live comparison, the information-theory origin of −log(p), the three regions of the loss curve, binary cross-entropy (paired with sigmoid), categorical cross-entropy (paired with softmax — derivation included), an end-to-end worked example on a 4-image batch, and a production-grade PyTorch reference covering reduction, class weights, ignore_index, and label_smoothing.</div>
         </div>
-        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+        <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
     </div>
   </div>
@@ -185,12 +185,12 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">8</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-secondary)">8</div>
         <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html" target="_blank" rel="noopener">Loss &amp; Gradient Descent Explainer ↗</a></div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html" target="_blank" rel="noopener">Loss &amp; Gradient Descent Explainer</a></div>
           <div class="row-concept">Loss landscape with interactive contour map, gradient descent algorithm, weight update rule w ← w − η·∂L/∂w, learning rate effect (too small / too large / just right)</div>
         </div>
-        <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">9</div>
