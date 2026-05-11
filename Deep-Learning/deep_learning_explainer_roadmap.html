@@ -8,9 +8,9 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg-primary: #ffffff; --bg-secondary: #f5f4f0; --bg-tertiary: #eeece6;
-      --bg-info: #e6f1fb; --bg-success: #e1f5ee; --bg-warning: #faeeda; --bg-danger: #fcebeb;
+      --bg-info: #e6f1fb; --bg-success: #e1f5ee; --bg-warning: #faeeda; --bg-danger: #fcebeb; --bg-architecture: #ede7f9;
       --text-primary: #1a1a18; --text-secondary: #5f5e5a; --text-tertiary: #888780;
-      --text-info: #185fa5; --text-success: #0f6e56; --text-warning: #854f0b; --text-danger: #a32d2d;
+      --text-info: #185fa5; --text-success: #0f6e56; --text-warning: #854f0b; --text-danger: #a32d2d; --text-architecture: #5a3a9c;
       --border-tertiary: rgba(0,0,0,0.12); --border-secondary: rgba(0,0,0,0.22);
       --border-info: #85b7eb; --border-success: #5dcaa5; --border-warning: #ef9f27;
       --radius-md: 8px; --radius-lg: 12px;
@@ -20,9 +20,9 @@
     @media (prefers-color-scheme: dark) {
       :root {
         --bg-primary: #1c1c1a; --bg-secondary: #252522; --bg-tertiary: #2c2c2a;
-        --bg-info: #042c53; --bg-success: #04342c; --bg-warning: #412402; --bg-danger: #501313;
+        --bg-info: #042c53; --bg-success: #04342c; --bg-warning: #412402; --bg-danger: #501313; --bg-architecture: #2a1f4a;
         --text-primary: #e8e6de; --text-secondary: #b4b2a9; --text-tertiary: #73726c;
-        --text-info: #85b7eb; --text-success: #5dcaa5; --text-warning: #ef9f27; --text-danger: #f09595;
+        --text-info: #85b7eb; --text-success: #5dcaa5; --text-warning: #ef9f27; --text-danger: #f09595; --text-architecture: #b8a5e8;
         --border-tertiary: rgba(255,255,255,0.10); --border-secondary: rgba(255,255,255,0.20);
         --border-info: #185fa5; --border-success: #0f6e56; --border-warning: #854f0b;
       }
@@ -68,6 +68,10 @@
     .divider { border: none; border-top: 0.5px solid var(--border-tertiary); margin: 0.875rem 0; }
     h2 { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
     .step-label { font-size: 11px; font-weight: 500; color: var(--text-tertiary); letter-spacing:.05em; text-transform: uppercase; margin: 0.875rem 0 6px; }
+    .subcat-label { font-size: 11px; font-weight: 500; color: var(--text-tertiary); letter-spacing:.06em; text-transform: uppercase; margin: 0.625rem 0 6px 4px; display: flex; align-items: center; gap: 8px; }
+    .subcat-label::before { content: ''; width: 14px; height: 0.5px; background: var(--border-secondary); flex-shrink: 0; }
+    .subcat-label::after { content: ''; flex: 1; height: 0.5px; background: var(--border-tertiary); }
+    .section-note { font-size: 12px; color: var(--text-tertiary); font-style: italic; margin-bottom: 0.5rem; padding: 0 4px; line-height: 1.55; }
     .principles-list { margin: 0.5rem 0; }
     .principle-item { display: flex; gap: 10px; padding: 6px 0; border-bottom: 0.5px solid var(--border-tertiary); font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
     .principle-item:last-child { border-bottom: none; }
@@ -81,7 +85,7 @@
   <header>
     <h1>Deep Learning — Interactive Explainers — Roadmap</h1>
     <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)" target="_blank" rel="noopener">Ancil Cleetus</a></p>
-    <p>A complete plan of Interactive Visual Explainers covering Deep Learning fundamentals — from a single neuron through activation functions, loss, backpropagation, optimization, and modern training techniques.</p>
+    <p>A complete plan of Interactive Visual Explainers covering Deep Learning fundamentals — from a single neuron through activations, loss, gradient descent, backpropagation, deep-network stability, architecture, training, hyperparameter tuning, evaluation, and a full end-to-end capstone.</p>
   </header>
 
   <!-- Summary -->
@@ -177,208 +181,195 @@
     </div>
   </div>
 
-  <!-- 3. Optimization & gradient descent -->
+  <!-- 3. Optimization (Gradient Descent & Backprop) -->
   <div class="section">
     <div class="section-header">
       <span class="section-tag" style="background:var(--bg-warning);color:var(--text-warning)">Optimization</span>
-      <span class="section-title">Optimization &amp; Gradient Descent</span>
+      <span class="section-title">Optimization — Gradient Descent &amp; Backprop</span>
     </div>
+
+    <div class="subcat-label"><span>Gradient Descent</span></div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-secondary)">8</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">8</div>
         <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html" target="_blank" rel="noopener">Loss &amp; Gradient Descent Explainer</a></div>
-          <div class="row-concept">Loss landscape with interactive contour map, gradient descent algorithm, weight update rule w ← w − η·∂L/∂w, learning rate effect (too small / too large / just right)</div>
+          <div class="row-title">Loss Landscape &amp; Gradient Descent Explainer</div>
+          <div class="row-concept">What it means to minimise a loss as a function of weights. The 1D loss curve, the 2D loss surface as an interactive contour map, gradient as the direction of steepest ascent, the weight update rule w ← w − η·∂L/∂w with step-by-step trace, the learning rate effect with three side-by-side simulations (too small → crawling, too large → diverging, just right → converging), local minima vs saddle points vs the global minimum, why high-dimensional loss landscapes are kinder than they look, a momentum preview that motivates the next subcategory, and a runnable PyTorch snippet showing manual gradient descent on a single parameter.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">9</div>
         <div class="row-body">
-          <div class="row-title">Mini-batch Gradient Descent &amp; Batch Size Explainer</div>
-          <div class="row-concept">Batch GD vs SGD vs mini-batch GD, gradient noise and its regularising effect, the bias-variance trade-off of batch size, large batch vs small batch generalisation, GPU memory limits</div>
+          <div class="row-title">Mini-Batch Gradient Descent &amp; Batch Size Explainer</div>
+          <div class="row-concept">Why we don't compute gradients on the full dataset. Batch GD vs Stochastic GD vs Mini-Batch GD with an interactive trajectory comparison on a 2D loss landscape, gradient noise as an implicit regulariser, the bias–variance trade-off of batch size, the large-batch generalisation gap with a live loss-curve demo, GPU memory as the practical ceiling, batch size as a hyperparameter you tune, and a consolidated PyTorch reference using DataLoader(batch_size=…).</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
+    </div>
+
+    <div class="subcat-label"><span>Optimizers</span></div>
+    <div class="explainer-list">
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">10</div>
         <div class="row-body">
-          <div class="row-title">Optimizers Explainer</div>
-          <div class="row-concept">SGD, SGD with Momentum, RMSProp, Adam, AdamW — adaptive learning rates, momentum, bias correction, comparison on a loss landscape, when to use each in practice</div>
+          <div class="row-title">Optimizers — From SGD to AdamW — Explainer</div>
+          <div class="row-concept">Why plain SGD struggles and how each optimizer fixes a specific failure mode. SGD baseline, SGD with Momentum (ball-rolling-downhill analogy with velocity vector visualisation), Nesterov momentum (look-ahead), RMSProp (per-parameter adaptive LR using gradient-magnitude history), Adam (momentum + RMSProp + bias correction with the math derived), AdamW (the decoupled weight-decay fix), an interactive side-by-side race on a 2D loss landscape with pathological curvature, a decision guide for when to use each, and a consolidated PyTorch reference covering torch.optim.SGD, Adam, and AdamW with sensible default hyperparameters.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
     </div>
-  </div>
 
-  <!-- 4. Backpropagation -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-danger);color:var(--text-danger)">Backprop</span>
-      <span class="section-title">Backpropagation</span>
-    </div>
+    <div class="subcat-label"><span>Backpropagation</span></div>
     <div class="explainer-list">
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">11</div>
         <div class="row-body">
-          <div class="row-title">Chain Rule &amp; Computation Graph Explainer</div>
-          <div class="row-concept">The chain rule of calculus, computation graphs, forward pass vs backward pass, local gradients at each node, interactive graph where you click nodes to see gradient flow</div>
+          <div class="row-title">Chain Rule &amp; Computation Graphs Explainer</div>
+          <div class="row-concept">The calculus that makes backprop possible, taught from zero. The chain rule from first principles with single-variable then multi-variable examples, a computation graph as a DAG of operations, forward pass annotating each node with its value, backward pass annotating each node with its local gradient, a click-a-node-to-see-gradient interactive graph for a simple expression like f = (a + b) · c, the multivariable chain rule with branching paths, and why this scales to networks with millions of parameters. No PyTorch yet — pure mechanism.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">12</div>
         <div class="row-body">
-          <div class="row-title">Backward Pass &amp; Full Network Backpropagation Explainer</div>
-          <div class="row-concept">Backpropagating through a full network layer by layer, gradient accumulation, weight updates end to end, delta rule, numerical gradient verification</div>
+          <div class="row-title">Backward Pass on a Single Neuron — Explainer</div>
+          <div class="row-concept">Hand-worked numerical gradients for one neuron, end to end. Setup: a single neuron with two inputs, weights, bias, sigmoid activation, MSE loss against a target. Forward pass with every intermediate value computed. Backward pass with every gradient computed step by step — ∂L/∂ŷ, then ∂ŷ/∂z (the activation derivative from Explainer #3), then ∂z/∂w, ∂z/∂b, ∂z/∂x — composed via the chain rule into ∂L/∂w, ∂L/∂b, ∂L/∂x. The delta rule emerges naturally. One weight-update step at a finite learning rate. Interactive: change inputs, weights, or target and watch every gradient recompute live. Sanity check using numerical (finite-difference) gradients.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
-    </div>
-  </div>
-
-  <!-- 5. Gradient flow problems -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-danger);color:var(--text-danger)">Gradients</span>
-      <span class="section-title">Gradient flow problems</span>
-    </div>
-    <div class="explainer-list">
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">13</div>
         <div class="row-body">
-          <div class="row-title">Vanishing &amp; Exploding Gradients Explainer</div>
-          <div class="row-concept">Why gradients shrink or explode with depth, sigmoid saturation causing vanishing, gradient norms across layers, gradient clipping, depth slider showing gradient magnitude decay</div>
-        </div>
-        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
-      </div>
-      <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">14</div>
-        <div class="row-body">
-          <div class="row-title">Weight Initialization Explainer</div>
-          <div class="row-concept">Why initialization matters, zero-init failure (symmetry breaking), random init problems, Xavier/Glorot initialization, He initialization, interactive visualisation of activation distributions at initialization</div>
+          <div class="row-title">Full-Network Backpropagation &amp; Autograd Explainer</div>
+          <div class="row-concept">Backprop across a real network plus the PyTorch machinery that automates it. A 2-layer MLP worked layer by layer — forward pass computing all activations, backward pass propagating gradients from loss back to input (δ at the output layer, δ pulled back through the weight matrix with the transpose, per-layer weight and bias gradients accumulated). Gradient accumulation across a mini-batch, a numerical-gradient check confirming the analytical gradients match. Then PyTorch autograd — requires_grad=True, the dynamic computation graph built during forward, .backward() triggering the reverse traversal, .grad attributes, torch.no_grad() for inference, and why optimizer.zero_grad() is necessary. Interactive visualisation of a tiny autograd graph.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
     </div>
   </div>
 
-  <!-- 6. Building & understanding networks -->
+  <!-- 4. Deep Network Stability -->
   <div class="section">
     <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Architecture</span>
-      <span class="section-title">Building &amp; understanding networks</span>
+      <span class="section-tag" style="background:var(--bg-danger);color:var(--text-danger)">Stability</span>
+      <span class="section-title">Deep Network Stability</span>
     </div>
+    <div class="section-note">These problems appear once networks get deep. We'll build those deep networks in the next category — but understanding what can go wrong first will inform every architectural choice you make.</div>
+
+    <div class="subcat-label"><span>Gradient Flow</span></div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">15</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">14</div>
         <div class="row-body">
-          <div class="row-title">From Neuron to Network Explainer</div>
-          <div class="row-concept">From one neuron to a layer, layer types (input, hidden, output), fully connected layers &amp; weight matrices, depth vs width trade-off, interactive network builder</div>
+          <div class="row-title">Vanishing &amp; Exploding Gradients Explainer</div>
+          <div class="row-concept">Why deep networks fail to train and how to diagnose it. The compounding effect of multiplying many small (or large) numbers, sigmoid/tanh saturation regions producing tiny gradients (callback to Explainer #3), an interactive depth slider showing gradient-norm decay layer-by-layer for sigmoid vs ReLU networks, the exploding case with a live diverging loss curve, gradient clipping (torch.nn.utils.clip_grad_norm_) with before/after visualisation, why ReLU partly solves vanishing but not exploding, and a preview of the two structural fixes coming next — good initialisation and normalisation.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">15</div>
+        <div class="row-body">
+          <div class="row-title">Weight Initialization Explainer</div>
+          <div class="row-concept">Why where you start determines whether you can train at all. Zero-init failure visualised as symmetry that backprop cannot break, naive Gaussian init with the wrong variance producing either vanishing or exploding forward activations, the goal of "preserve activation variance across layers" stated as the principle, Xavier/Glorot init derived for sigmoid/tanh, He/Kaiming init derived for ReLU, an interactive visualiser showing the histogram of activations at every layer for a 10-layer network under different init schemes, the empirical impact on early training loss curves, and a PyTorch reference using nn.init.xavier_normal_, nn.init.kaiming_normal_ and what PyTorch's default init actually does for each layer type.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>Normalization &amp; Regularization</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">16</div>
         <div class="row-body">
-          <div class="row-title">Universal Approximation Theorem Explainer</div>
-          <div class="row-concept">What the UAT says and what it does not, width vs depth, practical implications for network design, interactive demo fitting arbitrary functions</div>
+          <div class="row-title">Batch Normalization Explainer</div>
+          <div class="row-concept">Stabilising activations to make deep networks trainable. The internal-covariate-shift motivation (and the modern "smoother loss landscape" reinterpretation), the BN equation — normalise each feature across the mini-batch to mean 0 / variance 1, then scale by γ and shift by β (both learnable so the network can undo the normalisation if needed), interactive visualisation of activation distributions before vs after BN, the train/eval-mode difference with running statistics, BN's effect on gradient flow and LR tolerance demonstrated with a side-by-side loss curve, the BN-before-or-after-activation debate noted briefly, a preview of LayerNorm / GroupNorm and why they matter for the Transformers explainers to come, and a PyTorch reference using nn.BatchNorm1d and nn.BatchNorm2d.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">17</div>
         <div class="row-body">
-          <div class="row-title">MLP Worked Example — A Complete Network Solving a Task</div>
-          <div class="row-concept">Capstone explainer tying everything together: a small MLP solving a real classification task end to end — forward pass, loss, backprop, gradient descent, training over epochs, watching loss decrease and predictions improve in real time</div>
+          <div class="row-title">Dropout &amp; Weight Decay Explainer</div>
+          <div class="row-concept">Two complementary regularisers that improve generalisation. Dropout — the stochastic masking mechanism, the inverted-dropout scaling trick, the "ensemble of subnetworks" interpretation, train-vs-eval mode behaviour, and an interactive demo on a small network showing the train/test gap shrink as dropout rate increases. Weight decay — L2 regularisation derived from a Bayesian prior, the gradient-update equation showing weight decay as shrinkage, why L2 and weight-decay-as-applied-in-Adam differ (the AdamW story from Explainer #10 revisited), and an interactive plot of weight magnitudes over training with vs without weight decay. PyTorch reference covering nn.Dropout, the weight_decay parameter in optimizers, and AdamW.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
-    </div>
-  </div>
-
-  <!-- 7. Normalization -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Architecture</span>
-      <span class="section-title">Normalization</span>
-    </div>
-    <div class="explainer-list">
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">18</div>
         <div class="row-body">
-          <div class="row-title">Batch Normalization Explainer</div>
-          <div class="row-concept">Internal covariate shift, normalizing activations per mini-batch, learnable scale &amp; shift parameters γ and β, training vs inference behaviour, effect on gradient flow</div>
+          <div class="row-title">Overfitting &amp; Generalization Explainer</div>
+          <div class="row-concept">What overfitting actually looks like and how to see it coming. Live training-vs-validation loss curves diverging in real time as a small network memorises a tiny dataset, the bias–variance trade-off with the classic U-curve, the capacity-vs-data axis (more data → less overfitting; more capacity → more overfitting), early stopping as a regulariser with the moment-of-divergence highlighted on the curve, a brief preview of data augmentation as another regulariser, and a consolidated diagnostic checklist — "your validation loss is going up, here's what to try in priority order" — pulling from Explainers #15, #16, and #17.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
     </div>
   </div>
 
-  <!-- 8. Regularization & generalisation -->
+  <!-- 5. Building Networks -->
   <div class="section">
     <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Training</span>
-      <span class="section-title">Regularization &amp; Generalisation</span>
+      <span class="section-tag" style="background:var(--bg-architecture);color:var(--text-architecture)">Architecture</span>
+      <span class="section-title">Building Networks</span>
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">19</div>
         <div class="row-body">
-          <div class="row-title">Dropout &amp; Weight Decay Explainer</div>
-          <div class="row-concept">Dropout mechanism and stochastic regularisation, train vs test mode difference, weight decay (L2 regularization), why both help, interactive demonstration on a network</div>
+          <div class="row-title">From Neuron to Network Explainer</div>
+          <div class="row-concept">The conceptual leap from one neuron to a full network. One neuron (callback to Explainer #1) → a layer of parallel neurons sharing inputs → the layer as a single weight-matrix multiplication (callback to Explainer #2 — the batched matmul view), input vs hidden vs output layers, fully-connected (dense) layers, the depth-vs-width trade-off with intuition for each, a parameter-count calculator that shows total params as you adjust layer sizes, and an interactive network builder where you stack layers, see the shape transformations live, and run a forward pass through your custom architecture.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">20</div>
         <div class="row-body">
-          <div class="row-title">Overfitting &amp; Generalisation — Visualised</div>
-          <div class="row-concept">What overfitting actually looks like — train vs validation loss curves diverging, the bias-variance trade-off, capacity vs data, early stopping as a regulariser, the role of dropout and weight decay in closing the gap</div>
+          <div class="row-title">Universal Approximation Theorem Explainer</div>
+          <div class="row-concept">What it really says, what it doesn't, and why depth wins anyway. The theorem stated plainly — a single-hidden-layer network with enough neurons can approximate any continuous function to arbitrary precision. The crucial caveats — this is an existence result, not a learnability result; "enough neurons" might mean exponentially many; nothing about how to find the weights. An interactive demo where the user picks a target function (sine, step, spiral boundary) and watches a 1-hidden-layer network with adjustable width fit it by combining sigmoid or ReLU "bumps." Then the punchline — why deep narrow networks generalise and optimise better than shallow wide ones in practice, with a side-by-side comparison.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
     </div>
   </div>
 
-  <!-- 9. Training in practice -->
+  <!-- 6. Training Networks -->
   <div class="section">
     <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Training</span>
-      <span class="section-title">Training in Practice</span>
+      <span class="section-tag" style="background:var(--bg-info);color:var(--text-info)">Training</span>
+      <span class="section-title">Training Networks</span>
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">21</div>
         <div class="row-body">
           <div class="row-title">Training Loop &amp; Convergence Explainer</div>
-          <div class="row-concept">The conceptual training loop — epochs and steps, forward pass, loss computation, backward pass, weight update — train/val/test split, monitoring training, recognising convergence and divergence</div>
+          <div class="row-concept">The conceptual loop, language-agnostic, before any code. Epochs vs steps vs iterations defined precisely, the loop body (forward → loss → backward → update → repeat), train/validation/test split with the rationale for each, the loss curve as the primary diagnostic tool, recognising convergence vs divergence vs plateau vs overfitting from the curve shape (with a four-panel diagnostic gallery), when and why to stop training. Interactive: scrub through a recorded training run frame by frame, watching the decision boundary evolve alongside the loss curve.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">22</div>
         <div class="row-body">
-          <div class="row-title">PyTorch Training Loop in Practice</div>
-          <div class="row-concept">The conceptual loop translated to real code — optimizer.zero_grad(), loss.backward(), optimizer.step(), model.train() vs model.eval(), with torch.no_grad(), DataLoader, the standard PyTorch training pattern</div>
+          <div class="row-title">PyTorch Training Loop in Practice — Explainer</div>
+          <div class="row-concept">The conceptual loop translated into idiomatic PyTorch. The five-line loop body — optimizer.zero_grad(), outputs = model(x), loss = criterion(outputs, y), loss.backward(), optimizer.step() — with line-by-line explanation of what each call does to the autograd graph and the parameters (callback to Explainer #13). model.train() vs model.eval() and why it matters for Dropout and BN (callbacks to #16, #17). torch.no_grad() for evaluation. DataLoader with batch_size, shuffle, num_workers. The complete, runnable training scaffold the learner can copy and adapt. Common pitfalls — forgetting zero_grad, computing loss outside the graph, evaluating in train mode.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
     </div>
   </div>
 
-  <!-- 10. Hyperparameters -->
+  <!-- 7. Hyperparameter Tuning -->
   <div class="section">
     <div class="section-header">
       <span class="section-tag" style="background:var(--bg-warning);color:var(--text-warning)">Hyperparameters</span>
-      <span class="section-title">Learning Rate &amp; Hyperparameter Tuning</span>
+      <span class="section-title">Hyperparameter Tuning</span>
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">23</div>
         <div class="row-body">
           <div class="row-title">Learning Rate Schedules Explainer</div>
-          <div class="row-concept">Constant LR, step decay, cosine annealing, warmup + cosine (modern default), cyclical LR, 1cycle — all visualised as interactive schedule curves with live loss simulation</div>
+          <div class="row-concept">How LR should change during training. Constant LR (baseline), step decay, exponential decay, cosine annealing, linear warmup + cosine (the modern default — explained), cyclical LR, 1cycle policy, ReduceLROnPlateau — each visualised as a schedule curve with a side-by-side live loss simulation showing how the curve shape affects convergence. Why warmup helps with large batch sizes and Adam. A decision guide. PyTorch reference using torch.optim.lr_scheduler.CosineAnnealingLR, OneCycleLR, and the scheduler.step() placement in the training loop.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
@@ -386,14 +377,14 @@
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">24</div>
         <div class="row-body">
           <div class="row-title">Hyperparameter Tuning Explainer</div>
-          <div class="row-concept">What hyperparameters are and which matter most (LR, batch size, weight decay, depth, width, dropout rate), grid search vs random search vs Bayesian optimisation, sensible defaults, the LR finder technique</div>
+          <div class="row-concept">Which hyperparameters matter, in what order, and how to search. The hyperparameter sensitivity hierarchy (LR ≫ batch size ≈ weight decay > network depth > everything else), a sensible-defaults table for getting a baseline running, grid search vs random search with a 2D visualisation showing why random wins when only some dimensions matter, Bayesian optimisation with intuitive explanation of the surrogate-model idea, the LR finder technique (Leslie Smith) with an interactive demo — train for a few steps while exponentially increasing LR, plot loss vs LR, pick the LR where loss decreases fastest. A practical tuning recipe.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
     </div>
   </div>
 
-  <!-- 11. Evaluation -->
+  <!-- 8. Evaluation -->
   <div class="section">
     <div class="section-header">
       <span class="section-tag" style="background:var(--bg-info);color:var(--text-info)">Evaluation</span>
@@ -403,8 +394,34 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">25</div>
         <div class="row-body">
-          <div class="row-title">Evaluation Metrics Explainer</div>
-          <div class="row-concept">Accuracy, precision, recall, F1 score, ROC curve, AUC — interactive confusion matrix, when each metric matters and when it misleads (class imbalance), threshold selection</div>
+          <div class="row-title">Evaluation Metrics for Classification — Explainer</div>
+          <div class="row-concept">Why accuracy alone misleads and what to use instead. The confusion matrix as the source of all metrics, an interactive confusion matrix where you drag the decision threshold and watch precision / recall / F1 update live, the precision–recall trade-off explained intuitively (spam filter vs cancer screening), F1 as the harmonic mean and when it's the right summary, the ROC curve traced out as threshold sweeps with AUC interpretation, the PR curve as the imbalance-aware alternative to ROC, class-imbalance failure modes (the 99%-accurate fraud detector that predicts "no fraud"), macro vs micro vs weighted averaging for multiclass, and a brief reference for regression metrics (MAE, RMSE, R²) since the capstone may use either. PyTorch and sklearn snippets for each metric.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Capstone -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Capstone</span>
+      <span class="section-title">Capstone — MLP Worked Example</span>
+    </div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">26</div>
+        <div class="row-body">
+          <div class="row-title">MLP Worked Example — End-to-End Training — Explainer</div>
+          <div class="row-concept">Everything from Categories 1–6 brought together on one real task. A small MLP solving the Iris classification problem (4 features, 3 classes — perfect for showing multi-class softmax + cross-entropy in action), built from scratch using nn.Sequential — input layer → hidden layer with ReLU → output layer → CrossEntropyLoss → Adam. Step-by-step — data loading and the train/val/test split, model architecture choice motivated by Explainer #19, loss and optimizer choice motivated by #7 and #10, the training loop from #22 running live in the browser (or showing a recorded run frame-by-frame), a 2D scatter of the two most discriminative features (petal length × petal width) with the decision boundary projected onto that plane plus a parallel-coordinates view of all 4 features, the validation loss tracked for early stopping, and the final trained model. Full runnable code at the bottom.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">27</div>
+        <div class="row-body">
+          <div class="row-title">MLP Worked Example — Tuning, Evaluation &amp; Deployment — Explainer</div>
+          <div class="row-concept">Picking up from #26's trained Iris model — how to make it good and how to ship it. The LR finder (from #24) run on this specific problem with the chosen LR justified, a small hyperparameter sweep with results visualised (random search over LR, hidden size, weight decay), the cosine schedule from #23 added with the before/after improvement shown, full evaluation on the held-out test set using every metric from #25 (confusion matrix, precision / recall / F1, ROC), and error analysis on misclassified examples. Then deployment — torch.save and torch.load for the state dict, the difference between saving the state dict vs the whole model, TorchScript export with torch.jit.script and why you'd use it, a brief ONNX mention for cross-framework deployment, and a tiny inference demo with 4 sliders (sepal length, sepal width, petal length, petal width) where the user adjusts values and watches the predicted class and softmax probabilities update live.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
