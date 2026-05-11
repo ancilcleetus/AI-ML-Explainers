@@ -277,9 +277,9 @@
 <div class="page">
 
   <header>
-    <h1>Activation Functions Explainer</h1>
+    <h1>Activation Functions — Interactive Explainer</h1>
     <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)" target="_blank" rel="noopener">Ancil Cleetus</a></p>
-    <p>If a neuron were just a weighted sum, stacking layers would be pointless — the composition of linear functions is still linear. Activation functions introduce nonlinearity, giving neural networks the power to learn complex patterns.</p>
+    <p>In the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/neuron_forward_pass_explainer.html" target="_blank" rel="noopener" style="color:inherit;border-bottom:0.5px solid currentColor;text-decoration:none">Neuron &amp; Forward Pass Explainer</a>, you saw that every neuron computes a weighted sum <code style="font-family:var(--font-mono);font-size:12px;background:var(--bg-secondary);padding:1px 5px;border-radius:4px">z = w₁x₁ + w₂x₂ + … + b</code> and then passes z through an <em>activation function</em>. This explainer is about that activation function — why it exists, the five most important variants, and how to choose between them. If a neuron were just a weighted sum, stacking layers would be pointless — the composition of linear functions is still linear. <strong>Activation functions introduce nonlinearity, giving neural networks the power to learn complex patterns.</strong></p>
   </header>
 
   <!-- Clickable TOC -->
@@ -293,25 +293,29 @@
       <div class="toc-num">2</div>
       <span class="toc-label">Interactive curve explorer</span>
     </a>
-    <a href="#sec-sigmoid" class="toc-item">
+    <a href="#sec-vanishing" class="toc-item">
       <div class="toc-num">3</div>
+      <span class="toc-label">The vanishing gradient problem</span>
+    </a>
+    <a href="#sec-sigmoid" class="toc-item">
+      <div class="toc-num">4</div>
       <span class="toc-label">Sigmoid</span>
     </a>
     <a href="#sec-tanh" class="toc-item">
-      <div class="toc-num">4</div>
+      <div class="toc-num">5</div>
       <span class="toc-label">Tanh (hyperbolic tangent)</span>
     </a>
     <a href="#sec-relu" class="toc-item">
-      <div class="toc-num">5</div>
+      <div class="toc-num">6</div>
       <span class="toc-label">The ReLU family</span>
     </a>
     <a href="#sec-gelu" class="toc-item">
-      <div class="toc-num">6</div>
+      <div class="toc-num">7</div>
       <span class="toc-label">GELU deep dive</span>
     </a>
     <a href="#sec-summary" class="toc-item">
-      <div class="toc-num">7</div>
-      <span class="toc-label">Activation function summary</span>
+      <div class="toc-num">8</div>
+      <span class="toc-label">Activation function summary &amp; code</span>
     </a>
   </nav>
 
@@ -409,7 +413,52 @@
     <div id="curve-insight" class="insight" style="margin-top:0.75rem"></div>
   </div>
 
-  <!-- PART 3: Sigmoid -->
+  <!-- PART 3: Vanishing gradient (NEW) -->
+  <div class="card">
+    <h2 id="sec-vanishing">The vanishing gradient problem</h2>
+    <p class="note">Before going into specific activation functions, there is one concept you will see mentioned for almost every choice: the <strong>vanishing gradient problem</strong>. It is the single biggest reason ReLU replaced Sigmoid and Tanh in modern networks. Understanding it once here means every later section makes sense.</p>
+
+    <div class="step-label">A quick recap — what does f′(z) actually mean?</div>
+    <p class="note" style="margin-bottom:0.5rem">In the curve explorer above, the third metric card showed <strong>f′(z)</strong> — the gradient of the activation function at z. This number tells you <em>how much</em> the activation's output changes if you nudge z slightly. It is also the <em>learning signal</em>: when the network trains, this gradient gets multiplied through the layers to figure out how much each weight should change. <strong>Bigger gradient → faster learning. Near-zero gradient → no learning at all.</strong></p>
+
+    <div class="step-label">What "vanishing" means visually</div>
+    <p class="note" style="margin-bottom:0.5rem">Look at the sigmoid curve. In the middle (around z = 0), it is steep — the gradient is meaningful (peak 0.25). But at the edges, the curve flattens out: f(z) is stuck near 0 or 1, and the gradient becomes almost zero. This flat region is called the <strong>saturation zone</strong>.</p>
+
+    <div style="position:relative;width:100%;height:240px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px;margin:0.75rem 0">
+      <canvas id="vg-canvas" role="img" aria-label="Sigmoid and its gradient — showing saturation zones"></canvas>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:0.75rem">
+      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:8px 12px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-success);margin-bottom:3px">Healthy zone</div>
+        <div style="font-size:12px;color:var(--text-success);line-height:1.55">|z| &lt; 2 — gradient ≥ 0.10. Learning works.</div>
+      </div>
+      <div style="background:var(--bg-warning);border-radius:var(--radius-md);padding:8px 12px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-warning);margin-bottom:3px">Slow zone</div>
+        <div style="font-size:12px;color:var(--text-warning);line-height:1.55">2 ≤ |z| &lt; 4 — gradient between 0.01 and 0.10. Learning slows.</div>
+      </div>
+      <div style="background:var(--bg-danger);border-radius:var(--radius-md);padding:8px 12px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-danger);margin-bottom:3px">Saturation zone</div>
+        <div style="font-size:12px;color:var(--text-danger);line-height:1.55">|z| ≥ 4 — gradient near zero. Learning effectively stops.</div>
+      </div>
+    </div>
+
+    <div class="step-label">Why this becomes catastrophic in deep networks</div>
+    <p class="note" style="margin-bottom:0.5rem">In a deep network, gradients are multiplied as they flow back through layers. If each layer's gradient is around 0.25 (the best case for sigmoid), and you have 10 layers, the gradient reaching the first layer is roughly:</p>
+
+    <div class="eq-box">
+      0.25<sup>10</sup> ≈ 0.000001
+      <div class="eq-note">A meaningful number multiplied by itself 10 times collapses to nearly zero. The first layer receives essentially no learning signal. The deeper the network, the worse it gets.</div>
+    </div>
+
+    <p class="note" style="margin-bottom:0.5rem">This is why deep networks with sigmoid activations were nearly untrainable before ~2010. Then ReLU arrived and changed everything — its gradient is 1.0 for any positive z, so it does not collapse with depth.</p>
+
+    <div class="insight">
+      <strong>Summary:</strong> a "vanishing gradient" means the learning signal becomes too small to drive any meaningful weight update. It is caused by activation functions whose gradient flattens to near-zero, multiplied across many layers. Sigmoid and Tanh suffer from this; ReLU and its variants largely solve it. You will see this mentioned in every later section — now you know exactly what it means.
+    </div>
+  </div>
+
+  <!-- PART 4: Sigmoid -->
   <div class="card">
     <h2 id="sec-sigmoid">Sigmoid</h2>
     <p class="note">Sigmoid converts any number into a value between 0 and 1 — think of it as turning a raw score into a probability. Feed it 0 and it returns 0.5. Feed it a large positive number and it returns close to 1. Feed it a large negative number and it returns close to 0. It was historically popular but suffers from the vanishing gradient problem for very positive or negative inputs.</p>
@@ -447,7 +496,7 @@
     </div>
   </div>
 
-  <!-- PART 4: Tanh -->
+  <!-- PART 5: Tanh -->
   <div class="card">
     <h2 id="sec-tanh">Tanh (hyperbolic tangent)</h2>
     <p class="note">The tanh function is similar to sigmoid but outputs values in the range (−1, 1). Since its output is zero-centred, it often works better than sigmoid in hidden layers.</p>
@@ -488,7 +537,7 @@
     </div>
   </div>
 
-  <!-- PART 5: ReLU Family -->
+  <!-- PART 6: ReLU Family -->
   <div class="card">
     <h2 id="sec-relu">The ReLU family</h2>
     <p class="note">ReLU and its variants are the most widely used activation functions in modern deep learning. They are simple, fast, and largely avoid the vanishing gradient problem for positive inputs.</p>
@@ -514,9 +563,36 @@
     </div>
 
     <div id="relu-detail"></div>
+
+    <div class="divider"></div>
+    <div class="step-label">The dying ReLU problem</div>
+    <p class="note" style="margin-bottom:0.5rem">ReLU has one well-known failure mode. Notice from the equation <code style="font-family:var(--font-mono);font-size:12px">f(z) = max(0, z)</code> that for any <em>negative</em> z, the output is exactly 0 — and so is the gradient. If during training a neuron's z drifts permanently below zero, its gradient becomes 0, weight updates stop, and the neuron stays stuck at 0 output forever. This is called a <strong>dead neuron</strong>.</p>
+
+    <div class="step-label">A concrete numerical walkthrough</div>
+    <p class="note" style="margin-bottom:0.5rem">Imagine a ReLU neuron during training. After a large weight update, its weighted sum becomes z = −3.5. Then:</p>
+
+    <div class="eq-box">
+      f(z) = max(0, −3.5) = <strong>0</strong> &nbsp;&nbsp;|&nbsp;&nbsp; f′(z) = 0
+      <div class="eq-note">The neuron outputs 0. Its gradient is 0. The next training step computes a weight update of (gradient × something) = 0 × something = 0. <strong>The weights don't change.</strong> Next batch, z is still negative. Gradient is still 0. The neuron is dead.</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0.75rem">
+      <div style="background:var(--bg-danger);border-radius:var(--radius-md);padding:8px 12px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-danger);margin-bottom:3px">ReLU — dead neurons stay dead</div>
+        <div style="font-size:12px;color:var(--text-danger);line-height:1.55">Gradient = 0 for any z &lt; 0. Once stuck, no way out. In practice, a fraction of neurons can die during training, reducing the network's capacity.</div>
+      </div>
+      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:8px 12px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-success);margin-bottom:3px">Leaky ReLU &amp; GELU — neurons can recover</div>
+        <div style="font-size:12px;color:var(--text-success);line-height:1.55">Leaky ReLU has a small negative slope (0.01) so the gradient is small but non-zero. GELU has a smooth nonzero gradient everywhere. Either way: the neuron always has a way back.</div>
+      </div>
+    </div>
+
+    <div class="insight">
+      In practice the dying ReLU problem is most likely with a too-large learning rate or poor weight initialization, both of which the later explainers in the roadmap address. Many production networks still use plain ReLU successfully — but if you see lots of neurons outputting 0, switching to Leaky ReLU or GELU often helps.
+    </div>
   </div>
 
-  <!-- PART 6: GELU deep dive -->
+  <!-- PART 7: GELU deep dive -->
   <div class="card">
     <h2 id="sec-gelu">GELU deep dive</h2>
     <p class="note">The Gaussian Error Linear Unit is the activation function of choice in modern transformers — GPT, BERT, and their successors all use GELU.</p>
@@ -568,9 +644,9 @@
     <div id="gelu-insight-box" class="insight" style="margin-top:0.75rem"></div>
   </div>
 
-  <!-- PART 7: Summary table -->
+  <!-- PART 8: Summary table -->
   <div class="card">
-    <h2 id="sec-summary">Activation function summary</h2>
+    <h2 id="sec-summary">Activation function summary &amp; code</h2>
     <p class="note">A quick reference covering all five functions — range, zero-centring, gradient issues, and where each is used today.</p>
 
     <div style="overflow-x:auto">
@@ -623,6 +699,30 @@
         </tbody>
       </table>
     </div>
+
+    <div class="step-label" style="margin-top:1rem">In code — using each activation in PyTorch</div>
+    <p class="note" style="margin-bottom:0.5rem">All five activations are one-liners in PyTorch. Two ways to use each — as a function (apply to a tensor) or as a module (drop into <code style="font-family:var(--font-mono);font-size:12px">nn.Sequential</code>):</p>
+
+    <pre style="background:var(--bg-secondary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-md);padding:0.75rem 1rem;margin:0.5rem 0;font-family:var(--font-mono);font-size:13px;color:var(--text-primary);overflow-x:auto;line-height:1.5;white-space:pre"><span style="color:var(--text-info)">import</span> torch
+<span style="color:var(--text-info)">import</span> torch.nn <span style="color:var(--text-info)">as</span> nn
+<span style="color:var(--text-info)">import</span> torch.nn.functional <span style="color:var(--text-info)">as</span> F
+
+z = torch.randn(<span style="color:var(--text-warning)">32</span>, <span style="color:var(--text-warning)">3</span>)         <span style="color:var(--text-tertiary)"># a batch of 32 weighted sums, each with 3 features</span>
+
+<span style="color:var(--text-tertiary)"># --- Functional form — apply directly to a tensor ---</span>
+a1 = torch.sigmoid(z)            <span style="color:var(--text-tertiary)"># Sigmoid</span>
+a2 = torch.tanh(z)               <span style="color:var(--text-tertiary)"># Tanh</span>
+a3 = torch.relu(z)               <span style="color:var(--text-tertiary)"># ReLU</span>
+a4 = F.leaky_relu(z, <span style="color:var(--text-warning)">0.01</span>)      <span style="color:var(--text-tertiary)"># Leaky ReLU with slope 0.01</span>
+a5 = F.gelu(z)                   <span style="color:var(--text-tertiary)"># GELU</span>
+
+<span style="color:var(--text-tertiary)"># --- Module form — drops into nn.Sequential ---</span>
+layer = nn.Sequential(
+    nn.Linear(<span style="color:var(--text-warning)">3</span>, <span style="color:var(--text-warning)">8</span>),         <span style="color:var(--text-tertiary)"># weighted sum</span>
+    nn.<span style="color:var(--text-info)">GELU</span>(),               <span style="color:var(--text-tertiary)"># activation (swap with ReLU, Sigmoid, etc.)</span>
+    nn.Linear(<span style="color:var(--text-warning)">8</span>, <span style="color:var(--text-warning)">1</span>),
+)
+output = layer(z)                <span style="color:var(--text-tertiary)"># shape: (32, 1)</span></pre>
 
     <div class="insight" style="margin-top:0.875rem">
       There is no single best activation function — the right choice depends on the architecture and task. ReLU remains the default for hidden layers in CNNs. GELU is the default for transformers. Sigmoid and tanh remain relevant in specific output and recurrent contexts.
@@ -940,12 +1040,145 @@ function updateGeluSlider() {
 
 document.getElementById('gelu-slider').addEventListener('input', updateGeluSlider);
 
+// ─── PART 3: Vanishing gradient canvas (NEW) ─────────────────────────────────
+function drawVanishing() {
+  const canvas = document.getElementById('vg-canvas');
+  if (!canvas) return;
+  const W = canvas.parentElement.clientWidth - 16;
+  const H = 224;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0, 0, W, H);
+
+  const d = isDark();
+  const padL = 44, padR = 48, padT = 14, padB = 30;
+  const cW = W - padL - padR, cH = H - padT - padB;
+
+  const ZMIN = -6, ZMAX = 6;
+  const xToPx = z => padL + ((z - ZMIN) / (ZMAX - ZMIN)) * cW;
+  // Left axis: σ(z) range [0, 1].  Right axis: σ'(z) range [0, 0.3]
+
+  // Shade saturation zones (|z| ≥ 4) and slow zones (2 ≤ |z| < 4)
+  // Slow zones first (warning amber), then saturation on top (danger red)
+  const slowColor = d ? 'rgba(239,159,39,0.10)' : 'rgba(186,117,23,0.08)';
+  const satColor  = d ? 'rgba(240,149,149,0.13)' : 'rgba(163,45,45,0.09)';
+  // Left slow zone
+  ctx.fillStyle = slowColor;
+  ctx.fillRect(xToPx(-4), padT, xToPx(-2) - xToPx(-4), cH);
+  ctx.fillRect(xToPx(2), padT, xToPx(4) - xToPx(2), cH);
+  // Saturation zones (outer)
+  ctx.fillStyle = satColor;
+  ctx.fillRect(xToPx(ZMIN), padT, xToPx(-4) - xToPx(ZMIN), cH);
+  ctx.fillRect(xToPx(4), padT, xToPx(ZMAX) - xToPx(4), cH);
+
+  // Grid
+  ctx.strokeStyle = d ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + (i / 4) * cH;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + cW, y); ctx.stroke();
+  }
+  for (let z = ZMIN; z <= ZMAX; z += 2) {
+    const x = xToPx(z);
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + cH); ctx.stroke();
+  }
+
+  // Left axis labels (σ value, range 0-1)
+  const textC = d ? '#b4b2a9' : '#5f5e5a';
+  ctx.fillStyle = textC; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const v = 1 - i / 4;
+    ctx.fillText(v.toFixed(2), padL - 4, padT + (i / 4) * cH + 3);
+  }
+  // Right axis labels (σ' value, range 0-0.3)
+  ctx.textAlign = 'left';
+  for (let i = 0; i <= 4; i++) {
+    const v = 0.3 - (i / 4) * 0.3;
+    ctx.fillText(v.toFixed(2), padL + cW + 4, padT + (i / 4) * cH + 3);
+  }
+  // X axis tick labels
+  ctx.textAlign = 'center';
+  for (let z = ZMIN; z <= ZMAX; z += 2) {
+    ctx.fillText(z.toString(), xToPx(z), padT + cH + 16);
+  }
+
+  // Axis titles
+  ctx.fillStyle = textC; ctx.font = '11px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('z (neuron input)', padL + cW / 2, H - 4);
+  ctx.save(); ctx.translate(12, padT + cH / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillStyle = d ? '#85b7eb' : '#185fa5';
+  ctx.fillText('σ(z)', 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(W - 6, padT + cH / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillStyle = d ? '#ef9f27' : '#BA7517';
+  ctx.fillText("σ'(z)", 0, 0); ctx.restore();
+
+  // Plot σ(z) — left axis, scaled to [0,1] over canvas height
+  const blue = d ? '#85b7eb' : '#185fa5';
+  ctx.strokeStyle = blue; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    const z = ZMIN + (i / 200) * (ZMAX - ZMIN);
+    const sigma = 1 / (1 + Math.exp(-z));
+    const x = xToPx(z);
+    const y = padT + (1 - sigma) * cH;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Plot σ'(z) — right axis, scaled to [0, 0.3]
+  const amber = d ? '#ef9f27' : '#BA7517';
+  ctx.strokeStyle = amber; ctx.lineWidth = 2.5;
+  ctx.setLineDash([5, 4]);
+  ctx.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    const z = ZMIN + (i / 200) * (ZMAX - ZMIN);
+    const sigma = 1 / (1 + Math.exp(-z));
+    const grad = sigma * (1 - sigma);
+    const x = xToPx(z);
+    const y = padT + (1 - grad / 0.3) * cH;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Zone labels at top of zones
+  ctx.font = 'bold 10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = d ? '#5dcaa5' : '#0f6e56';
+  ctx.fillText('healthy', xToPx(0), padT + 12);
+  ctx.fillStyle = d ? '#ef9f27' : '#854f0b';
+  ctx.fillText('slow', xToPx(-3), padT + 12);
+  ctx.fillText('slow', xToPx(3), padT + 12);
+  ctx.fillStyle = d ? '#f09595' : '#a32d2d';
+  ctx.fillText('saturation', xToPx(-5), padT + 12);
+  ctx.fillText('saturation', xToPx(5), padT + 12);
+
+  // Legend
+  ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillStyle = blue;
+  ctx.fillRect(padL + cW - 100, padT + cH - 26, 12, 2);
+  ctx.fillText('σ(z) — output', padL + cW - 84, padT + cH - 23);
+  ctx.fillStyle = amber;
+  for (let i = 0; i < 3; i++) ctx.fillRect(padL + cW - 100 + i*5, padT + cH - 12, 3, 2);
+  ctx.fillText("σ'(z) — gradient", padL + cW - 84, padT + cH - 9);
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
 buildCurveChart();
 updateCurvePoint();
 buildReluChart();
 renderReluDetail();
 updateGeluSlider();
+drawVanishing();
+
+window.addEventListener('resize', () => {
+  drawVanishing();
+});
 
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
   buildCurveChart();
@@ -953,6 +1186,7 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
   buildReluChart();
   renderReluDetail();
   updateGeluSlider();
+  drawVanishing();
 });
 </script>
 </body>
