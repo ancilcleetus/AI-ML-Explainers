@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Embeddings — Representing Discrete Data as Vectors — Interactive Explainer</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg-primary:#ffffff;--bg-secondary:#f5f4f0;--bg-tertiary:#eeece6;
+      --bg-info:#e6f1fb;--bg-success:#e1f5ee;--bg-warning:#faeeda;--bg-danger:#fcebeb;
+      --text-primary:#1a1a18;--text-secondary:#5f5e5a;--text-tertiary:#888780;
+      --text-info:#185fa5;--text-success:#0f6e56;--text-warning:#854f0b;--text-danger:#a32d2d;
+      --border-tertiary:rgba(0,0,0,0.12);--border-secondary:rgba(0,0,0,0.22);
+      --border-info:#85b7eb;--border-success:#5dcaa5;--border-warning:#ef9f27;--border-danger:#e24b4a;
+      --radius-md:8px;--radius-lg:12px;
+      --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      --font-mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+    }
+    @media(prefers-color-scheme:dark){
+      :root{
+        --bg-primary:#1c1c1a;--bg-secondary:#252522;--bg-tertiary:#2c2c2a;
+        --bg-info:#042c53;--bg-success:#04342c;--bg-warning:#412402;--bg-danger:#501313;
+        --text-primary:#e8e6de;--text-secondary:#b4b2a9;--text-tertiary:#73726c;
+        --text-info:#85b7eb;--text-success:#5dcaa5;--text-warning:#ef9f27;--text-danger:#f09595;
+        --border-tertiary:rgba(255,255,255,0.10);--border-secondary:rgba(255,255,255,0.20);
+        --border-info:#185fa5;--border-success:#0f6e56;--border-warning:#854f0b;--border-danger:#a32d2d;
+      }
+    }
+    body{font-family:var(--font);background:var(--bg-tertiary);color:var(--text-primary);min-height:100vh;padding:2rem 1rem 3rem;line-height:1.6}
+    .page{max-width:760px;margin:0 auto}
+    header{margin-bottom:2rem}
+    header h1{font-size:24px;font-weight:500;color:var(--text-primary);margin-bottom:6px}
+    header p{font-size:14px;color:var(--text-secondary);max-width:580px;line-height:1.65}
+    .card{background:var(--bg-primary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.25rem}
+    h2{font-size:15px;font-weight:500;color:var(--text-primary);margin-bottom:8px}
+    p.note{font-size:13px;color:var(--text-secondary);line-height:1.65;margin-bottom:0.75rem}
+    .step-label{font-size:11px;font-weight:500;color:var(--text-tertiary);letter-spacing:.05em;text-transform:uppercase;margin:1rem 0 6px}
+    .divider{border:none;border-top:0.5px solid var(--border-tertiary);margin:1.25rem 0}
+    .code-box{background:var(--bg-secondary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-md);padding:0.75rem 1rem;margin:0.5rem 0;font-family:var(--font-mono);font-size:13px;color:var(--text-primary);white-space:pre;overflow-x:auto;line-height:1.5}
+    .code-comment{color:var(--text-tertiary)}
+    .code-blue{color:var(--text-info)}
+    .code-green{color:var(--text-success)}
+    .code-amber{color:var(--text-warning)}
+    .insight{border-left:2px solid var(--border-info);padding:7px 12px;font-size:13px;color:var(--text-secondary);background:var(--bg-info);border-radius:0 var(--radius-md) var(--radius-md) 0;margin:0.5rem 0;line-height:1.55}
+    .insight.success{border-color:var(--border-success);background:var(--bg-success);color:var(--text-success)}
+    .insight.warning{border-color:var(--border-warning);background:var(--bg-warning);color:var(--text-warning)}
+    .insight.danger{border-color:var(--border-danger);background:var(--bg-danger);color:var(--text-danger)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:0.75rem}
+    .tab-btn{padding:6px 14px;border:0.5px solid var(--border-secondary);border-radius:var(--radius-md);background:var(--bg-primary);color:var(--text-primary);font-size:13px;font-family:var(--font);cursor:pointer;transition:background 0.15s,border-color 0.15s}
+    .tab-btn.active{background:var(--bg-info);border-color:var(--border-info);color:var(--text-info)}
+    .tab-btn:hover:not(.active){background:var(--bg-secondary)}
+    .slider-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+    .slider-name{font-size:12px;color:var(--text-tertiary);width:130px;flex-shrink:0}
+    .slider-val{font-size:13px;color:var(--text-primary);width:60px;text-align:right;font-family:var(--font-mono);flex-shrink:0}
+    input[type=range]{flex:1}
+    .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0.75rem 0}
+    @media(max-width:480px){.metric-grid{grid-template-columns:repeat(2,1fr)}}
+    .metric-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.65rem 0.875rem}
+    .metric-card .mc-label{font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+    .metric-card .mc-val{font-size:18px;font-weight:500;font-family:var(--font-mono);color:var(--text-primary);transition:color 0.3s}
+    .summary-table{width:100%;border-collapse:collapse;font-size:12px;margin:0.75rem 0}
+    .summary-table th{text-align:left;padding:7px 10px;background:var(--bg-secondary);color:var(--text-tertiary);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:0.5px solid var(--border-tertiary)}
+    .summary-table td{padding:7px 10px;border-bottom:0.5px solid var(--border-tertiary);color:var(--text-secondary);vertical-align:top}
+    .summary-table tr:last-child td{border-bottom:none}
+    .summary-table tr:hover td{background:var(--bg-secondary)}
+    /* Vocabulary item buttons */
+    .vocab-btn{padding:6px 12px;border:0.5px solid var(--border-tertiary);border-radius:var(--radius-md);background:var(--bg-primary);color:var(--text-primary);font-size:13px;cursor:pointer;transition:all 0.15s;font-family:var(--font)}
+    .vocab-btn.active{background:var(--bg-info);border-color:var(--border-info);color:var(--text-info)}
+    .vocab-btn:hover:not(.active){background:var(--bg-secondary)}
+    /* One-hot vector cells */
+    .ohcell{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:0.5px solid var(--border-tertiary);font-family:var(--font-mono);font-size:11px;background:var(--bg-secondary);color:var(--text-tertiary);border-radius:3px}
+    .ohcell.lit{background:var(--text-info);color:#fff;border-color:var(--text-info);font-weight:600}
+    /* Embedding table */
+    .emb-table{border-collapse:collapse;width:100%;font-size:12px}
+    .emb-table th,.emb-table td{padding:6px 8px;border:0.5px solid var(--border-tertiary);text-align:center;font-family:var(--font-mono)}
+    .emb-table th{background:var(--bg-secondary);color:var(--text-tertiary);font-size:10px;text-transform:uppercase;letter-spacing:.04em;font-weight:500}
+    .emb-table tr.hl-row td{background:var(--bg-info);color:var(--text-info);font-weight:500}
+    .emb-table td.label-col{text-align:left;font-family:var(--font);background:var(--bg-secondary)}
+    /* 2D scatter container */
+    canvas{display:block;max-width:100%}
+    .toc-nav{background:var(--bg-primary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);padding:0.875rem 1.25rem;margin-bottom:1.5rem}
+    .toc-title{font-size:11px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:0.5rem}
+    .toc-item{display:flex;align-items:flex-start;gap:10px;padding:5px 6px;margin:2px -6px;border-radius:var(--radius-md);text-decoration:none;transition:background 0.15s}
+    .toc-item:hover{background:var(--bg-secondary)}
+    .toc-num{width:22px;height:22px;border-radius:50%;flex-shrink:0;background:var(--bg-info);color:var(--text-info);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-top:1px}
+    .toc-label{font-size:13px;color:var(--text-info);font-weight:500;line-height:1.45}
+    .toc-item:hover .toc-label{color:var(--text-primary)}
+    .toc-item:hover .toc-num{opacity:0.7}
+    footer{text-align:center;font-size:12px;color:var(--text-tertiary);margin-top:2rem}
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>Embeddings — Representing Discrete Data as Vectors — Interactive Explainer</h1>
+    <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)" target="_blank" rel="noopener">Ancil Cleetus</a></p>
+    <p>Neural networks consume <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/tensors_explainer.html" target="_blank" rel="noopener" style="color:inherit;border-bottom:0.5px solid currentColor;text-decoration:none">tensors</a> of numbers. But the real world is full of discrete things — words, user IDs, product categories. How do we feed "cat" or "Movie_392" into a network? <strong>Embeddings</strong> are the answer. They turn discrete items into learnable dense vectors — and along the way they capture meaning in a way that no other representation does.</p>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc-nav" aria-label="Table of contents">
+    <div class="toc-title">Contents</div>
+    <a href="#sec-problem"      class="toc-item"><div class="toc-num">1</div><span class="toc-label">The discrete data problem</span></a>
+    <a href="#sec-onehot"       class="toc-item"><div class="toc-num">2</div><span class="toc-label">One-hot encoding — the obvious first attempt</span></a>
+    <a href="#sec-lookup"       class="toc-item"><div class="toc-num">3</div><span class="toc-label">The embedding lookup table</span></a>
+    <a href="#sec-similarity"   class="toc-item"><div class="toc-num">4</div><span class="toc-label">Similarity in embedding space</span></a>
+    <a href="#sec-learning"     class="toc-item"><div class="toc-num">5</div><span class="toc-label">How embeddings are actually learned</span></a>
+    <a href="#sec-applications" class="toc-item"><div class="toc-num">6</div><span class="toc-label">Where embeddings show up in practice</span></a>
+  </nav>
+
+  <!-- PART 1 -->
+  <div class="card">
+    <h2 id="sec-problem">The discrete data problem</h2>
+    <p class="note">Every previous explainer worked with continuous numerical inputs — values that could be slid up and down on a slider. But the real world is full of <em>discrete</em> things that have no natural numerical value: words, IDs, categories. A neural network only consumes numbers. So how do we get discrete things into a network?</p>
+
+    <div class="step-label">Three places this problem shows up</div>
+    <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:0.75rem">
+      <div style="background:var(--bg-info);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-info);margin-bottom:3px">📝 Natural Language Processing</div>
+        <div style="font-size:12px;color:var(--text-info);line-height:1.55">"The cat sat on the mat" — translating, classifying, or generating text requires the network to consume each word. Words are not numbers.</div>
+      </div>
+      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-success);margin-bottom:3px">🎬 Recommender systems</div>
+        <div style="font-size:12px;color:var(--text-success);line-height:1.55">Netflix predicting whether User_47 will like Movie_392 — the input is two opaque IDs, not numerical features.</div>
+      </div>
+      <div style="background:var(--bg-warning);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-warning);margin-bottom:3px">📊 Tabular Deep Learning</div>
+        <div style="font-size:12px;color:var(--text-warning);line-height:1.55">A loan model with <code style="font-family:var(--font-mono);font-size:11px">country = "Japan"</code> and <code style="font-family:var(--font-mono);font-size:11px">occupation = "engineer"</code>. Categories, not numbers.</div>
+      </div>
+    </div>
+
+    <div class="step-label">The wrong solutions — and why</div>
+
+    <div style="background:var(--bg-danger);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:8px">
+      <div style="font-size:12px;font-weight:500;color:var(--text-danger);margin-bottom:3px">❌ Wrong: just give each word a number</div>
+      <div style="font-size:12px;color:var(--text-danger);line-height:1.55">cat = 1, dog = 2, elephant = 3. Problem: this implies that "dog" sits between "cat" and "elephant" in some way — a meaningless ordering. The network would learn nonsense relationships.</div>
+    </div>
+    <div style="background:var(--bg-danger);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:8px">
+      <div style="font-size:12px;font-weight:500;color:var(--text-danger);margin-bottom:3px">❌ Wrong: hash each word to a fixed number</div>
+      <div style="font-size:12px;color:var(--text-danger);line-height:1.55">Hash function maps "cat" → 8472, "dog" → 31. Same problem: arbitrary ordering, plus no way for the network to learn that "cat" and "dog" are similar.</div>
+    </div>
+
+    <div class="insight">
+      <strong>The question this explainer answers:</strong> How do we feed discrete things into a neural network in a way that lets the network <em>learn meaningful relationships</em> between them? The answer comes in two steps — first one-hot encoding (which solves the ordering problem but creates new ones), then embeddings (which solves everything).
+    </div>
+  </div>
+
+  <!-- PART 2 -->
+  <div class="card">
+    <h2 id="sec-onehot">One-hot encoding — the obvious first attempt</h2>
+    <p class="note"><strong>The idea:</strong> assign each unique item its own dimension. With 5 items in our vocabulary, every item becomes a 5-dimensional vector with a single 1 in its assigned position and 0s everywhere else. No artificial ordering. Every item is mathematically distinct.</p>
+
+    <div class="step-label">Interactive — click any word to see its one-hot vector</div>
+    <div class="row" id="oh-vocab" style="margin-bottom:0.75rem"></div>
+
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:1rem;margin-bottom:0.75rem;text-align:center">
+      <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:6px">One-hot vector for <strong style="color:var(--text-primary)" id="oh-word-name">cat</strong></div>
+      <div id="oh-vector" style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap"></div>
+      <div style="font-size:11px;color:var(--text-tertiary);margin-top:6px;font-family:var(--font-mono)" id="oh-shape">shape: (5,) — one position is 1, the rest are 0</div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="step-label">Why one-hot fails at scale — three problems</div>
+
+    <div style="background:var(--bg-danger);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:8px">
+      <div style="font-size:12px;font-weight:500;color:var(--text-danger);margin-bottom:3px">Problem 1 — Memory explosion at scale</div>
+      <div style="font-size:12px;color:var(--text-danger);line-height:1.55">For 5 words, vectors are 5-dim. For English (~50,000 words), every word becomes a 50,000-dim vector. For YouTube user IDs (~2 billion), each user becomes a 2-billion-dim vector. Training that is impossible.</div>
+    </div>
+
+    <div class="step-label">Interactive — see how memory grows with vocabulary size</div>
+    <div class="slider-row">
+      <span class="slider-name">Vocabulary size</span>
+      <input type="range" id="sl-vocab" min="10" max="100000" step="10" value="50000">
+      <span class="slider-val" id="lbl-vocab">50000</span>
+    </div>
+    <div class="metric-grid" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="metric-card"><div class="mc-label">Vector size</div><div class="mc-val" id="oh-dim" style="font-size:14px;padding-top:2px">50,000</div></div>
+      <div class="metric-card"><div class="mc-label">Memory per vector</div><div class="mc-val" id="oh-mem" style="font-size:14px;padding-top:2px">200 KB</div></div>
+      <div class="metric-card"><div class="mc-label">Memory for batch of 32</div><div class="mc-val" id="oh-batch-mem" style="font-size:14px;padding-top:2px;color:var(--text-danger)">6.4 MB</div></div>
+    </div>
+
+    <div style="background:var(--bg-danger);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:8px;margin-top:0.75rem">
+      <div style="font-size:12px;font-weight:500;color:var(--text-danger);margin-bottom:3px">Problem 2 — Zero similarity between any two distinct items</div>
+      <div style="font-size:12px;color:var(--text-danger);line-height:1.55">The dot product of any two distinct one-hot vectors is exactly 0. They are perfectly orthogonal. This means "cat" is no more similar to "kitten" than to "earthquake".</div>
+    </div>
+
+    <div class="code-box"><span class="code-comment"># cat and kitten — should be very similar, but...</span>
+cat    = [<span class="code-amber">1</span>, 0, 0, 0, 0]
+kitten = [0, 0, <span class="code-amber">1</span>, 0, 0]
+
+<span class="code-comment"># Dot product:</span>
+cat · kitten = 1×0 + 0×0 + 0×1 + 0×0 + 0×0 = <span class="code-amber">0</span>
+
+<span class="code-comment"># Cosine similarity = 0 → orthogonal → "no relationship"</span></div>
+
+    <div style="background:var(--bg-danger);border-radius:var(--radius-md);padding:10px 14px;margin:0.75rem 0">
+      <div style="font-size:12px;font-weight:500;color:var(--text-danger);margin-bottom:3px">Problem 3 — No generalisation</div>
+      <div style="font-size:12px;color:var(--text-danger);line-height:1.55">If the network learns something useful about "cat" (say, that it is a household animal), that knowledge does not transfer to "kitten" — because their one-hot vectors are completely independent. The network has to relearn it from scratch.</div>
+    </div>
+
+    <div class="insight warning">
+      One-hot solves the ordering problem but creates three new ones: huge memory, zero similarity, no generalisation. Embeddings solve all three at once.
+    </div>
+  </div>
+
+  <!-- PART 3 -->
+  <div class="card">
+    <h2 id="sec-lookup">The embedding lookup table</h2>
+    <p class="note"><strong>The idea:</strong> instead of huge sparse one-hot vectors, give each item a small <em>dense</em> vector — say 4 numbers. These numbers are <strong>learnable</strong> — they start random and gradient descent adjusts them during training, just like any other weight in the network.</p>
+
+    <div class="step-label">Interactive — click any item to see its 4-dim embedding vector highlighted</div>
+    <div class="row" id="emb-vocab" style="margin-bottom:0.75rem"></div>
+
+    <div style="overflow-x:auto;margin-bottom:0.75rem">
+      <table class="emb-table" id="emb-table"></table>
+    </div>
+
+    <div class="insight">
+      <strong>The embedding layer is just a matrix.</strong> Shape: (vocab_size, embedding_dim) = (5, 4) here. To "look up" the vector for word index <em>i</em>, you take row <em>i</em> of this matrix. That is the entire operation — a single row indexing into a 2D tensor.
+    </div>
+
+    <div class="insight success">
+      <strong>And the matrix is learnable — same as any other weight.</strong> Recall from the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/neuron_forward_pass_explainer.html" target="_blank" rel="noopener" style="color:inherit;border-bottom:0.5px solid currentColor;text-decoration:none">Neuron &amp; Forward Pass Explainer</a> that the weights inside <code style="font-family:var(--font-mono);font-size:12px">nn.Linear</code> are learnable parameters that gradient descent adjusts during training. The embedding matrix has exactly the same status — it is <code style="font-family:var(--font-mono);font-size:12px">nn.Embedding</code>'s single learnable parameter. The only difference is the operation: <code style="font-family:var(--font-mono);font-size:12px">nn.Linear</code> performs a matrix multiply, <code style="font-family:var(--font-mono);font-size:12px">nn.Embedding</code> performs a row lookup. The training mechanism that updates the values is identical.
+    </div>
+
+    <div class="code-box"><span class="code-comment"># PyTorch — the embedding matrix is just a learnable parameter</span>
+embedding_matrix = torch.randn(<span class="code-amber">vocab_size</span>, <span class="code-amber">embedding_dim</span>)
+<span class="code-comment"># shape: (5, 4) — 5 items, each represented by 4 numbers</span>
+
+<span class="code-comment"># Look up a batch of word IDs</span>
+word_indices = torch.tensor([<span class="code-amber">0</span>, <span class="code-amber">2</span>, <span class="code-amber">4</span>])  <span class="code-comment"># cat, kitten, truck</span>
+embeddings = embedding_matrix[word_indices]
+<span class="code-comment"># shape: (3, 4) — 3 items in the batch, each as a 4-dim vector</span>
+
+<span class="code-comment"># In real code, just use nn.Embedding:</span>
+embed = <span class="code-blue">nn.Embedding</span>(num_embeddings=<span class="code-amber">5</span>, embedding_dim=<span class="code-amber">4</span>)
+embeddings = embed(word_indices)  <span class="code-comment"># same result</span></div>
+
+    <div class="step-label">A subtle but important equivalence</div>
+    <p class="note" style="margin-bottom:0.5rem">An embedding lookup is mathematically equivalent to multiplying a one-hot vector by the embedding matrix. The lookup is just a memory-efficient way to do the same computation:</p>
+
+    <div class="code-box"><span class="code-comment"># These two operations produce identical results:</span>
+
+<span class="code-comment"># Method A — one-hot times matrix</span>
+one_hot = [0, 0, 1, 0, 0]                     <span class="code-comment"># for "kitten" (index 2)</span>
+result  = one_hot @ embedding_matrix          <span class="code-comment"># shape: (4,)</span>
+
+<span class="code-comment"># Method B — direct row indexing (what nn.Embedding actually does)</span>
+result  = embedding_matrix[<span class="code-amber">2</span>]                  <span class="code-comment"># shape: (4,)</span>
+
+<span class="code-comment"># The lookup avoids storing or multiplying the huge one-hot vector.</span></div>
+
+    <div class="insight success">
+      Embeddings give you the conceptual benefit of one-hot (no artificial ordering) without the memory cost (4 numbers instead of 50,000) — and the values are learnable, so the network can discover that cat and kitten should have similar embeddings.
+    </div>
+  </div>
+
+  <!-- PART 4 -->
+  <div class="card">
+    <h2 id="sec-similarity">Similarity in embedding space</h2>
+    <p class="note">When an embedding is trained on a real task, similar items end up close together in vector space — automatically. Animals cluster together, vehicles cluster together, furniture clusters together. Nobody designs this. It emerges from training.</p>
+
+    <div class="step-label">A trained embedding space — click any word to see its closest neighbours</div>
+    <div style="position:relative;width:100%;height:300px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px;overflow:hidden">
+      <canvas id="emb-canvas" role="img" aria-label="2D embedding space scatter plot"></canvas>
+    </div>
+    <div id="sim-info" style="font-size:12px;color:var(--text-secondary);margin-top:6px;text-align:center"></div>
+
+    <div class="divider"></div>
+    <div class="step-label">Cosine similarity — the standard metric for embedding similarity</div>
+    <p class="note" style="margin-bottom:0.5rem">Cosine similarity measures the angle between two vectors. 1.0 = identical direction, 0 = perpendicular (no relationship), −1 = opposite direction. Pick two items below to see the calculation step by step.</p>
+
+    <div class="row">
+      <label style="font-size:12px;color:var(--text-tertiary)">Item A:&nbsp;
+        <select id="cos-a" style="font-family:var(--font);padding:4px 8px;border-radius:6px;border:0.5px solid var(--border-secondary);background:var(--bg-primary);color:var(--text-primary);font-size:12px"></select>
+      </label>
+      <label style="font-size:12px;color:var(--text-tertiary)">Item B:&nbsp;
+        <select id="cos-b" style="font-family:var(--font);padding:4px 8px;border-radius:6px;border:0.5px solid var(--border-secondary);background:var(--bg-primary);color:var(--text-primary);font-size:12px"></select>
+      </label>
+    </div>
+
+    <div class="code-box" id="cos-calc"></div>
+
+    <div id="cos-insight" class="insight"></div>
+
+    <div class="divider"></div>
+    <div class="step-label">The famous king − man + woman ≈ queen</div>
+    <p class="note" style="margin-bottom:0.5rem">One of the most striking properties of trained embeddings: <em>directions in vector space encode meaning</em>. The vector from "man" to "king" represents the concept of royalty. Apply the same shift to "woman" and you land near "queen".</p>
+
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:1rem;margin:0.5rem 0">
+      <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-primary);text-align:center;line-height:2">
+        <span style="color:var(--text-info)">king</span>
+        &nbsp;<span style="color:var(--text-tertiary)">−</span>&nbsp;
+        <span style="color:var(--text-info)">man</span>
+        &nbsp;<span style="color:var(--text-tertiary)">+</span>&nbsp;
+        <span style="color:var(--text-info)">woman</span>
+        &nbsp;<span style="color:var(--text-tertiary)">≈</span>&nbsp;
+        <span style="color:var(--text-success);font-weight:600">queen</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-tertiary);text-align:center;margin-top:6px">This is real — discovered in the original Word2Vec paper (Mikolov et al., 2013) on a network trained only to predict surrounding words.</div>
+    </div>
+
+    <div class="insight">
+      Why does this work? Because relationships between concepts (gender, royalty, plurality, country–capital, verb tense) get encoded as <em>consistent directions</em> in the embedding space during training. Move from "Paris" to "France" in the same direction as "Tokyo" to "Japan", and you have learned a country–capital relationship.
+    </div>
+  </div>
+
+  <!-- PART 5 -->
+  <div class="card">
+    <h2 id="sec-learning">How embeddings are actually learned</h2>
+    <p class="note">Embeddings are not designed — they are <strong>learned</strong>. The embedding matrix starts with random small numbers. As the network trains on a task, gradient descent adjusts the embedding values, just like any other weight. Items that play similar roles end up with similar vectors.</p>
+
+    <div class="step-label">The training loop — exactly the same as everything else</div>
+    <div class="code-box"><span class="code-comment"># 1. Forward pass — look up embeddings for the input batch</span>
+input_ids = [<span class="code-amber">2</span>, <span class="code-amber">17</span>, <span class="code-amber">42</span>]              <span class="code-comment"># 3 word IDs</span>
+embeddings = embedding_matrix[input_ids]    <span class="code-comment"># shape: (3, dim)</span>
+
+<span class="code-comment"># 2. Run them through the rest of the model</span>
+output = model(embeddings)
+loss   = loss_fn(output, targets)
+
+<span class="code-comment"># 3. Backward pass — gradients flow back to embedding_matrix</span>
+loss.backward()
+
+<span class="code-comment"># 4. Only the rows for ids [2, 17, 42] get updated this step</span>
+optimizer.step()</div>
+
+    <div class="insight warning">
+      <strong>This code is a preview.</strong> Terms like <code style="font-family:var(--font-mono);font-size:12px">loss_fn</code>, <code style="font-family:var(--font-mono);font-size:12px">loss.backward()</code>, and <code style="font-family:var(--font-mono);font-size:12px">optimizer.step()</code> will be unpacked one-by-one in the next few explainers — Loss Functions Overview, Softmax &amp; Probability Outputs, Cross-Entropy Loss, and Loss &amp; Gradient Descent. For now, just know that this is how the embedding values get updated automatically during training.
+    </div>
+
+    <div class="insight">
+      Notice: only the embedding rows used in the current batch get updated. If "kitten" doesn't appear in any batch this epoch, its embedding stays the same. Embeddings learn quickly for common items, slowly for rare ones — which is why rare items often have noisier embeddings.
+    </div>
+
+    <div class="divider"></div>
+    <div class="step-label">Interactive — watch two embeddings converge as we "train"</div>
+    <p class="note" style="margin-bottom:0.5rem">Imagine a tiny task: the network should learn that <strong>cat</strong> and <strong>kitten</strong> are similar. We start their 2-dim embeddings far apart and apply gradient descent steps that pull them together. Click "train one step" to see them move.</p>
+
+    <div class="insight" style="margin-bottom:0.5rem">
+      <strong>What is being minimised?</strong> The loss here is the squared distance between the two embeddings: <code style="font-family:var(--font-mono);font-size:12px">L = ‖cat − kitten‖²</code>. Each step moves both points in the direction of the negative gradient — exactly the same gradient descent mechanic you will see formalised in the upcoming Loss &amp; Gradient Descent Explainer.
+    </div>
+
+    <div style="display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap;background:var(--bg-secondary);border-radius:var(--radius-md);padding:1rem;margin:0.5rem 0">
+      <div style="text-align:center">
+        <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:4px">cat embedding</div>
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-info)" id="train-cat-vec">[—]</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:4px">kitten embedding</div>
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-success)" id="train-kit-vec">[—]</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:4px">cosine similarity</div>
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-warning)" id="train-cos">—</div>
+      </div>
+    </div>
+
+    <div style="position:relative;width:100%;height:200px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px;margin:0.5rem 0">
+      <canvas id="train-canvas" role="img" aria-label="Two embeddings converging during training"></canvas>
+    </div>
+
+    <div class="row" style="justify-content:center">
+      <button class="tab-btn" id="btn-train-step" onclick="trainStep()">Train one step</button>
+      <button class="tab-btn" id="btn-train-run" onclick="trainRun()">Run 10 steps</button>
+      <button class="tab-btn" id="btn-train-reset" onclick="trainReset()">Reset</button>
+    </div>
+
+    <div id="train-status" class="insight" style="margin-top:0.75rem"></div>
+
+    <div class="divider"></div>
+    <div class="step-label">Common training paradigms</div>
+    <table class="summary-table">
+      <thead><tr><th>Method</th><th>What it predicts</th><th>Where used</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Word2Vec / Skip-gram</strong></td><td>Predict surrounding words from centre word</td><td>Standalone word embeddings</td></tr>
+        <tr><td><strong>GloVe</strong></td><td>Factorise the global word co-occurrence matrix</td><td>Pre-trained word vectors</td></tr>
+        <tr><td><strong>Matrix factorisation</strong></td><td>Predict user–item ratings as dot product of embeddings</td><td>Recommender systems</td></tr>
+        <tr><td><strong>Joint training</strong></td><td>Embeddings trained as part of a larger model end-to-end</td><td>Most modern systems (transformers, ranking models)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PART 6 -->
+  <div class="card">
+    <h2 id="sec-applications">Where embeddings show up in practice</h2>
+    <p class="note">Embeddings are everywhere in modern deep learning. Once you start looking, you find them in every transformer, every recommender, every tabular model with categorical features. Three example domains with their real tensor shapes:</p>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:0.75rem">
+      <div style="background:var(--bg-info);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-info);margin-bottom:3px">📝 Natural Language Processing — every transformer's first layer</div>
+        <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-info);margin-bottom:4px">Shape: (batch, seq_len, embedding_dim) &nbsp;&nbsp;e.g. (32, 512, 768)</div>
+        <div style="font-size:12px;color:var(--text-info);line-height:1.55">A sentence of 512 tokens becomes a sequence of 512 embedding vectors, each 768 numbers. The transformer then processes the whole sequence. BERT uses 768-dim, GPT-3 uses 12,288-dim.</div>
+      </div>
+
+      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-success);margin-bottom:3px">🎬 Recommender systems — separate user and item embeddings</div>
+        <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-success);margin-bottom:4px">user_emb: (batch, dim) &nbsp;·&nbsp; item_emb: (batch, dim) &nbsp;→ dot product → predicted rating</div>
+        <div style="font-size:12px;color:var(--text-success);line-height:1.55">Two separate embedding tables — one for users, one for items. Both trained jointly. The dot product (or a small MLP) gives the predicted preference. Used in Netflix, YouTube, Spotify, Amazon.</div>
+      </div>
+
+      <div style="background:var(--bg-warning);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-warning);margin-bottom:3px">📊 Tabular Deep Learning — embeddings for categorical columns</div>
+        <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-warning);margin-bottom:4px">country (200 categories) → (8,) &nbsp;·&nbsp; occupation (1000 categories) → (16,)</div>
+        <div style="font-size:12px;color:var(--text-warning);line-height:1.55">High-cardinality categoricals would blow up with one-hot. Each category becomes a small dense vector. Used by every major tabular DL approach (TabNet, FT-Transformer, fastai's tabular model).</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="step-label">One-hot vs Embedding — final comparison</div>
+    <table class="summary-table">
+      <thead><tr><th>Property</th><th>One-hot</th><th>Embedding</th></tr></thead>
+      <tbody>
+        <tr><td>Vector dimension</td><td style="color:var(--text-danger)">vocab_size (huge)</td><td style="color:var(--text-success)">embedding_dim (small, e.g. 64–768)</td></tr>
+        <tr><td>Sparsity</td><td>sparse (one nonzero)</td><td>dense (all values used)</td></tr>
+        <tr><td>Learnable</td><td style="color:var(--text-danger)">no</td><td style="color:var(--text-success)">yes</td></tr>
+        <tr><td>Captures similarity</td><td style="color:var(--text-danger)">no — all pairs orthogonal</td><td style="color:var(--text-success)">yes — similar items get similar vectors</td></tr>
+        <tr><td>Generalisation</td><td style="color:var(--text-danger)">no transfer between items</td><td style="color:var(--text-success)">knowledge transfers via similarity</td></tr>
+        <tr><td>Memory for English (50k vocab)</td><td style="color:var(--text-danger)">200 KB per vector</td><td style="color:var(--text-success)">~1 KB per vector (256-dim)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="insight success">
+      <strong>The big picture:</strong> Embeddings are how deep learning bridges from the discrete world (words, categories, IDs) to the continuous world (tensors, gradients, vector arithmetic). Once you understand them, every transformer, recommender, and tabular model becomes legible. The first layer of nearly every modern neural network on discrete inputs is an embedding lookup — a single row indexing operation on a learnable matrix.
+    </div>
+  </div>
+
+  <footer>
+    Built with <span style="color:var(--text-danger);font-size:18px;vertical-align:middle">♥</span> by
+    <a href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">Ancil Cleetus</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://ancilcleetus.github.io/AI-ML-Explainers/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">AI ML Explainers</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp; No external dependencies
+    &nbsp;&nbsp;·&nbsp;&nbsp; MIT License
+  </footer>
+
+</div>
+<script>
+const isDark = () => matchMedia('(prefers-color-scheme:dark)').matches;
+
+// ─── Shared vocabulary and trained embeddings ────────────────────────────────
+const VOCAB = ['cat', 'dog', 'kitten', 'car', 'truck'];
+// Hand-tuned 4-dim trained embeddings — animals close to each other, vehicles close to each other
+const EMB_4D = {
+  'cat':    [ 0.82,  0.15, -0.21,  0.50],
+  'dog':    [ 0.71,  0.22, -0.30,  0.58],
+  'kitten': [ 0.85,  0.08, -0.18,  0.48],
+  'car':    [-0.12,  0.74,  0.65, -0.42],
+  'truck':  [-0.20,  0.81,  0.58, -0.50],
+};
+// Larger vocabulary for the 2D scatter and cosine calculator
+const SCATTER_VOCAB = [
+  { word: 'cat',     pos: { x: 0.20, y: 0.78 }, group: 'animal'  },
+  { word: 'dog',     pos: { x: 0.28, y: 0.82 }, group: 'animal'  },
+  { word: 'kitten',  pos: { x: 0.16, y: 0.72 }, group: 'animal'  },
+  { word: 'puppy',   pos: { x: 0.25, y: 0.88 }, group: 'animal'  },
+  { word: 'lion',    pos: { x: 0.34, y: 0.70 }, group: 'animal'  },
+  { word: 'tiger',   pos: { x: 0.30, y: 0.65 }, group: 'animal'  },
+  { word: 'car',     pos: { x: 0.78, y: 0.30 }, group: 'vehicle' },
+  { word: 'truck',   pos: { x: 0.84, y: 0.36 }, group: 'vehicle' },
+  { word: 'bus',     pos: { x: 0.72, y: 0.24 }, group: 'vehicle' },
+  { word: 'bike',    pos: { x: 0.86, y: 0.22 }, group: 'vehicle' },
+  { word: 'chair',   pos: { x: 0.20, y: 0.20 }, group: 'furniture' },
+  { word: 'table',   pos: { x: 0.28, y: 0.16 }, group: 'furniture' },
+  { word: 'sofa',    pos: { x: 0.16, y: 0.28 }, group: 'furniture' },
+  { word: 'apple',   pos: { x: 0.78, y: 0.78 }, group: 'food'    },
+  { word: 'banana',  pos: { x: 0.84, y: 0.74 }, group: 'food'    },
+  { word: 'pizza',   pos: { x: 0.72, y: 0.84 }, group: 'food'    },
+];
+const GROUP_COLORS = {
+  animal:    { fill: '#378ADD', stroke: '#185fa5' },
+  vehicle:   { fill: '#1D9E75', stroke: '#0f6e56' },
+  furniture: { fill: '#BA7517', stroke: '#854f0b' },
+  food:      { fill: '#a32d2d', stroke: '#601515' },
+};
+
+// ─── PART 2: One-hot ──────────────────────────────────────────────────────────
+let ohSelected = 0;
+function buildOhVocab() {
+  const el = document.getElementById('oh-vocab');
+  el.innerHTML = VOCAB.map((w, i) =>
+    `<button class="vocab-btn ${i===ohSelected?'active':''}" onclick="selectOh(${i})">${w}</button>`
+  ).join('');
+}
+function selectOh(i) {
+  ohSelected = i;
+  buildOhVocab();
+  renderOhVector();
+}
+function renderOhVector() {
+  const cells = VOCAB.map((_, i) =>
+    `<div class="ohcell ${i===ohSelected?'lit':''}">${i===ohSelected?1:0}</div>`
+  ).join('');
+  document.getElementById('oh-vector').innerHTML = cells;
+  document.getElementById('oh-word-name').textContent = VOCAB[ohSelected];
+}
+
+function updateVocabScale() {
+  const v = +document.getElementById('sl-vocab').value;
+  document.getElementById('lbl-vocab').textContent = v.toLocaleString();
+  document.getElementById('oh-dim').textContent = v.toLocaleString();
+  // Memory: float32 = 4 bytes
+  const memBytes = v * 4;
+  const fmt = b => b < 1024 ? `${b} B` : b < 1024*1024 ? `${(b/1024).toFixed(1)} KB` : b < 1024*1024*1024 ? `${(b/1024/1024).toFixed(1)} MB` : `${(b/1024/1024/1024).toFixed(2)} GB`;
+  document.getElementById('oh-mem').textContent = fmt(memBytes);
+  const batchMem = memBytes * 32;
+  const batchEl = document.getElementById('oh-batch-mem');
+  batchEl.textContent = fmt(batchMem);
+  batchEl.style.color = batchMem > 1024*1024 ? 'var(--text-danger)' : batchMem > 64*1024 ? 'var(--text-warning)' : 'var(--text-success)';
+}
+
+// ─── PART 3: Embedding lookup table ──────────────────────────────────────────
+let embSelected = 0;
+function buildEmbVocab() {
+  const el = document.getElementById('emb-vocab');
+  el.innerHTML = VOCAB.map((w, i) =>
+    `<button class="vocab-btn ${i===embSelected?'active':''}" onclick="selectEmb(${i})">${w}</button>`
+  ).join('');
+}
+function selectEmb(i) {
+  embSelected = i;
+  buildEmbVocab();
+  renderEmbTable();
+}
+function renderEmbTable() {
+  const tbl = document.getElementById('emb-table');
+  let html = '<thead><tr><th style="text-align:left">Item</th><th>dim 0</th><th>dim 1</th><th>dim 2</th><th>dim 3</th></tr></thead><tbody>';
+  VOCAB.forEach((w, i) => {
+    const cls = i === embSelected ? 'hl-row' : '';
+    const vec = EMB_4D[w];
+    html += `<tr class="${cls}"><td class="label-col">${w}</td>` +
+            vec.map(v => `<td>${v.toFixed(2)}</td>`).join('') + '</tr>';
+  });
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ─── PART 4: 2D scatter + cosine similarity ───────────────────────────────────
+let scatterSelected = 0;
+function drawScatter() {
+  const canvas = document.getElementById('emb-canvas');
+  const W = canvas.parentElement.clientWidth - 16;
+  const H = 284;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const d = isDark();
+  const gridC = d ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+  const textC = d ? '#888780' : '#888780';
+
+  // Light grid
+  ctx.strokeStyle = gridC; ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 4; i++) {
+    const x = (i/4) * W, y = (i/4) * H;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // Selected item — draw connecting lines to all others
+  if (scatterSelected >= 0) {
+    const sel = SCATTER_VOCAB[scatterSelected];
+    const sx = sel.pos.x * W, sy = sel.pos.y * H;
+    SCATTER_VOCAB.forEach((p, i) => {
+      if (i === scatterSelected) return;
+      const px = p.pos.x * W, py = p.pos.y * H;
+      const dist = Math.sqrt((p.pos.x - sel.pos.x)**2 + (p.pos.y - sel.pos.y)**2);
+      const maxDist = Math.sqrt(2);
+      const sim = 1 - (dist / maxDist); // closer = more similar
+      const alpha = Math.max(0.05, sim * 0.4);
+      ctx.strokeStyle = d ? `rgba(255,255,255,${alpha})` : `rgba(0,0,0,${alpha})`;
+      ctx.lineWidth = sim > 0.7 ? 2 : 1;
+      ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(px, py); ctx.stroke();
+    });
+  }
+
+  // Points
+  SCATTER_VOCAB.forEach((p, i) => {
+    const px = p.pos.x * W, py = p.pos.y * H;
+    const isSel = i === scatterSelected;
+    const c = GROUP_COLORS[p.group];
+    ctx.beginPath();
+    ctx.arc(px, py, isSel ? 9 : 6, 0, Math.PI * 2);
+    ctx.fillStyle = c.fill;
+    ctx.fill();
+    ctx.strokeStyle = isSel ? (d ? '#fff' : '#000') : c.stroke;
+    ctx.lineWidth = isSel ? 2 : 1;
+    ctx.stroke();
+    ctx.fillStyle = d ? '#e8e6de' : '#1a1a18';
+    ctx.font = isSel ? 'bold 11px sans-serif' : '10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(p.word, px, py - (isSel ? 14 : 11));
+  });
+}
+
+document.addEventListener('click', (e) => {
+  const canvas = document.getElementById('emb-canvas');
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) return;
+  const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+  const W = rect.width, H = rect.height;
+  let best = -1, bestDist = Infinity;
+  SCATTER_VOCAB.forEach((p, i) => {
+    const px = p.pos.x * W, py = p.pos.y * H;
+    const d = Math.sqrt((cx - px)**2 + (cy - py)**2);
+    if (d < bestDist && d < 18) { bestDist = d; best = i; }
+  });
+  if (best >= 0) {
+    scatterSelected = best;
+    drawScatter();
+    updateSimInfo();
+  }
+});
+
+function updateSimInfo() {
+  const sel = SCATTER_VOCAB[scatterSelected];
+  const others = SCATTER_VOCAB.map((p, i) => ({
+    word: p.word,
+    dist: Math.sqrt((p.pos.x - sel.pos.x)**2 + (p.pos.y - sel.pos.y)**2),
+    i
+  })).filter(x => x.i !== scatterSelected).sort((a, b) => a.dist - b.dist);
+  const top3 = others.slice(0, 3).map(x => x.word).join(', ');
+  document.getElementById('sim-info').innerHTML =
+    `Selected: <strong style="color:var(--text-primary)">${sel.word}</strong> &nbsp;·&nbsp; Closest neighbours: <strong style="color:var(--text-info)">${top3}</strong>`;
+}
+
+// Cosine similarity calculator (uses the 4D EMB_4D table)
+function buildCosDropdowns() {
+  const aSel = document.getElementById('cos-a');
+  const bSel = document.getElementById('cos-b');
+  aSel.innerHTML = VOCAB.map((w, i) => `<option value="${i}"${i===0?' selected':''}>${w}</option>`).join('');
+  bSel.innerHTML = VOCAB.map((w, i) => `<option value="${i}"${i===2?' selected':''}>${w}</option>`).join('');
+  aSel.addEventListener('change', updateCos);
+  bSel.addEventListener('change', updateCos);
+}
+
+function updateCos() {
+  const ai = +document.getElementById('cos-a').value;
+  const bi = +document.getElementById('cos-b').value;
+  const a = EMB_4D[VOCAB[ai]], b = EMB_4D[VOCAB[bi]];
+  const dot = a.reduce((s, v, i) => s + v * b[i], 0);
+  const magA = Math.sqrt(a.reduce((s, v) => s + v*v, 0));
+  const magB = Math.sqrt(b.reduce((s, v) => s + v*v, 0));
+  const cos = dot / (magA * magB);
+
+  const f = v => v >= 0 ? '+' + v.toFixed(2) : v.toFixed(2);
+  const products = a.map((v, i) => `(${f(v)})×(${f(b[i])})`).join(' + ');
+  const productVals = a.map((v, i) => f(v * b[i])).join(' + ');
+
+  document.getElementById('cos-calc').innerHTML =
+    `<span class="code-comment"># Cosine similarity between "${VOCAB[ai]}" and "${VOCAB[bi]}"</span>
+a = [${a.map(v => f(v)).join(', ')}]
+b = [${b.map(v => f(v)).join(', ')}]
+
+<span class="code-comment"># Dot product</span>
+a · b = ${products}
+      = ${productVals}
+      = <span class="code-amber">${dot.toFixed(4)}</span>
+
+<span class="code-comment"># Magnitudes</span>
+|a| = √(${a.map(v => v.toFixed(2)+'²').join(' + ')}) = <span class="code-amber">${magA.toFixed(4)}</span>
+|b| = √(${b.map(v => v.toFixed(2)+'²').join(' + ')}) = <span class="code-amber">${magB.toFixed(4)}</span>
+
+<span class="code-comment"># Cosine similarity</span>
+cos(a, b) = ${dot.toFixed(4)} / (${magA.toFixed(4)} × ${magB.toFixed(4)})
+          = <span class="code-amber">${cos.toFixed(4)}</span>`;
+
+  const ins = document.getElementById('cos-insight');
+  if (ai === bi) {
+    ins.className = 'insight';
+    ins.textContent = `Same item → cosine similarity is exactly 1.0 (any vector is perfectly similar to itself).`;
+  } else if (cos > 0.9) {
+    ins.className = 'insight success';
+    ins.textContent = `Very high similarity (${cos.toFixed(2)}) — these items are semantically close. The training process pulled their vectors into the same region of space.`;
+  } else if (cos > 0.5) {
+    ins.className = 'insight';
+    ins.textContent = `Moderate similarity (${cos.toFixed(2)}) — these items share some properties but are not in the same fine-grained category.`;
+  } else if (cos > -0.3) {
+    ins.className = 'insight warning';
+    ins.textContent = `Low similarity (${cos.toFixed(2)}) — these items belong to different conceptual clusters.`;
+  } else {
+    ins.className = 'insight danger';
+    ins.textContent = `Negative similarity (${cos.toFixed(2)}) — these items point in opposite directions in embedding space.`;
+  }
+}
+
+// ─── PART 5: Training simulator ───────────────────────────────────────────────
+let trainCat = [-0.6, 0.4];
+let trainKit = [0.7, -0.3];
+let trainStepCount = 0;
+
+function trainStep() {
+  // Move both points toward each other by a small fraction of their difference
+  const lr = 0.18;
+  const dx = trainKit[0] - trainCat[0], dy = trainKit[1] - trainCat[1];
+  trainCat[0] += lr * dx; trainCat[1] += lr * dy;
+  trainKit[0] -= lr * dx; trainKit[1] -= lr * dy;
+  trainStepCount++;
+  renderTrain();
+}
+function trainRun() {
+  let i = 0;
+  const id = setInterval(() => {
+    trainStep();
+    if (++i >= 10) clearInterval(id);
+  }, 200);
+}
+function trainReset() {
+  trainCat = [-0.6, 0.4];
+  trainKit = [0.7, -0.3];
+  trainStepCount = 0;
+  renderTrain();
+}
+
+function renderTrain() {
+  const cf = v => v >= 0 ? '+' + v.toFixed(2) : v.toFixed(2);
+  document.getElementById('train-cat-vec').textContent = `[${cf(trainCat[0])}, ${cf(trainCat[1])}]`;
+  document.getElementById('train-kit-vec').textContent = `[${cf(trainKit[0])}, ${cf(trainKit[1])}]`;
+  const dot = trainCat[0]*trainKit[0] + trainCat[1]*trainKit[1];
+  const magA = Math.sqrt(trainCat[0]**2 + trainCat[1]**2);
+  const magB = Math.sqrt(trainKit[0]**2 + trainKit[1]**2);
+  const cos = magA > 0 && magB > 0 ? dot / (magA * magB) : 0;
+  document.getElementById('train-cos').textContent = cos.toFixed(4);
+
+  // Canvas
+  const canvas = document.getElementById('train-canvas');
+  const W = canvas.parentElement.clientWidth - 16, H = 184;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0, 0, W, H);
+
+  const d = isDark();
+  // Origin at centre; map [-1, 1] to canvas
+  const cx = W / 2, cy = H / 2;
+  const sx = (W / 2.4), sy = (H / 2.4);
+  // Axes
+  ctx.strokeStyle = d ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
+
+  // Cat
+  const catX = cx + trainCat[0] * sx, catY = cy - trainCat[1] * sy;
+  ctx.beginPath(); ctx.arc(catX, catY, 9, 0, Math.PI * 2);
+  ctx.fillStyle = d ? '#85b7eb' : '#378ADD';
+  ctx.fill();
+  ctx.strokeStyle = d ? '#fff' : '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = d ? '#85b7eb' : '#185fa5';
+  ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('cat', catX, catY - 14);
+
+  // Kitten
+  const kitX = cx + trainKit[0] * sx, kitY = cy - trainKit[1] * sy;
+  ctx.beginPath(); ctx.arc(kitX, kitY, 9, 0, Math.PI * 2);
+  ctx.fillStyle = d ? '#5dcaa5' : '#1D9E75';
+  ctx.fill();
+  ctx.strokeStyle = d ? '#fff' : '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = d ? '#5dcaa5' : '#0f6e56';
+  ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('kitten', kitX, kitY - 14);
+
+  // Connecting line
+  ctx.strokeStyle = d ? 'rgba(239, 159, 39, 0.6)' : 'rgba(186, 117, 23, 0.6)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(catX, catY); ctx.lineTo(kitX, kitY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Status
+  const ins = document.getElementById('train-status');
+  if (trainStepCount === 0) {
+    ins.className = 'insight';
+    ins.textContent = `Step 0 — embeddings start far apart with cosine similarity ${cos.toFixed(3)}. Click "Train one step" to apply a gradient update that pulls them together.`;
+  } else if (cos > 0.95) {
+    ins.className = 'insight success';
+    ins.textContent = `Step ${trainStepCount} — cosine similarity is now ${cos.toFixed(3)}. The embeddings have converged. In real training, this happens for every pair the network sees as similar.`;
+  } else {
+    ins.className = 'insight';
+    ins.textContent = `Step ${trainStepCount} — cosine similarity is now ${cos.toFixed(3)} (was lower before). Each gradient step moves the embeddings closer in vector space.`;
+  }
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+function initAll() {
+  buildOhVocab();
+  renderOhVector();
+  document.getElementById('sl-vocab').addEventListener('input', updateVocabScale);
+  updateVocabScale();
+
+  buildEmbVocab();
+  renderEmbTable();
+
+  drawScatter();
+  updateSimInfo();
+  buildCosDropdowns();
+  updateCos();
+
+  renderTrain();
+}
+
+initAll();
+
+window.addEventListener('resize', () => {
+  drawScatter();
+  renderTrain();
+});
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change', () => {
+  drawScatter();
+  renderTrain();
+});
+</script>
+</body>
+</html>
