@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tensors — The Language of Deep Learning — Interactive Explainer</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg-primary:#ffffff;--bg-secondary:#f5f4f0;--bg-tertiary:#eeece6;
+      --bg-info:#e6f1fb;--bg-success:#e1f5ee;--bg-warning:#faeeda;--bg-danger:#fcebeb;
+      --text-primary:#1a1a18;--text-secondary:#5f5e5a;--text-tertiary:#888780;
+      --text-info:#185fa5;--text-success:#0f6e56;--text-warning:#854f0b;--text-danger:#a32d2d;
+      --border-tertiary:rgba(0,0,0,0.12);--border-secondary:rgba(0,0,0,0.22);
+      --border-info:#85b7eb;--border-success:#5dcaa5;--border-warning:#ef9f27;--border-danger:#e24b4a;
+      --radius-md:8px;--radius-lg:12px;
+      --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      --font-mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+    }
+    @media(prefers-color-scheme:dark){
+      :root{
+        --bg-primary:#1c1c1a;--bg-secondary:#252522;--bg-tertiary:#2c2c2a;
+        --bg-info:#042c53;--bg-success:#04342c;--bg-warning:#412402;--bg-danger:#501313;
+        --text-primary:#e8e6de;--text-secondary:#b4b2a9;--text-tertiary:#73726c;
+        --text-info:#85b7eb;--text-success:#5dcaa5;--text-warning:#ef9f27;--text-danger:#f09595;
+        --border-tertiary:rgba(255,255,255,0.10);--border-secondary:rgba(255,255,255,0.20);
+        --border-info:#185fa5;--border-success:#0f6e56;--border-warning:#854f0b;--border-danger:#a32d2d;
+      }
+    }
+    body{font-family:var(--font);background:var(--bg-tertiary);color:var(--text-primary);min-height:100vh;padding:2rem 1rem 3rem;line-height:1.6}
+    .page{max-width:760px;margin:0 auto}
+    header{margin-bottom:2rem}
+    header h1{font-size:24px;font-weight:500;color:var(--text-primary);margin-bottom:6px}
+    header p{font-size:14px;color:var(--text-secondary);max-width:580px;line-height:1.65}
+    .card{background:var(--bg-primary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.25rem}
+    h2{font-size:15px;font-weight:500;color:var(--text-primary);margin-bottom:8px}
+    p.note{font-size:13px;color:var(--text-secondary);line-height:1.65;margin-bottom:0.75rem}
+    .step-label{font-size:11px;font-weight:500;color:var(--text-tertiary);letter-spacing:.05em;text-transform:uppercase;margin:1rem 0 6px}
+    .divider{border:none;border-top:0.5px solid var(--border-tertiary);margin:1.25rem 0}
+    .code-box{background:var(--bg-secondary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-md);padding:0.75rem 1rem;margin:0.5rem 0;font-family:var(--font-mono);font-size:13px;color:var(--text-primary);white-space:pre;overflow-x:auto;line-height:1.5}
+    .code-comment{color:var(--text-tertiary)}
+    .code-blue{color:var(--text-info)}
+    .code-green{color:var(--text-success)}
+    .code-amber{color:var(--text-warning)}
+    .insight{border-left:2px solid var(--border-info);padding:7px 12px;font-size:13px;color:var(--text-secondary);background:var(--bg-info);border-radius:0 var(--radius-md) var(--radius-md) 0;margin:0.5rem 0;line-height:1.55}
+    .insight.success{border-color:var(--border-success);background:var(--bg-success);color:var(--text-success)}
+    .insight.warning{border-color:var(--border-warning);background:var(--bg-warning);color:var(--text-warning)}
+    .insight.danger{border-color:var(--border-danger);background:var(--bg-danger);color:var(--text-danger)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:0.75rem}
+    .tab-btn{padding:6px 14px;border:0.5px solid var(--border-secondary);border-radius:var(--radius-md);background:var(--bg-primary);color:var(--text-primary);font-size:13px;font-family:var(--font);cursor:pointer;transition:background 0.15s,border-color 0.15s}
+    .tab-btn.active{background:var(--bg-info);border-color:var(--border-info);color:var(--text-info)}
+    .tab-btn:hover:not(.active){background:var(--bg-secondary)}
+    .slider-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+    .slider-name{font-size:12px;color:var(--text-tertiary);width:120px;flex-shrink:0}
+    .slider-val{font-size:13px;color:var(--text-primary);width:48px;text-align:right;font-family:var(--font-mono);flex-shrink:0}
+    input[type=range]{flex:1}
+    .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0.75rem 0}
+    @media(max-width:480px){.metric-grid{grid-template-columns:repeat(2,1fr)}}
+    .metric-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.65rem 0.875rem}
+    .metric-card .mc-label{font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+    .metric-card .mc-val{font-size:18px;font-weight:500;font-family:var(--font-mono);color:var(--text-primary);transition:color 0.3s}
+    .summary-table{width:100%;border-collapse:collapse;font-size:12px;margin:0.75rem 0}
+    .summary-table th{text-align:left;padding:7px 10px;background:var(--bg-secondary);color:var(--text-tertiary);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:0.5px solid var(--border-tertiary)}
+    .summary-table td{padding:7px 10px;border-bottom:0.5px solid var(--border-tertiary);color:var(--text-secondary);vertical-align:top}
+    .summary-table tr:last-child td{border-bottom:none}
+    .summary-table tr:hover td{background:var(--bg-secondary)}
+    /* Tensor visual cells */
+    .tcell{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:0.5px solid var(--border-secondary);font-family:var(--font-mono);font-size:11px;background:var(--bg-secondary);border-radius:3px;color:var(--text-primary)}
+    .tcell.b{background:var(--bg-info);color:var(--text-info);border-color:var(--border-info)}
+    .tcell.g{background:var(--bg-success);color:var(--text-success);border-color:var(--border-success)}
+    .tcell.a{background:var(--bg-warning);color:var(--text-warning);border-color:var(--border-warning)}
+    .tcell.d{background:var(--bg-danger);color:var(--text-danger);border-color:var(--border-danger)}
+    .trow{display:flex;gap:2px;justify-content:center;margin-bottom:2px}
+    .tmatrix{display:inline-flex;flex-direction:column;gap:2px;padding:5px;border:0.5px dashed var(--border-tertiary);border-radius:4px}
+    .tcube-stack{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+    .toc-nav{background:var(--bg-primary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);padding:0.875rem 1.25rem;margin-bottom:1.5rem}
+    .toc-title{font-size:11px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:0.5rem}
+    .toc-item{display:flex;align-items:flex-start;gap:10px;padding:5px 6px;margin:2px -6px;border-radius:var(--radius-md);text-decoration:none;transition:background 0.15s}
+    .toc-item:hover{background:var(--bg-secondary)}
+    .toc-num{width:22px;height:22px;border-radius:50%;flex-shrink:0;background:var(--bg-info);color:var(--text-info);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-top:1px}
+    .toc-label{font-size:13px;color:var(--text-info);font-weight:500;line-height:1.45}
+    .toc-item:hover .toc-label{color:var(--text-primary)}
+    .toc-item:hover .toc-num{opacity:0.7}
+    footer{text-align:center;font-size:12px;color:var(--text-tertiary);margin-top:2rem}
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>Tensors — The Language of Deep Learning — Interactive Explainer</h1>
+    <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)" target="_blank" rel="noopener">Ancil Cleetus</a></p>
+    <p>In the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/neuron_forward_pass_explainer.html" target="_blank" rel="noopener" style="color:inherit;border-bottom:0.5px solid currentColor;text-decoration:none">Neuron &amp; Forward Pass Explainer</a>, we worked with individual numbers — one input, one weight, one bias. Real neural networks process millions of values at once: thousands of inputs, batches of images, sequences of words. They do this using <strong>tensors</strong> — multi-dimensional arrays. This explainer makes tensors second nature so the rest of deep learning makes sense.</p>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc-nav" aria-label="Table of contents">
+    <div class="toc-title">Contents</div>
+    <a href="#sec-from-numbers" class="toc-item"><div class="toc-num">1</div><span class="toc-label">From numbers to tensors</span></a>
+    <a href="#sec-shape"        class="toc-item"><div class="toc-num">2</div><span class="toc-label">Shape, ndim, and axes</span></a>
+    <a href="#sec-conventions"  class="toc-item"><div class="toc-num">3</div><span class="toc-label">The deep learning axis conventions</span></a>
+    <a href="#sec-operations"   class="toc-item"><div class="toc-num">4</div><span class="toc-label">Tensor operations</span></a>
+    <a href="#sec-broadcasting" class="toc-item"><div class="toc-num">5</div><span class="toc-label">Broadcasting</span></a>
+    <a href="#sec-why"          class="toc-item"><div class="toc-num">6</div><span class="toc-label">Why everything is a tensor</span></a>
+  </nav>
+
+  <!-- PART 1 -->
+  <div class="card">
+    <h2 id="sec-from-numbers">From numbers to tensors</h2>
+    <p class="note">A tensor is just a multi-dimensional array of numbers. The simplest "tensor" is a single number. Stack a few numbers in a row — you get a vector. Stack rows on top of each other — a matrix. Stack matrices — a 3D tensor. Keep going and you get higher-dimensional tensors. Each step adds one more dimension.</p>
+
+    <div class="step-label">Interactive — step through the dimensions</div>
+    <div class="row" id="dim-tabs">
+      <button class="tab-btn active" onclick="setDim(0)">0D — Scalar</button>
+      <button class="tab-btn" onclick="setDim(1)">1D — Vector</button>
+      <button class="tab-btn" onclick="setDim(2)">2D — Matrix</button>
+      <button class="tab-btn" onclick="setDim(3)">3D — Tensor</button>
+      <button class="tab-btn" onclick="setDim(4)">4D — Tensor</button>
+    </div>
+
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:1rem;margin-bottom:0.75rem;text-align:center;min-height:160px;display:flex;align-items:center;justify-content:center">
+      <div id="dim-visual"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0.5rem">
+      <div class="metric-card">
+        <div class="mc-label">Number of dimensions (ndim)</div>
+        <div class="mc-val" id="dim-ndim">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">Shape</div>
+        <div class="mc-val" id="dim-shape" style="font-size:14px;padding-top:2px">()</div>
+      </div>
+    </div>
+
+    <div class="code-box" id="dim-code"></div>
+    <div id="dim-insight" class="insight"></div>
+  </div>
+
+  <!-- PART 2 -->
+  <div class="card">
+    <h2 id="sec-shape">Shape, ndim, and axes</h2>
+    <p class="note"><strong>Shape</strong> is a tuple telling you the size of the tensor along each axis. <strong>ndim</strong> is just the number of axes. The <strong>axis</strong> with index 0 is the outermost, axis 1 is the next, and so on. Together, these three concepts let you describe any tensor precisely.</p>
+
+    <div class="insight">
+      A shape of <code style="font-family:var(--font-mono);font-size:12px;background:var(--bg-secondary);padding:1px 5px;border-radius:4px">(3, 4)</code> means: <strong>3 along axis 0</strong> (3 rows), <strong>4 along axis 1</strong> (4 columns). Total elements = 3 × 4 = 12. A shape of <code style="font-family:var(--font-mono);font-size:12px;background:var(--bg-secondary);padding:1px 5px;border-radius:4px">(2, 3, 4)</code> means 2 stacks, each with 3 rows × 4 columns = 24 elements total.
+    </div>
+
+    <div class="step-label">Interactive — build a tensor by adjusting its shape</div>
+
+    <div class="slider-row">
+      <span class="slider-name">Axis 0 size</span>
+      <input type="range" id="sl-ax0" min="1" max="5" step="1" value="2">
+      <span class="slider-val" id="lbl-ax0">2</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-name">Axis 1 size</span>
+      <input type="range" id="sl-ax1" min="1" max="5" step="1" value="3">
+      <span class="slider-val" id="lbl-ax1">3</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-name">Axis 2 size</span>
+      <input type="range" id="sl-ax2" min="1" max="5" step="1" value="4">
+      <span class="slider-val" id="lbl-ax2">4</span>
+    </div>
+
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:1rem;margin-bottom:0.75rem;text-align:center;min-height:140px;display:flex;align-items:center;justify-content:center">
+      <div id="shape-visual"></div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-card"><div class="mc-label">Shape</div><div class="mc-val" id="shape-shape" style="font-size:14px;padding-top:2px">(2, 3, 4)</div></div>
+      <div class="metric-card"><div class="mc-label">ndim</div><div class="mc-val" id="shape-ndim">3</div></div>
+      <div class="metric-card"><div class="mc-label">Total elements</div><div class="mc-val" id="shape-total" style="color:var(--text-success)">24</div></div>
+    </div>
+
+    <div class="code-box" id="shape-code"></div>
+
+    <div class="step-label">Common shape patterns</div>
+    <table class="summary-table">
+      <thead><tr><th>Shape</th><th>Name</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><code style="font-family:var(--font-mono)">()</code></td><td>Scalar</td><td>A single loss value</td></tr>
+        <tr><td><code style="font-family:var(--font-mono)">(N,)</code></td><td>Vector</td><td>A neuron's input or output activations</td></tr>
+        <tr><td><code style="font-family:var(--font-mono)">(N, M)</code></td><td>Matrix</td><td>A weight matrix, a batch of feature vectors</td></tr>
+        <tr><td><code style="font-family:var(--font-mono)">(N, M, K)</code></td><td>3D tensor</td><td>A batch of sequences, a single image with channels</td></tr>
+        <tr><td><code style="font-family:var(--font-mono)">(N, M, K, L)</code></td><td>4D tensor</td><td>A batch of images (the standard CNN input)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PART 3 -->
+  <div class="card">
+    <h2 id="sec-conventions">The deep learning axis conventions</h2>
+    <p class="note">In deep learning, axes are not just numbered — each axis has a <em>meaning</em>. The first axis is almost always the <strong>batch</strong> (how many examples you process together). Other axes carry channels, spatial dimensions, time, or sequence information. These conventions are universal across PyTorch, TensorFlow, and JAX.</p>
+
+    <div class="step-label">Pick a data type to see its standard tensor shape</div>
+    <div class="row" id="conv-tabs">
+      <button class="tab-btn active" onclick="setConv('image')">🖼️ Image batch</button>
+      <button class="tab-btn" onclick="setConv('audio')">🔊 Audio batch</button>
+      <button class="tab-btn" onclick="setConv('text')">📝 Text batch</button>
+      <button class="tab-btn" onclick="setConv('tabular')">📊 Tabular batch</button>
+    </div>
+
+    <div id="conv-display"></div>
+  </div>
+
+  <!-- PART 4 -->
+  <div class="card">
+    <h2 id="sec-operations">Tensor operations</h2>
+    <p class="note">Tensors support three families of operations that show up in every neural network: <strong>element-wise</strong> (apply a function to each element), <strong>reductions</strong> (collapse one or more axes), and <strong>matrix multiplication</strong> (the heart of every layer).</p>
+
+    <div class="step-label">Choose an operation</div>
+    <div class="row" id="op-tabs">
+      <button class="tab-btn active" onclick="setOp('add')">A + B (element-wise)</button>
+      <button class="tab-btn" onclick="setOp('mul')">A × B (element-wise)</button>
+      <button class="tab-btn" onclick="setOp('relu')">ReLU(A)</button>
+      <button class="tab-btn" onclick="setOp('sum')">A.sum()</button>
+      <button class="tab-btn" onclick="setOp('matmul')">A @ B (matmul)</button>
+    </div>
+
+    <div id="op-display"></div>
+
+    <div class="divider"></div>
+    <div class="step-label">Tying back to the Neuron &amp; Forward Pass Explainer</div>
+    <p class="note" style="margin-bottom:0.5rem">In the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/neuron_forward_pass_explainer.html" target="_blank" rel="noopener" style="color:inherit;border-bottom:0.5px solid currentColor;text-decoration:none">Neuron &amp; Forward Pass Explainer</a>, a single neuron computed <code style="font-family:var(--font-mono);font-size:12px;background:var(--bg-secondary);padding:1px 5px;border-radius:4px">z = w₁x₁ + w₂x₂ + w₃x₃ + b</code> — one neuron, three inputs <code style="font-family:var(--font-mono);font-size:12px">[x₁, x₂, x₃]</code>, one output number. With tensors we do the same thing for a <em>whole layer of neurons on a whole batch of inputs in one operation</em>.</p>
+
+    <div class="step-label">What the new symbols mean</div>
+    <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:0.75rem">
+      <div style="background:var(--bg-info);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-info);margin-bottom:3px"><code style="font-family:var(--font-mono);font-size:12px">B</code> — batch size</div>
+        <div style="font-size:12px;color:var(--text-info);line-height:1.55">How many examples we process at once. In the Neuron explainer, we passed in one input vector. Real training processes many at the same time — typically <code style="font-family:var(--font-mono);font-size:11px">B = 32</code> or <code style="font-family:var(--font-mono);font-size:11px">64</code>. This is the same "batch axis" you saw in Section 3.</div>
+      </div>
+      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-success);margin-bottom:3px"><code style="font-family:var(--font-mono);font-size:12px">in_features</code> — inputs per example</div>
+        <div style="font-size:12px;color:var(--text-success);line-height:1.55">How many numbers each example has. In the Neuron explainer, <code style="font-family:var(--font-mono);font-size:11px">in_features = 3</code> (the three sliders <code style="font-family:var(--font-mono);font-size:11px">[x₁, x₂, x₃]</code>). For an image flattened to a vector, it could be hundreds or thousands.</div>
+      </div>
+      <div style="background:var(--bg-warning);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-warning);margin-bottom:3px"><code style="font-family:var(--font-mono);font-size:12px">out_features</code> — neurons in this layer</div>
+        <div style="font-size:12px;color:var(--text-warning);line-height:1.55">How many neurons make up the layer — and therefore how many output numbers per example. The Neuron explainer showed one neuron (<code style="font-family:var(--font-mono);font-size:11px">out_features = 1</code>). A real layer typically has dozens or hundreds.</div>
+      </div>
+    </div>
+
+    <div class="step-label">The shapes in symbols</div>
+    <div class="code-box"><span class="code-comment"># A batch of B inputs, each with `in_features` numbers</span>
+X = <span class="code-blue">tensor of shape (B, in_features)</span>
+
+<span class="code-comment"># Weight matrix: one column per output neuron</span>
+W = <span class="code-blue">tensor of shape (in_features, out_features)</span>
+
+<span class="code-comment"># Bias: one per output neuron</span>
+b = <span class="code-blue">tensor of shape (out_features,)</span>
+
+<span class="code-comment"># A whole layer's forward pass — single operation</span>
+Z = <span class="code-amber">X @ W + b</span>   <span class="code-comment"># shape (B, out_features)</span></div>
+
+    <div class="step-label">The same thing in runnable PyTorch</div>
+    <p class="note" style="margin-bottom:0.5rem">A concrete example using the exact dimensions from the Neuron explainer — three inputs per example, one output neuron — but now scaled up to a batch of 32 examples:</p>
+    <div class="code-box"><span class="code-blue">import</span> torch
+<span class="code-blue">import</span> torch.nn <span class="code-blue">as</span> nn
+
+<span class="code-comment"># A batch of 32 examples, each with 3 inputs (like the Neuron explainer's sliders)</span>
+X = torch.randn(<span class="code-amber">32</span>, <span class="code-amber">3</span>)        <span class="code-comment"># shape: (32, 3)</span>
+
+<span class="code-comment"># A layer with 3 inputs and 1 output neuron — same as one Neuron explainer neuron</span>
+layer = nn.Linear(<span class="code-amber">3</span>, <span class="code-amber">1</span>)         <span class="code-comment"># creates W of shape (3, 1) and b of shape (1,)</span>
+
+<span class="code-comment"># Forward pass — all 32 examples processed in one tensor operation</span>
+Z = layer(X)                  <span class="code-comment"># shape: (32, 1)</span>
+
+<span class="code-comment"># Add an activation function and you have one full layer:</span>
+output = torch.relu(Z)        <span class="code-comment"># shape: (32, 1)</span></div>
+
+    <div class="insight success">
+      What a CPU would do with nested loops over millions of multiplications, a GPU does in a single tensor operation — that is why deep learning runs on GPUs.
+    </div>
+  </div>
+
+  <!-- PART 5 -->
+  <div class="card">
+    <h2 id="sec-broadcasting">Broadcasting</h2>
+    <p class="note">When you add two tensors of <em>different</em> shapes, the framework can sometimes "stretch" the smaller one to match the larger one. This is called <strong>broadcasting</strong>. It is convenient — but it is also the single biggest source of confusing bugs in deep learning code, because the wrong shapes can sometimes broadcast silently in ways you did not intend.</p>
+
+    <div class="step-label">The two rules — applied right to left</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0.75rem">
+      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:8px 12px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-success);margin-bottom:3px">Rule 1 — Equal sizes</div>
+        <div style="font-size:12px;color:var(--text-success);line-height:1.55">Compatible if the dimensions are equal. <code style="font-family:var(--font-mono);font-size:11px">(3, 4)</code> + <code style="font-family:var(--font-mono);font-size:11px">(3, 4)</code> ✓</div>
+      </div>
+      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:8px 12px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-success);margin-bottom:3px">Rule 2 — One side is 1</div>
+        <div style="font-size:12px;color:var(--text-success);line-height:1.55">Compatible if one of the dimensions is 1 — it gets repeated. <code style="font-family:var(--font-mono);font-size:11px">(3, 4)</code> + <code style="font-family:var(--font-mono);font-size:11px">(1, 4)</code> ✓</div>
+      </div>
+    </div>
+
+    <div class="step-label">Interactive broadcasting checker</div>
+    <p class="note" style="margin-bottom:0.5rem">Pick two shapes and see whether they broadcast — and if so, what the result shape is.</p>
+
+    <div class="row">
+      <label style="font-size:12px;color:var(--text-tertiary)">Shape A:&nbsp;
+        <select id="bc-a" style="font-family:var(--font-mono);padding:4px 8px;border-radius:6px;border:0.5px solid var(--border-secondary);background:var(--bg-primary);color:var(--text-primary)">
+          <option>(3,)</option>
+          <option selected>(3, 4)</option>
+          <option>(3, 1)</option>
+          <option>(3, 4, 5)</option>
+          <option>(1, 4)</option>
+          <option>(2, 3, 4)</option>
+        </select>
+      </label>
+      <label style="font-size:12px;color:var(--text-tertiary)">Shape B:&nbsp;
+        <select id="bc-b" style="font-family:var(--font-mono);padding:4px 8px;border-radius:6px;border:0.5px solid var(--border-secondary);background:var(--bg-primary);color:var(--text-primary)">
+          <option selected>(4,)</option>
+          <option>(3,)</option>
+          <option>(3, 4)</option>
+          <option>(1, 4)</option>
+          <option>(3, 1)</option>
+          <option>(2, 1, 4)</option>
+          <option>()</option>
+        </select>
+      </label>
+    </div>
+
+    <div id="bc-result"></div>
+
+    <div class="divider"></div>
+    <div class="step-label">Three real-world broadcasting examples</div>
+
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:8px">
+      <div style="font-size:12px;font-weight:500;color:var(--text-primary);margin-bottom:4px">Adding a bias to every row</div>
+      <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);margin-bottom:4px">Z (32, 10) + b (10,) → (32, 10)</div>
+      <div style="font-size:12px;color:var(--text-secondary)">A batch of 32 outputs gets the same bias vector added to every row. This is exactly what happens in every fully connected layer.</div>
+    </div>
+
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:8px">
+      <div style="font-size:12px;font-weight:500;color:var(--text-primary);margin-bottom:4px">Normalising images by per-channel mean</div>
+      <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);margin-bottom:4px">images (B, 3, H, W) − mean (3, 1, 1) → (B, 3, H, W)</div>
+      <div style="font-size:12px;color:var(--text-secondary)">The mean has 3 values (one per RGB channel) which broadcasts across every spatial position and every example in the batch.</div>
+    </div>
+
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:8px">
+      <div style="font-size:12px;font-weight:500;color:var(--text-primary);margin-bottom:4px">Outer product — combining row and column vectors</div>
+      <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);margin-bottom:4px">(3, 1) × (1, 4) → (3, 4)</div>
+      <div style="font-size:12px;color:var(--text-secondary)">A column vector and a row vector both broadcast, producing a matrix — every column-row pair gets multiplied.</div>
+    </div>
+  </div>
+
+  <!-- PART 6 -->
+  <div class="card">
+    <h2 id="sec-why">Why everything is a tensor</h2>
+    <p class="note">Now the punchline. Every quantity in a neural network — input, weight, bias, activation, gradient, loss — is a tensor. This is not a coincidence. It is what makes deep learning fast.</p>
+
+    <div class="step-label">The same forward pass — three ways</div>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:0.75rem">
+      <div style="background:var(--bg-info);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-info);margin-bottom:4px">SCALAR — one neuron, one example</div>
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-info);margin-bottom:4px">z = w₁x₁ + w₂x₂ + w₃x₃ + b</div>
+        <div style="font-size:12px;color:var(--text-info)">Three multiplications, three additions. Easy to follow but slow when you have millions of these to do.</div>
+      </div>
+      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-success);margin-bottom:4px">VECTOR — one neuron, one example (compact form)</div>
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-success);margin-bottom:4px">z = w · x + b</div>
+        <div style="font-size:12px;color:var(--text-success)">Same thing, written as a dot product between two vectors. Cleaner notation.</div>
+      </div>
+      <div style="background:var(--bg-warning);border-radius:var(--radius-md);padding:10px 14px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-warning);margin-bottom:4px">TENSOR — many neurons, many examples (real deep learning)</div>
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-warning);margin-bottom:4px">Z = X @ W + b</div>
+        <div style="font-size:12px;color:var(--text-warning)">Same thing again — but now computing a whole batch through a whole layer in one operation. This is the form actually used in code.</div>
+      </div>
+    </div>
+
+    <div class="insight success">
+      <strong>Why GPUs?</strong> A GPU has thousands of small cores designed to multiply matrices in parallel. The tensor formulation lets the GPU do all the multiplications simultaneously. Computing one input at a time would waste the parallelism — computing a whole batch at once uses every core. That is why deep learning runs on GPUs and that is why everything is a tensor.
+    </div>
+
+    <div class="divider"></div>
+    <div class="step-label">A small reference for reading shape errors</div>
+    <p class="note" style="margin-bottom:0.5rem">When PyTorch (or any framework) crashes, the error usually mentions tensor shapes. With the vocabulary from this explainer you can already debug the most common ones.</p>
+
+    <table class="summary-table">
+      <thead><tr><th>Error</th><th>What it means</th><th>How to debug</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code style="font-family:var(--font-mono);font-size:11px">size mismatch, m1: [B×K], m2: [J×N]</code></td>
+          <td>Matrix multiplication: K ≠ J</td>
+          <td>Print <code style="font-family:var(--font-mono);font-size:11px">x.shape</code> and <code style="font-family:var(--font-mono);font-size:11px">w.shape</code>; transpose one if needed</td>
+        </tr>
+        <tr>
+          <td><code style="font-family:var(--font-mono);font-size:11px">expected 4D got 3D</code></td>
+          <td>Forgot the batch axis</td>
+          <td>Use <code style="font-family:var(--font-mono);font-size:11px">.unsqueeze(0)</code> to add a batch dimension</td>
+        </tr>
+        <tr>
+          <td><code style="font-family:var(--font-mono);font-size:11px">cannot broadcast (A,) with (B,)</code></td>
+          <td>Last dims differ and neither is 1</td>
+          <td>Reshape one tensor or use <code style="font-family:var(--font-mono);font-size:11px">.view()</code></td>
+        </tr>
+        <tr>
+          <td><code style="font-family:var(--font-mono);font-size:11px">RuntimeError: Tensor must be contiguous</code></td>
+          <td>Memory layout mismatch (after transpose)</td>
+          <td>Call <code style="font-family:var(--font-mono);font-size:11px">.contiguous()</code> after transpose</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="insight">
+      You now have the tensor vocabulary needed for every later explainer in this roadmap — softmax outputs, weight matrices, embedding lookups, batch normalisation, gradients flowing back through layers — they are all tensors with shapes you can now reason about.
+    </div>
+  </div>
+
+  <footer>
+    Built with <span style="color:var(--text-danger);font-size:18px;vertical-align:middle">♥</span> by
+    <a href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">Ancil Cleetus</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://ancilcleetus.github.io/AI-ML-Explainers/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">AI ML Explainers</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp; No external dependencies
+    &nbsp;&nbsp;·&nbsp;&nbsp; MIT License
+  </footer>
+
+</div>
+<script>
+const isDark = () => matchMedia('(prefers-color-scheme:dark)').matches;
+
+const NEURON_LINK_INLINE = '<a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/neuron_forward_pass_explainer.html" target="_blank" rel="noopener" style="color:inherit;border-bottom:0.5px solid currentColor;text-decoration:none">Neuron &amp; Forward Pass Explainer</a>';
+
+// Helper: random integer 1-9 with seed
+function seededVal(seed) {
+  let s = seed * 9301 + 49297;
+  s = (s % 233280 + 233280) % 233280;
+  return Math.floor((s / 233280) * 9) + 1;
+}
+
+// ─── PART 1: Dimension stepper ────────────────────────────────────────────────
+const dimData = {
+  0: {
+    name: 'Scalar', ndim: 0, shape: '()',
+    code: `<span class="code-comment"># A scalar — a single number</span>
+loss = <span class="code-amber">3.14</span>
+
+<span class="code-comment"># In PyTorch:</span>
+loss = torch.tensor(<span class="code-amber">3.14</span>)
+loss.shape   <span class="code-comment"># torch.Size([])</span>
+loss.ndim    <span class="code-comment"># 0</span>`,
+    insight: 'A scalar is just one number — no shape, no axes. The loss value at the end of a forward pass is typically a scalar.',
+    visual: () => '<div class="tcell b" style="font-size:14px;width:48px;height:48px">7</div>'
+  },
+  1: {
+    name: 'Vector', ndim: 1, shape: '(3,)',
+    code: `<span class="code-comment"># A vector — a 1D tensor</span>
+x = [<span class="code-amber">2.5</span>, <span class="code-amber">1.0</span>, <span class="code-amber">3.7</span>]
+
+<span class="code-comment"># In PyTorch:</span>
+x = torch.tensor([<span class="code-amber">2.5</span>, <span class="code-amber">1.0</span>, <span class="code-amber">3.7</span>])
+x.shape   <span class="code-comment"># torch.Size([3])</span>
+x.ndim    <span class="code-comment"># 1</span>`,
+    insight: `A vector is a row of numbers. In the ${NEURON_LINK_INLINE}, the inputs to one neuron formed a vector of 3 numbers. Its shape was (3,).`,
+    visual: () => {
+      let html = '<div class="trow">';
+      [3, 7, 5].forEach(v => html += `<div class="tcell b">${v}</div>`);
+      return html + '</div>';
+    }
+  },
+  2: {
+    name: 'Matrix', ndim: 2, shape: '(3, 4)',
+    code: `<span class="code-comment"># A matrix — a 2D tensor</span>
+W = [[<span class="code-amber">0.1</span>, <span class="code-amber">0.2</span>, <span class="code-amber">0.3</span>, <span class="code-amber">0.4</span>],
+     [<span class="code-amber">0.5</span>, <span class="code-amber">0.6</span>, <span class="code-amber">0.7</span>, <span class="code-amber">0.8</span>],
+     [<span class="code-amber">0.9</span>, <span class="code-amber">1.0</span>, <span class="code-amber">1.1</span>, <span class="code-amber">1.2</span>]]
+
+W = torch.tensor(W)
+W.shape   <span class="code-comment"># torch.Size([3, 4])</span>
+W.ndim    <span class="code-comment"># 2</span>`,
+    insight: 'A matrix has rows and columns. Weight matrices in fully connected layers are 2D, with one dimension for inputs and one for outputs. <strong>Math convention</strong> (y = Wx, where x is a column vector): W has shape (out, in) — one row per output neuron, one column per input. <strong>Code convention</strong> (Y = XW for batched inputs in PyTorch / TensorFlow): W has shape (in, out) — one column per output neuron, one row per input. The two are transposes of each other.',
+    visual: () => {
+      let html = '<div class="tmatrix">';
+      for (let r = 0; r < 3; r++) {
+        html += '<div class="trow">';
+        for (let c = 0; c < 4; c++) html += `<div class="tcell g">${seededVal(r*7+c)}</div>`;
+        html += '</div>';
+      }
+      return html + '</div>';
+    }
+  },
+  3: {
+    name: '3D Tensor', ndim: 3, shape: '(2, 3, 4)',
+    code: `<span class="code-comment"># A 3D tensor — a stack of matrices</span>
+T = torch.randn(<span class="code-amber">2</span>, <span class="code-amber">3</span>, <span class="code-amber">4</span>)
+T.shape   <span class="code-comment"># torch.Size([2, 3, 4])</span>
+T.ndim    <span class="code-comment"># 3</span>
+
+<span class="code-comment"># Example: a single RGB image of size 3×4 pixels</span>
+<span class="code-comment"># Shape: (channels, height, width) = (3, ?, ?)</span>`,
+    insight: 'A 3D tensor stacks matrices. A single colour image is a 3D tensor: 3 channels (R, G, B), each of which is a 2D grid of pixels.',
+    visual: () => {
+      let html = '<div class="tcube-stack">';
+      for (let s = 0; s < 2; s++) {
+        html += '<div class="tmatrix" style="opacity:'+(1-s*0.25)+'">';
+        for (let r = 0; r < 3; r++) {
+          html += '<div class="trow">';
+          for (let c = 0; c < 4; c++) html += `<div class="tcell a" style="width:22px;height:22px;font-size:10px">${seededVal(s*13+r*7+c)}</div>`;
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+      return html + '</div>';
+    }
+  },
+  4: {
+    name: '4D Tensor', ndim: 4, shape: '(2, 3, 3, 4)',
+    code: `<span class="code-comment"># A 4D tensor — a batch of 3D tensors</span>
+batch = torch.randn(<span class="code-amber">2</span>, <span class="code-amber">3</span>, <span class="code-amber">3</span>, <span class="code-amber">4</span>)
+batch.shape   <span class="code-comment"># torch.Size([2, 3, 3, 4])</span>
+batch.ndim    <span class="code-comment"># 4</span>
+
+<span class="code-comment"># Example: a batch of 2 RGB images of size 3×4</span>
+<span class="code-comment"># Shape: (batch, channels, height, width)</span>`,
+    insight: 'A 4D tensor is the standard shape for a batch of images in a CNN: (batch, channels, height, width). The "batch" axis lets the GPU process many images in parallel.',
+    visual: () => {
+      let html = '<div style="display:flex;gap:14px;justify-content:center">';
+      for (let b = 0; b < 2; b++) {
+        html += '<div style="border:0.5px solid var(--border-info);padding:4px;border-radius:4px"><div style="font-size:9px;color:var(--text-info);text-align:center;margin-bottom:2px">batch '+b+'</div><div class="tcube-stack">';
+        for (let s = 0; s < 3; s++) {
+          html += '<div class="tmatrix" style="opacity:'+(1-s*0.2)+'">';
+          for (let r = 0; r < 3; r++) {
+            html += '<div class="trow">';
+            for (let c = 0; c < 4; c++) html += `<div class="tcell d" style="width:14px;height:14px;font-size:8px">${seededVal(b*23+s*7+r*3+c)}</div>`;
+            html += '</div>';
+          }
+          html += '</div>';
+        }
+        html += '</div></div>';
+      }
+      return html + '</div>';
+    }
+  }
+};
+
+let currentDim = 0;
+function setDim(d) {
+  currentDim = d;
+  const tabs = document.querySelectorAll('#dim-tabs .tab-btn');
+  tabs.forEach((b, i) => b.classList.toggle('active', i === d));
+  const dat = dimData[d];
+  document.getElementById('dim-visual').innerHTML = dat.visual();
+  document.getElementById('dim-ndim').textContent = dat.ndim;
+  document.getElementById('dim-shape').textContent = dat.shape;
+  document.getElementById('dim-code').innerHTML = dat.code;
+  document.getElementById('dim-insight').innerHTML = dat.insight;
+}
+
+// ─── PART 2: Shape builder ────────────────────────────────────────────────────
+function updateShape() {
+  const a = +document.getElementById('sl-ax0').value;
+  const b = +document.getElementById('sl-ax1').value;
+  const c = +document.getElementById('sl-ax2').value;
+  document.getElementById('lbl-ax0').textContent = a;
+  document.getElementById('lbl-ax1').textContent = b;
+  document.getElementById('lbl-ax2').textContent = c;
+
+  document.getElementById('shape-shape').textContent = `(${a}, ${b}, ${c})`;
+  document.getElementById('shape-ndim').textContent = '3';
+  document.getElementById('shape-total').textContent = a * b * c;
+
+  // Visual: a stacks of b×c matrices
+  let html = '<div class="tcube-stack">';
+  for (let s = 0; s < a; s++) {
+    html += '<div class="tmatrix" style="opacity:'+Math.max(0.5, 1 - s*0.12)+'">';
+    for (let r = 0; r < b; r++) {
+      html += '<div class="trow">';
+      for (let col = 0; col < c; col++) {
+        html += `<div class="tcell g" style="width:18px;height:18px;font-size:9px">${seededVal(s*13+r*7+col)}</div>`;
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  document.getElementById('shape-visual').innerHTML = html;
+
+  // Code
+  document.getElementById('shape-code').innerHTML =
+    `<span class="code-comment"># A 3D tensor with shape (${a}, ${b}, ${c})</span>\n` +
+    `T = torch.randn(<span class="code-amber">${a}</span>, <span class="code-amber">${b}</span>, <span class="code-amber">${c}</span>)\n` +
+    `T.shape    <span class="code-comment"># torch.Size([${a}, ${b}, ${c}])</span>\n` +
+    `T.ndim     <span class="code-comment"># 3</span>\n` +
+    `T.numel()  <span class="code-comment"># ${a*b*c} (total elements)</span>`;
+}
+['sl-ax0','sl-ax1','sl-ax2'].forEach(id => document.getElementById(id).addEventListener('input', updateShape));
+
+// ─── PART 3: Conventions ──────────────────────────────────────────────────────
+const convData = {
+  image: {
+    title: 'Image batch — the standard CNN input',
+    shape: '(B, C, H, W)',
+    example: '(32, 3, 224, 224)',
+    axes: [
+      { name: 'B = 32',   meaning: 'Batch — 32 images processed together', color: 'b' },
+      { name: 'C = 3',    meaning: 'Channels — Red, Green, Blue (RGB)', color: 'g' },
+      { name: 'H = 224',  meaning: 'Height — 224 pixels tall', color: 'a' },
+      { name: 'W = 224',  meaning: 'Width — 224 pixels wide', color: 'd' },
+    ],
+    note: 'This is the format used by every CNN you have seen — ResNet, AlexNet, EfficientNet — for ImageNet-style inputs. PyTorch uses this "channels-first" convention; TensorFlow uses channels-last (B, H, W, C).'
+  },
+  audio: {
+    title: 'Audio batch — for waveform models',
+    shape: '(B, C, T)',
+    example: '(16, 1, 16000)',
+    axes: [
+      { name: 'B = 16',     meaning: 'Batch — 16 audio clips processed together', color: 'b' },
+      { name: 'C = 1',      meaning: 'Channels — 1 for mono, 2 for stereo', color: 'g' },
+      { name: 'T = 16000',  meaning: 'Time — 16,000 samples (1 second at 16 kHz)', color: 'a' },
+    ],
+    note: 'Audio uses a 3D tensor — there is no spatial height or width, just a time axis. Each value is the amplitude of the waveform at one point in time.'
+  },
+  text: {
+    title: 'Text batch — for transformer-style models',
+    shape: '(B, L, D)',
+    example: '(8, 50, 768)',
+    axes: [
+      { name: 'B = 8',    meaning: 'Batch — 8 sentences processed together', color: 'b' },
+      { name: 'L = 50',   meaning: 'Sequence length — 50 tokens per sentence', color: 'g' },
+      { name: 'D = 768',  meaning: 'Embedding dimension — each token represented by 768 numbers', color: 'a' },
+    ],
+    note: 'In the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/embeddings_explainer.html" target="_blank" rel="noopener" style="color:inherit;border-bottom:0.5px solid currentColor;text-decoration:none">Embeddings Explainer</a> you will see how each token becomes a 768-dimensional vector. The transformer then processes the whole (L, D) sequence for each example in the batch.'
+  },
+  tabular: {
+    title: 'Tabular batch — for MLP / classical DL',
+    shape: '(B, F)',
+    example: '(64, 12)',
+    axes: [
+      { name: 'B = 64',   meaning: 'Batch — 64 rows from a spreadsheet', color: 'b' },
+      { name: 'F = 12',   meaning: 'Features — 12 columns per row (age, income, ...)', color: 'g' },
+    ],
+    note: 'The simplest case — just a 2D matrix. Each row is one example; each column is one feature. This is what the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/mlp_worked_example_explainer.html" target="_blank" rel="noopener" style="color:inherit;border-bottom:0.5px solid currentColor;text-decoration:none">MLP Worked Example Explainer</a> will use.'
+  }
+};
+
+let currentConv = 'image';
+function setConv(name) {
+  currentConv = name;
+  const tabs = document.querySelectorAll('#conv-tabs .tab-btn');
+  const order = ['image','audio','text','tabular'];
+  tabs.forEach((b, i) => b.classList.toggle('active', order[i] === name));
+
+  const dat = convData[name];
+  let axesHtml = '<div style="display:grid;grid-template-columns:1fr;gap:6px;margin-bottom:0.75rem">';
+  dat.axes.forEach((ax, i) => {
+    const colorMap = { b: 'info', g: 'success', a: 'warning', d: 'danger' };
+    const c = colorMap[ax.color];
+    axesHtml += `<div style="display:flex;gap:10px;background:var(--bg-${c});border-radius:var(--radius-md);padding:7px 10px;align-items:center">
+      <div style="font-family:var(--font-mono);font-size:13px;font-weight:500;color:var(--text-${c});width:80px;flex-shrink:0">${ax.name}</div>
+      <div style="font-size:12px;color:var(--text-${c})">${ax.meaning}</div>
+    </div>`;
+  });
+  axesHtml += '</div>';
+
+  document.getElementById('conv-display').innerHTML = `
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:0.5rem">
+      <div style="font-size:12px;font-weight:500;color:var(--text-primary);margin-bottom:4px">${dat.title}</div>
+      <div style="font-family:var(--font-mono);font-size:14px;color:var(--text-info);margin-bottom:6px">Shape: ${dat.shape} &nbsp;&nbsp;Example: ${dat.example}</div>
+    </div>
+    <div class="step-label">What each axis means</div>
+    ${axesHtml}
+    <div class="insight">${dat.note}</div>
+  `;
+}
+
+// ─── PART 4: Operations ───────────────────────────────────────────────────────
+function setOp(op) {
+  const tabs = document.querySelectorAll('#op-tabs .tab-btn');
+  const order = ['add','mul','relu','sum','matmul'];
+  tabs.forEach((b, i) => b.classList.toggle('active', order[i] === op));
+
+  const A = [[1,2,3],[4,5,6]];
+  const B = [[7,8,9],[1,2,3]];
+  const Bt = [[1,2],[3,4],[5,6]];
+
+  const renderTensor = (T, color) => {
+    let html = '<div class="tmatrix">';
+    T.forEach(row => {
+      html += '<div class="trow">';
+      row.forEach(v => html += `<div class="tcell ${color}">${typeof v==='number'?v.toFixed(v%1===0?0:2):v}</div>`);
+      html += '</div>';
+    });
+    return html + '</div>';
+  };
+
+  let html = '';
+  if (op === 'add') {
+    const R = A.map((row,i) => row.map((v,j) => v + B[i][j]));
+    html = `<div style="display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;margin:0.5rem 0">
+      ${renderTensor(A,'b')}<span style="font-size:18px;color:var(--text-tertiary)">+</span>${renderTensor(B,'g')}<span style="font-size:18px;color:var(--text-tertiary)">=</span>${renderTensor(R,'a')}
+    </div>
+    <div class="step-label">Calculation</div>
+    <div class="code-box">A.shape = (2, 3)
+B.shape = (2, 3)
+A + B → element by element: A[i,j] + B[i,j]
+Result.shape = (2, 3)   <span class="code-comment"># same as inputs</span></div>
+    <div class="insight">Element-wise operations require both tensors to have the <strong>same shape</strong>. Each output element is computed independently from the corresponding input elements. This is the most common operation in deep learning — used in residual connections, gating, masking, and more.</div>`;
+  } else if (op === 'mul') {
+    const R = A.map((row,i) => row.map((v,j) => v * B[i][j]));
+    html = `<div style="display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;margin:0.5rem 0">
+      ${renderTensor(A,'b')}<span style="font-size:18px;color:var(--text-tertiary)">×</span>${renderTensor(B,'g')}<span style="font-size:18px;color:var(--text-tertiary)">=</span>${renderTensor(R,'a')}
+    </div>
+    <div class="step-label">Calculation</div>
+    <div class="code-box">A * B → element by element: A[i,j] * B[i,j]
+Result.shape = (2, 3)   <span class="code-comment"># same as inputs</span></div>
+    <div class="insight"><strong>Important:</strong> A * B in deep learning code is element-wise multiplication, not matrix multiplication. For matrix multiplication, use A @ B (or torch.matmul).</div>`;
+  } else if (op === 'relu') {
+    const Aneg = [[-1,2,-3],[4,-5,6]];
+    const R = Aneg.map(row => row.map(v => Math.max(0, v)));
+    html = `<div style="display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;margin:0.5rem 0">
+      ${renderTensor(Aneg,'b')}<span style="font-size:14px;color:var(--text-tertiary);font-family:var(--font-mono)">ReLU</span><span style="font-size:18px;color:var(--text-tertiary)">→</span>${renderTensor(R,'a')}
+    </div>
+    <div class="step-label">Calculation</div>
+    <div class="code-box">ReLU(x) = max(0, x), applied to every element
+A.shape = (2, 3)
+Result.shape = (2, 3)   <span class="code-comment"># shape preserved</span></div>
+    <div class="insight">ReLU is element-wise — it just clamps every negative value to zero, leaving the rest unchanged. Element-wise activation functions (Sigmoid, Tanh, GELU) all work this way: the output shape equals the input shape.</div>`;
+  } else if (op === 'sum') {
+    const sumAll = A.flat().reduce((a,b)=>a+b,0);
+    const sumAxis0 = [A[0][0]+A[1][0], A[0][1]+A[1][1], A[0][2]+A[1][2]];
+    const sumAxis1 = [A[0].reduce((a,b)=>a+b,0), A[1].reduce((a,b)=>a+b,0)];
+    html = `<div style="display:flex;gap:14px;align-items:flex-start;justify-content:center;flex-wrap:wrap;margin:0.5rem 0">
+      <div style="text-align:center"><div style="font-size:11px;color:var(--text-tertiary);margin-bottom:4px">A — shape (2, 3)</div>${renderTensor(A,'b')}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:0.5rem">
+      <div style="text-align:center;background:var(--bg-secondary);border-radius:6px;padding:8px"><div style="font-size:11px;color:var(--text-tertiary);margin-bottom:4px">A.sum() — all axes</div><div class="tcell a" style="width:48px;height:32px">${sumAll}</div><div style="font-size:10px;color:var(--text-tertiary);margin-top:4px">shape: ()</div></div>
+      <div style="text-align:center;background:var(--bg-secondary);border-radius:6px;padding:8px"><div style="font-size:11px;color:var(--text-tertiary);margin-bottom:4px">A.sum(axis=0)</div><div class="trow" style="justify-content:center">${sumAxis0.map(v=>`<div class="tcell a">${v}</div>`).join('')}</div><div style="font-size:10px;color:var(--text-tertiary);margin-top:4px">shape: (3,)</div></div>
+      <div style="text-align:center;background:var(--bg-secondary);border-radius:6px;padding:8px"><div style="font-size:11px;color:var(--text-tertiary);margin-bottom:4px">A.sum(axis=1)</div><div class="trow" style="justify-content:center">${sumAxis1.map(v=>`<div class="tcell a">${v}</div>`).join('')}</div><div style="font-size:10px;color:var(--text-tertiary);margin-top:4px">shape: (2,)</div></div>
+    </div>
+    <div class="insight">Reductions <strong>collapse</strong> one or more axes. Summing along axis=0 collapses the rows — you are left with one value per column. Summing along axis=1 collapses the columns — one value per row. <strong>.sum()</strong> with no argument collapses everything to a single scalar.</div>`;
+  } else if (op === 'matmul') {
+    const R = [[0,0],[0,0]];
+    for (let i=0;i<2;i++) for (let j=0;j<2;j++) for (let k=0;k<3;k++) R[i][j] += A[i][k]*Bt[k][j];
+    html = `<div style="display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;margin:0.5rem 0">
+      ${renderTensor(A,'b')}<span style="font-size:18px;color:var(--text-tertiary);font-family:var(--font-mono)">@</span>${renderTensor(Bt,'g')}<span style="font-size:18px;color:var(--text-tertiary)">=</span>${renderTensor(R,'a')}
+    </div>
+    <div class="step-label">Shape rule</div>
+    <div class="code-box">A.shape = (2, 3)   <span class="code-comment"># 2 rows, 3 cols</span>
+B.shape = (3, 2)   <span class="code-comment"># 3 rows, 2 cols  ← inner dimensions must match</span>
+(A @ B).shape = (2, 2)   <span class="code-comment"># outer dimensions remain</span>
+
+R[0,0] = ${A[0][0]}*${Bt[0][0]} + ${A[0][1]}*${Bt[1][0]} + ${A[0][2]}*${Bt[2][0]} = ${R[0][0]}
+R[0,1] = ${A[0][0]}*${Bt[0][1]} + ${A[0][1]}*${Bt[1][1]} + ${A[0][2]}*${Bt[2][1]} = ${R[0][1]}</div>
+    <div class="insight"><strong>Matrix multiplication is the operation that powers every fully connected layer.</strong> The inner dimensions must match: (a, K) @ (K, b) → (a, b). For a layer that maps from <code style="font-family:var(--font-mono);font-size:11px">in_features</code> to <code style="font-family:var(--font-mono);font-size:11px">out_features</code>, the weight matrix W has shape (in_features, out_features).</div>`;
+  }
+
+  document.getElementById('op-display').innerHTML = html;
+}
+
+// ─── PART 5: Broadcasting ─────────────────────────────────────────────────────
+function parseShape(s) {
+  // "(3, 4)" or "(3,)" or "()"
+  const inner = s.replace(/[()]/g, '').trim();
+  if (inner === '') return [];
+  return inner.split(',').map(x => x.trim()).filter(x => x !== '').map(Number);
+}
+
+function broadcastCheck(a, b) {
+  // Right-align, check each pair
+  const maxLen = Math.max(a.length, b.length);
+  const aPad = Array(maxLen - a.length).fill(1).concat(a);
+  const bPad = Array(maxLen - b.length).fill(1).concat(b);
+  const result = [];
+  let ok = true;
+  const steps = [];
+  for (let i = 0; i < maxLen; i++) {
+    const av = aPad[i], bv = bPad[i];
+    if (av === bv || av === 1 || bv === 1) {
+      const r = Math.max(av, bv);
+      result.push(r);
+      const rule = av === bv ? 'equal' : (av === 1 ? 'A=1, stretches' : 'B=1, stretches');
+      steps.push({ i, av, bv, r, ok: true, rule });
+    } else {
+      result.push('?');
+      steps.push({ i, av, bv, r: '✗', ok: false, rule: `${av} ≠ ${bv}, neither is 1 → INCOMPATIBLE` });
+      ok = false;
+    }
+  }
+  return { ok, result, steps, aPad, bPad };
+}
+
+function updateBroadcast() {
+  const aStr = document.getElementById('bc-a').value;
+  const bStr = document.getElementById('bc-b').value;
+  const a = parseShape(aStr);
+  const b = parseShape(bStr);
+  const { ok, result, steps, aPad, bPad } = broadcastCheck(a, b);
+
+  const stepsHtml = steps.map((s, idx) => {
+    const cls = s.ok ? 'success' : 'danger';
+    const arrow = s.ok ? '✓' : '✗';
+    return `<div style="display:flex;gap:8px;font-family:var(--font-mono);font-size:12px;padding:4px 8px;background:var(--bg-${cls});border-radius:4px;margin-bottom:3px;color:var(--text-${cls})">
+      <span style="width:36px">axis ${idx}</span>
+      <span style="width:48px">A=${s.av}</span>
+      <span style="width:48px">B=${s.bv}</span>
+      <span style="width:24px">${arrow}</span>
+      <span>${s.rule}</span>
+    </div>`;
+  }).join('');
+
+  let html = `<div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 14px;margin:0.5rem 0">
+    <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-primary);margin-bottom:6px">${aStr} + ${bStr}</div>
+    <div style="margin-bottom:6px">${stepsHtml}</div>`;
+  if (ok) {
+    html += `<div style="font-family:var(--font-mono);font-size:14px;color:var(--text-success);font-weight:500">→ Result shape: (${result.join(', ')})</div></div>`;
+    html += `<div class="insight success">Broadcast successful. The smaller tensor is conceptually stretched (no actual copying — just clever indexing) to the result shape (${result.join(', ')}). Both tensors are then combined element by element.</div>`;
+  } else {
+    html += `<div style="font-family:var(--font-mono);font-size:14px;color:var(--text-danger);font-weight:500">→ Cannot broadcast — INCOMPATIBLE</div></div>`;
+    html += `<div class="insight danger">These shapes cannot be broadcast. At one or more axes, the dimensions differ <em>and</em> neither one is 1. To fix this in code, you would need to <code style="font-family:var(--font-mono);font-size:11px;background:var(--bg-secondary);padding:1px 5px;border-radius:4px">.reshape()</code>, <code style="font-family:var(--font-mono);font-size:11px;background:var(--bg-secondary);padding:1px 5px;border-radius:4px">.unsqueeze()</code>, or transpose one of the tensors so the shapes align.</div>`;
+  }
+  document.getElementById('bc-result').innerHTML = html;
+}
+
+document.getElementById('bc-a').addEventListener('change', updateBroadcast);
+document.getElementById('bc-b').addEventListener('change', updateBroadcast);
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+function initAll() {
+  setDim(0);
+  updateShape();
+  setConv('image');
+  setOp('add');
+  updateBroadcast();
+}
+
+initAll();
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change', initAll);
+</script>
+</body>
+</html>
