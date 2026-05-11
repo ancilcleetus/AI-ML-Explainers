@@ -29,7 +29,7 @@ Detailed explainer roadmaps for each area:
 
 | Area | Roadmap | Progress |
 | :--- | :------ | :------- |
-| 🔴 Deep Learning | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/deep_learning_explainer_roadmap.html) | 7 / 25 (29%) |
+| 🔴 Deep Learning | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/deep_learning_explainer_roadmap.html) | 7 / 27 (26%) |
 | 🟢 Machine Learning | Coming soon | — |
 | 🔵 Computer Vision | Coming soon | — |
 | 🟡 Natural Language Processing | Coming soon | — |
@@ -53,7 +53,7 @@ Coming soon 🔜
 | [Activation Functions](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html) | Visualization of various activation functions | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Embeddings — Representing Discrete Data as Vectors](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/embeddings_explainer.html) | To be added | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Loss Functions Overview](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_functions_overview_explainer.html) | Visual introduction to loss functions — what loss is, task-to-loss mapping, and interactive deep dive into MSE, MAE, Huber, and Cross-Entropy with a practical decision guide | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Softmax & Probability Outputs](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/softmax_explainer.html) | To be added | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
+| [Softmax & Probability Outputs](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/softmax_explainer.html) | To be added | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Cross-Entropy Loss](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/cross_entropy_loss_explainer.html) | Cross-entropy loss explained from first principles — information theory intuition, binary vs categorical formulas, and an interactive multiclass classification example | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
 | [Loss & Gradient Descent](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html) | Visualization of loss, gradient descent, and how neural networks learn step by step | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 
