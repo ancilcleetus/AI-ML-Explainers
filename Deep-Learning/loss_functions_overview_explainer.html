@@ -997,7 +997,10 @@ function updateCurvePoint() {
 
   // Redraw curve and add dot
   drawLossCurve();
-  const ctx=canvas.getContext('2d'); ctx.scale(devicePixelRatio,devicePixelRatio);
+  // NOTE: drawLossCurve already applies ctx.scale(devicePixelRatio, devicePixelRatio)
+  // on the same shared canvas context, so we must NOT scale again here — doing so
+  // would double-apply the transform and shift the dot off the curve on high-DPR displays.
+  const ctx=canvas.getContext('2d');
 
   // Vertical guide
   ctx.strokeStyle=color+'66';ctx.lineWidth=1;ctx.setLineDash([4,3]);
