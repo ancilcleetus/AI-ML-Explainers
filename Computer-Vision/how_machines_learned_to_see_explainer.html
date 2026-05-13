@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How Machines Learned to See — Interactive Explainer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f4f0;
+      --bg-tertiary: #eeece6;
+      --bg-info: #e6f1fb;
+      --bg-success: #e1f5ee;
+      --bg-warning: #faeeda;
+      --bg-danger: #fcebeb;
+      --text-primary: #1a1a18;
+      --text-secondary: #5f5e5a;
+      --text-tertiary: #888780;
+      --text-info: #185fa5;
+      --text-success: #0f6e56;
+      --text-warning: #854f0b;
+      --text-danger: #a32d2d;
+      --border-tertiary: rgba(0,0,0,0.12);
+      --border-secondary: rgba(0,0,0,0.22);
+      --border-info: #85b7eb;
+      --border-success: #5dcaa5;
+      --border-warning: #ef9f27;
+      --border-danger: #e24b4a;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1a;
+        --bg-secondary: #252522;
+        --bg-tertiary: #2c2c2a;
+        --bg-info: #042c53;
+        --bg-success: #04342c;
+        --bg-warning: #412402;
+        --bg-danger: #501313;
+        --text-primary: #e8e6de;
+        --text-secondary: #b4b2a9;
+        --text-tertiary: #73726c;
+        --text-info: #85b7eb;
+        --text-success: #5dcaa5;
+        --text-warning: #ef9f27;
+        --text-danger: #f09595;
+        --border-tertiary: rgba(255,255,255,0.10);
+        --border-secondary: rgba(255,255,255,0.20);
+        --border-info: #185fa5;
+        --border-success: #0f6e56;
+        --border-warning: #854f0b;
+        --border-danger: #a32d2d;
+      }
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem 1rem 3rem;
+      line-height: 1.6;
+    }
+
+    .page { max-width: 760px; margin: 0 auto; }
+
+    header { margin-bottom: 2rem; }
+    header h1 { font-size: 24px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+    header p  { font-size: 14px; color: var(--text-secondary); max-width: 580px; line-height: 1.65; }
+
+    .card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    h2 { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+    p.note { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 0.75rem; }
+
+    .step-label {
+      font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+      letter-spacing: .05em; text-transform: uppercase; margin: 1rem 0 6px;
+    }
+
+    .divider { border: none; border-top: 0.5px solid var(--border-tertiary); margin: 1.25rem 0; }
+
+    .eq-box {
+      background: var(--bg-secondary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-md);
+      padding: 0.875rem 1rem;
+      margin: 0.5rem 0;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+    .eq-note { font-family: var(--font); font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+
+    .insight {
+      border-left: 2px solid var(--border-info);
+      padding: 7px 12px;
+      font-size: 13px; color: var(--text-secondary);
+      background: var(--bg-info);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 0.5rem 0; line-height: 1.55;
+    }
+    .insight.success { border-color: var(--border-success); background: var(--bg-success); color: var(--text-success); }
+    .insight.warning { border-color: var(--border-warning); background: var(--bg-warning); color: var(--text-warning); }
+    .insight.danger  { border-color: var(--border-danger);  background: var(--bg-danger);  color: var(--text-danger); }
+
+    .row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 0.75rem; }
+
+    .tab-btn {
+      padding: 6px 14px;
+      border: 0.5px solid var(--border-secondary);
+      border-radius: var(--radius-md);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 13px; font-family: var(--font);
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+    }
+    .tab-btn.active { background: var(--bg-info); border-color: var(--border-info); color: var(--text-info); }
+    .tab-btn:hover:not(.active) { background: var(--bg-secondary); }
+
+    .paradigm-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 0.75rem 0;
+    }
+    @media (max-width: 500px) { .paradigm-grid { grid-template-columns: 1fr; } }
+
+    .paradigm-card {
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.125rem;
+      transition: border-color 0.15s, background 0.15s;
+      cursor: pointer;
+    }
+    .paradigm-card:hover { background: var(--bg-secondary); }
+    .paradigm-card.active-cnn  { border-color: var(--border-info);    background: var(--bg-info); }
+    .paradigm-card.active-vit  { border-color: var(--border-success);  background: var(--bg-success); }
+    .paradigm-card .pc-tag {
+      font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing:.05em;
+      padding: 2px 8px; border-radius: 20px; display: inline-block; margin-bottom: 6px;
+    }
+    .tag-cnn { background: var(--bg-info);    color: var(--text-info); }
+    .tag-vit { background: var(--bg-success); color: var(--text-success); }
+    .paradigm-card .pc-title { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+    .paradigm-card.active-cnn  .pc-title { color: var(--text-info); }
+    .paradigm-card.active-vit  .pc-title { color: var(--text-success); }
+    .paradigm-card .pc-desc  { font-size: 12px; color: var(--text-secondary); line-height: 1.55; }
+
+    .prop-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0.75rem 0;
+    }
+    @media (max-width: 500px) { .prop-grid { grid-template-columns: 1fr; } }
+    .prop-card {
+      background: var(--bg-secondary); border-radius: var(--radius-md);
+      padding: 0.6rem 0.875rem;
+    }
+    .prop-card .pc-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing:.04em; margin-bottom: 3px; }
+    .prop-card .pc-val   { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+    .prop-card .pc-val.good    { color: var(--text-success); }
+    .prop-card .pc-val.bad     { color: var(--text-danger); }
+    .prop-card .pc-val.neutral { color: var(--text-warning); }
+
+    .analogy-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 0.75rem 0;
+    }
+    @media (max-width: 500px) { .analogy-grid { grid-template-columns: 1fr; } }
+    .analogy-card {
+      border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-md);
+      padding: 0.875rem 1rem;
+    }
+    .analogy-card .ac-icon  { font-size: 28px; margin-bottom: 6px; }
+    .analogy-card .ac-title { font-size: 12px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+    .analogy-card .ac-desc  { font-size: 12px; color: var(--text-secondary); line-height: 1.55; }
+    .analogy-card .ac-maps  { font-size: 11px; color: var(--text-tertiary); margin-top: 6px; padding-top: 6px; border-top: 0.5px solid var(--border-tertiary); }
+
+    .canvas-wrap { position: relative; width: 100%; margin: 0.75rem 0; }
+
+    .summary-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 0.75rem 0; }
+    .summary-table th {
+      text-align: left; padding: 7px 10px;
+      background: var(--bg-secondary);
+      color: var(--text-tertiary);
+      font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing:.04em;
+      border-bottom: 0.5px solid var(--border-tertiary);
+    }
+    .summary-table td {
+      padding: 7px 10px;
+      border-bottom: 0.5px solid var(--border-tertiary);
+      color: var(--text-secondary); vertical-align: middle;
+    }
+    .summary-table tr:last-child td { border-bottom: none; }
+    .summary-table tr:hover td { background: var(--bg-secondary); }
+    .badge {
+      display: inline-block; font-size: 11px; padding: 2px 8px;
+      border-radius: 20px; font-weight: 500; white-space: nowrap;
+    }
+    .badge-cnn  { background: var(--bg-info);    color: var(--text-info); }
+    .badge-vit  { background: var(--bg-success); color: var(--text-success); }
+    .badge-both { background: var(--bg-warning); color: var(--text-warning); }
+    .badge-good { background: var(--bg-success); color: var(--text-success); }
+    .badge-bad  { background: var(--bg-danger);  color: var(--text-danger); }
+
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    .stepper-nav {
+      display: flex; align-items: center; justify-content: space-between; margin: 0.75rem 0 0.5rem;
+    }
+    .stepper-dots { display: flex; gap: 6px; }
+    .stepper-dot  { width: 7px; height: 7px; border-radius: 50%; background: var(--border-secondary); transition: background 0.2s; }
+    .stepper-dot.active-cnn { background: var(--text-info); }
+    .stepper-dot.active-vit { background: var(--text-success); }
+    .step-btn {
+      padding: 5px 14px; font-size: 13px; font-family: var(--font);
+      border: 0.5px solid var(--border-secondary); border-radius: var(--radius-md);
+      background: var(--bg-primary); color: var(--text-primary); cursor: pointer;
+      transition: background 0.15s;
+    }
+    .step-btn:hover { background: var(--bg-secondary); }
+    .step-btn:disabled { opacity: 0.35; cursor: default; }
+
+    .flow-row {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 0.5rem 0;
+    }
+    .flow-box {
+      padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500;
+      border: 0.5px solid var(--border-tertiary);
+    }
+    .flow-box.cnn { background: var(--bg-info);    border-color: var(--border-info);    color: var(--text-info); }
+    .flow-box.vit { background: var(--bg-success); border-color: var(--border-success); color: var(--text-success); }
+    .flow-box.shared { background: var(--bg-warning); border-color: var(--border-warning); color: var(--text-warning); }
+    .flow-arrow { font-size: 13px; color: var(--text-tertiary); }
+
+    .detail-insight {
+      background: var(--bg-secondary); border-radius: var(--radius-md);
+      padding: 0.875rem 1rem; margin: 0.75rem 0;
+      border-left: 3px solid var(--border-info);
+    }
+    .detail-insight.vit { border-left-color: var(--border-success); }
+    .detail-insight .di-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+    .detail-insight p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* Clickable TOC */
+    .toc-nav {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-lg);
+      padding: 0.875rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .toc-title {
+      font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+      text-transform: uppercase; letter-spacing: .05em; margin-bottom: 0.5rem;
+    }
+    .toc-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 5px 6px; margin: 2px -6px;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .toc-item:hover { background: var(--bg-secondary); }
+    .toc-num {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      background: var(--bg-info); color: var(--text-info);
+      font-size: 11px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .toc-label {
+      font-size: 13px; color: var(--text-info); font-weight: 500;
+      line-height: 1.45;
+    }
+    .toc-item:hover .toc-label { color: var(--text-primary); }
+    .toc-item:hover .toc-num   { opacity: 0.7; }
+
+    footer { text-align: center; font-size: 12px; color: var(--text-tertiary); margin-top: 2rem; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>How Machines Learned to See Explainer</h1>
+    <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)" target="_blank" rel="noopener">Ancil Cleetus</a></p>
+    <p>Understanding the two paradigms of visual representation learning — from local feature extraction with CNNs to global attention with Vision Transformers.</p>
+  </header>
+
+  <!-- Clickable TOC -->
+  <nav class="toc-nav" aria-label="Table of contents">
+    <div class="toc-title">Contents</div>
+    <a href="#sec-what-is-seeing" class="toc-item">
+      <div class="toc-num">1</div>
+      <span class="toc-label">What does it mean to "see"?</span>
+    </a>
+    <a href="#sec-two-paradigms" class="toc-item">
+      <div class="toc-num">2</div>
+      <span class="toc-label">The two paradigms</span>
+    </a>
+    <a href="#sec-cnn-process" class="toc-item">
+      <div class="toc-num">3</div>
+      <span class="toc-label">How CNNs process an image</span>
+    </a>
+    <a href="#sec-vit-process" class="toc-item">
+      <div class="toc-num">4</div>
+      <span class="toc-label">How Vision Transformers process an image</span>
+    </a>
+    <a href="#sec-local-vs-global" class="toc-item">
+      <div class="toc-num">5</div>
+      <span class="toc-label">Local vs global — the core difference</span>
+    </a>
+    <a href="#sec-summary" class="toc-item">
+      <div class="toc-num">6</div>
+      <span class="toc-label">CNN vs ViT — summary</span>
+    </a>
+  </nav>
+
+  <!-- PART 1: What does it mean to see -->
+  <div class="card">
+    <h2 id="sec-what-is-seeing">What does it mean to "see"?</h2>
+    <p class="note">Before we look at how machines do it, consider how <em>you</em> do it. Two very different modes of perception underpin human vision — and they map precisely onto the two major paradigms of computer vision.</p>
+
+    <div class="step-label">Two modes of human perception</div>
+    <div class="analogy-grid">
+      <div class="analogy-card">
+        <div class="ac-icon">📖</div>
+        <div class="ac-title">Reading a page of text</div>
+        <div class="ac-desc">Your eyes move word by word, left to right, top to bottom. You process small chunks at a time. Understanding builds from these local pieces, one step at a time.</div>
+        <div class="ac-maps">→ Maps to: <strong>Convolutional Neural Network (CNN)</strong></div>
+      </div>
+      <div class="analogy-card">
+        <div class="ac-icon">🏖️</div>
+        <div class="ac-title">Looking at a beach photograph</div>
+        <div class="ac-desc">You take in the entire scene at once — ocean, sand, person, seagull. You instantly understand relationships between distant objects: the seagull is <em>above</em> the water, the person is <em>on</em> the sand.</div>
+        <div class="ac-maps">→ Maps to: <strong>Vision Transformer (ViT)</strong></div>
+      </div>
+    </div>
+
+    <div class="insight">
+      These two modes of perception — local sequential processing versus global holistic understanding — are exactly the two paradigms that define how neural networks learn to see.
+    </div>
+  </div>
+
+  <!-- PART 2: The two paradigms -->
+  <div class="card">
+    <h2 id="sec-two-paradigms">The two paradigms</h2>
+    <p class="note">Click either paradigm to explore how it works and what makes it distinctive.</p>
+
+    <div class="paradigm-grid" id="paradigm-grid">
+      <div class="paradigm-card active-cnn" id="card-cnn" onclick="selectParadigm('cnn')">
+        <div class="pc-tag tag-cnn">Paradigm 1</div>
+        <div class="pc-title">Convolutional Neural Network (CNN)</div>
+        <div class="pc-desc">Processes images through small local filters that slide across the image — much like reading word by word. Builds understanding from local features upward.</div>
+      </div>
+      <div class="paradigm-card" id="card-vit" onclick="selectParadigm('vit')">
+        <div class="pc-tag tag-vit">Paradigm 2</div>
+        <div class="pc-title">Vision Transformer (ViT)</div>
+        <div class="pc-desc">Divides the image into patches and processes them all at once, computing attention between every pair — much like taking in a photograph holistically.</div>
+      </div>
+    </div>
+
+    <div id="paradigm-detail"></div>
+  </div>
+
+  <!-- PART 3: CNN walkthrough stepper -->
+  <div class="card">
+    <h2 id="sec-cnn-process">How CNNs process an image</h2>
+    <p class="note">CNNs learn to see by scanning small local regions — filters slide across the image extracting features, then stack those features into increasingly abstract representations.</p>
+
+    <div class="stepper-nav">
+      <button class="step-btn" id="cnn-prev" onclick="cnnNav(-1)" disabled>← Prev</button>
+      <div class="stepper-dots" id="cnn-dots"></div>
+      <button class="step-btn" id="cnn-next" onclick="cnnNav(1)">Next →</button>
+    </div>
+    <div id="cnn-panels"></div>
+
+    <div class="canvas-wrap" style="height:160px">
+      <canvas id="cnn-canvas" role="img" aria-label="CNN feature extraction visualisation"></canvas>
+    </div>
+    <div style="font-size:11px;color:var(--text-tertiary);text-align:center;margin-top:4px">Diagram: data flow through a CNN — the highlighted blue stage corresponds to the current step</div>
+  </div>
+
+  <!-- PART 4: ViT walkthrough stepper -->
+  <div class="card">
+    <h2 id="sec-vit-process">How Vision Transformers process an image</h2>
+    <p class="note">ViTs learn to see by treating an image as a sequence of patches — like words in a sentence — and computing attention between every patch simultaneously.</p>
+
+    <div class="stepper-nav">
+      <button class="step-btn" id="vit-prev" onclick="vitNav(-1)" disabled>← Prev</button>
+      <div class="stepper-dots" id="vit-dots"></div>
+      <button class="step-btn" id="vit-next" onclick="vitNav(1)">Next →</button>
+    </div>
+    <div id="vit-panels"></div>
+
+    <div class="canvas-wrap" style="height:160px">
+      <canvas id="vit-canvas" role="img" aria-label="Vision Transformer patch and attention visualisation"></canvas>
+    </div>
+    <div style="font-size:11px;color:var(--text-tertiary);text-align:center;margin-top:4px">Diagram: data flow through a Vision Transformer — the highlighted green stage corresponds to the current step</div>
+  </div>
+
+  <!-- PART 5: Local vs global — interactive toggle -->
+  <div class="card">
+    <h2 id="sec-local-vs-global">Local vs global — the core difference</h2>
+    <p class="note">The fundamental difference between the two paradigms comes down to <em>receptive field</em>: how much of the image does each operation "see" at once?</p>
+
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;margin-bottom:0.75rem;font-size:13px;color:var(--text-secondary);line-height:1.55;border-left:3px solid var(--border-info)">
+      <strong style="color:var(--text-primary)">What is a receptive field?</strong> The receptive field of a neuron is simply the region of the original image that influences its output — the pixels it can "see." A small receptive field means the neuron only knows about a tiny local patch. A large receptive field means it can draw on information from across the entire image.
+    </div>
+
+    <div class="step-label">Select a paradigm to see its receptive field</div>
+    <div class="row">
+      <button class="tab-btn active" id="btn-local"  onclick="setReceptive('cnn')">CNN — local filter</button>
+      <button class="tab-btn"        id="btn-global" onclick="setReceptive('vit')">ViT — global attention</button>
+    </div>
+
+    <div class="canvas-wrap" style="height:190px">
+      <canvas id="receptive-canvas" role="img" aria-label="Receptive field comparison diagram"></canvas>
+    </div>
+
+    <div id="receptive-insight" class="insight"></div>
+  </div>
+
+  <!-- PART 6: Comparison summary table -->
+  <div class="card">
+    <h2 id="sec-summary">CNN vs ViT — summary</h2>
+    <p class="note">A quick reference across the key dimensions that distinguish the two paradigms.</p>
+
+    <div style="overflow-x:auto">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>CNN</th>
+            <th>Vision Transformer (ViT)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Core operation</strong></td>
+            <td>Convolution (sliding filter)</td>
+            <td>Self-attention (patch pairs)</td>
+          </tr>
+          <tr>
+            <td><strong>Receptive field</strong></td>
+            <td><span class="badge badge-cnn">Local → global (layered)</span></td>
+            <td><span class="badge badge-vit">Global from layer 1</span></td>
+          </tr>
+          <tr>
+            <td><strong>Inductive bias</strong></td>
+            <td><span class="badge badge-good">Strong (translation equivariance)</span></td>
+            <td><span class="badge badge-bad">Weak (learned from data)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Data efficiency</strong></td>
+            <td><span class="badge badge-good">Works well with less data</span></td>
+            <td><span class="badge badge-bad">Needs large datasets</span></td>
+          </tr>
+          <tr>
+            <td><strong>Long-range dependencies</strong></td>
+            <td><span class="badge badge-bad">Hard — requires many layers</span></td>
+            <td><span class="badge badge-vit">Native — computed in every layer</span></td>
+          </tr>
+          <tr>
+            <td><strong>Computational cost</strong></td>
+            <td><span class="badge badge-good">Efficient (linear in image size)</span></td>
+            <td><span class="badge badge-bad">Quadratic in number of patches</span></td>
+          </tr>
+          <tr>
+            <td><strong>Best known for</strong></td>
+            <td>Image classification, object detection, segmentation</td>
+            <td>Large-scale vision, vision-language models</td>
+          </tr>
+          <tr>
+            <td><strong>Iconic models</strong></td>
+            <td><span class="badge badge-cnn">AlexNet · ResNet · EfficientNet</span></td>
+            <td><span class="badge badge-vit">ViT · DeiT · CLIP · SAM</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight" style="margin-top:0.875rem">
+      Neither paradigm has "won." Modern architectures increasingly combine both: hybrid models use CNN layers for early feature extraction and transformer layers for global reasoning. The two paradigms are complementary, not competing.
+    </div>
+  </div>
+
+  <footer>
+    Built with <span style="color:var(--text-danger);font-size:18px;vertical-align:middle">♥</span> by
+    <a href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">Ancil Cleetus</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://ancilcleetus.github.io/AI-ML-Explainers/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">AI ML Explainers</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp; No external dependencies
+    &nbsp;&nbsp;·&nbsp;&nbsp; MIT License
+  </footer>
+
+</div>
+<script>
+const isDark = () => matchMedia('(prefers-color-scheme: dark)').matches;
+
+function tc() {
+  const d = isDark();
+  return {
+    text:   d ? '#b4b2a9' : '#5f5e5a',
+    textP:  d ? '#e8e6de' : '#1a1a18',
+    grid:   d ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)',
+    border: d ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)',
+    bg:     d ? '#1c1c1a' : '#ffffff',
+    bg2:    d ? '#252522' : '#f5f4f0',
+    blue:   d ? '#85b7eb' : '#378ADD',
+    green:  d ? '#5dcaa5' : '#1D9E75',
+    amber:  d ? '#ef9f27' : '#BA7517',
+    purple: d ? '#afa9ec' : '#534AB7',
+    blueL:  d ? 'rgba(133,183,235,0.15)' : 'rgba(55,138,221,0.1)',
+    greenL: d ? 'rgba(93,202,165,0.15)'  : 'rgba(29,158,117,0.1)',
+  };
+}
+
+// ─── PART 2: Paradigm detail ────────────────────────────────────────────────
+let currentParadigm = 'cnn';
+
+const paradigmDetails = {
+  cnn: {
+    color: 'cnn',
+    flow: [
+      { label: 'Raw image', cls: 'cnn' },
+      { label: 'Local filters', cls: 'cnn' },
+      { label: 'Feature maps', cls: 'cnn' },
+      { label: 'Pooling', cls: 'cnn' },
+      { label: 'Deep features', cls: 'cnn' },
+      { label: 'Prediction', cls: 'shared' },
+    ],
+    insights: [
+      { title: 'Built-in spatial intuition', text: 'CNNs have translation equivariance hardwired in — meaning the same filter detects a cat ear whether it appears top-left or bottom-right. This inductive bias (a built-in assumption that helps the model learn faster with less data) is a huge advantage when training data is limited.' },
+      { title: 'Hierarchical feature learning', text: 'Early layers detect edges and textures. Middle layers detect shapes and object parts. Deep layers detect entire semantic concepts. This hierarchy mirrors the primate visual cortex.' },
+      { title: 'The locality constraint', text: 'Every convolution operation sees only a small patch of the image at once. To build a global view, CNNs must stack many layers — each layer\'s "window on the world" grows, but slowly.' },
+    ]
+  },
+  vit: {
+    color: 'vit',
+    flow: [
+      { label: 'Raw image', cls: 'vit' },
+      { label: 'Patch split', cls: 'vit' },
+      { label: 'Patch embeddings', cls: 'vit' },
+      { label: 'Self-attention', cls: 'vit' },
+      { label: 'Global context', cls: 'vit' },
+      { label: 'Prediction', cls: 'shared' },
+    ],
+    insights: [
+      { title: 'Global from the very first layer', text: 'In a ViT, every patch can attend to every other patch from layer 1. A patch in the top-left corner can immediately "know" what is in the bottom-right corner — no stacking of layers required.' },
+      { title: 'No built-in spatial bias — a feature, not a bug', text: 'ViTs learn what spatial relationships matter from data, rather than assuming local structure. At scale, this flexibility lets them discover patterns CNNs cannot — but it requires enormous amounts of training data.' },
+      { title: 'The patch-as-word metaphor', text: 'ViTs treat an image exactly like a sentence. Each 16×16 pixel patch is a "word," the sequence of patches is the "sentence," and the transformer reads across the whole sequence simultaneously using the same self-attention mechanism as GPT (the family of models behind ChatGPT — ViTs and large language models share the same core transformer architecture).' },
+    ]
+  }
+};
+
+function selectParadigm(name) {
+  currentParadigm = name;
+  document.getElementById('card-cnn').className = 'paradigm-card' + (name==='cnn' ? ' active-cnn' : '');
+  document.getElementById('card-vit').className = 'paradigm-card' + (name==='vit' ? ' active-vit' : '');
+
+  const d = paradigmDetails[name];
+  const isCNN = name === 'cnn';
+  const accentBorder = isCNN ? 'var(--border-info)' : 'var(--border-success)';
+  const accentText   = isCNN ? 'var(--text-info)'   : 'var(--text-success)';
+
+  const flowHTML = `<div class="flow-row">${d.flow.map((f,i) =>
+    `<div class="flow-box ${f.cls}">${f.label}</div>${i<d.flow.length-1?'<span class="flow-arrow">→</span>':''}`
+  ).join('')}</div>`;
+
+  const insightsHTML = d.insights.map(ins => `
+    <div class="detail-insight ${isCNN?'':'vit'}" style="border-left-color:${accentBorder}">
+      <div class="di-title">${ins.title}</div>
+      <p>${ins.text}</p>
+    </div>`).join('');
+
+  document.getElementById('paradigm-detail').innerHTML = `
+    <div class="step-label" style="margin-top:0.75rem">Processing pipeline</div>
+    ${flowHTML}
+    <div class="step-label" style="margin-top:0.75rem">Key characteristics</div>
+    ${insightsHTML}`;
+}
+
+// ─── PART 3: CNN stepper ────────────────────────────────────────────────────
+const cnnSteps = [
+  {
+    title: 'Step 1 — The raw image arrives',
+    desc: 'The network receives the image as a 3D array of pixel values: height × width × 3 (for RGB channels). Every pixel is just a number between 0 and 255. The network knows nothing about what it is looking at — yet.',
+    highlight: 'input',
+  },
+  {
+    title: 'Step 2 — Local filters slide across the image',
+    desc: 'A small filter (typically 3×3 or 5×5 pixels) slides across every position in the image. At each position it performs a dot product (a mathematical operation that multiplies each filter value by the pixel beneath it and sums the results — measuring how closely the filter pattern matches the local image patch) with the pixels beneath it. Different filters detect different things: one might fire on horizontal edges, another on diagonal textures, another on colour transitions.',
+    highlight: 'filter',
+  },
+  {
+    title: 'Step 3 — Feature maps are produced',
+    desc: 'The output of one filter sliding across the entire image is a feature map — a 2D grid (the same width and height as the image) where each cell\'s value says "how strongly did this filter respond at this location?" With 64 filters, you get 64 feature maps. Each one is a different view of the same image, highlighting a different type of pattern.',
+    highlight: 'features',
+  },
+  {
+    title: 'Step 4 — Pooling shrinks the representation',
+    desc: 'Max pooling takes the strongest activation in each small region and discards the rest. This makes the representation smaller and more robust to small shifts — a cat ear detected one pixel to the left still counts as a cat ear.',
+    highlight: 'pool',
+  },
+  {
+    title: 'Step 5 — Deeper layers see bigger structures',
+    desc: 'After many conv+pool layers, the receptive field of each neuron spans a large region of the original image. Early neurons detect edges. Middle neurons detect shapes. Deep neurons detect semantic concepts — "fur texture," "wheel," "face." The hierarchy builds automatically from data.',
+    highlight: 'deep',
+  },
+];
+
+let cnnStep = 0;
+
+function buildCNNStepper() {
+  document.getElementById('cnn-dots').innerHTML = cnnSteps.map((_,i) =>
+    `<div class="stepper-dot${i===0?' active-cnn':''}" id="cnn-dot-${i}"></div>`).join('');
+  document.getElementById('cnn-panels').innerHTML = cnnSteps.map((s,i) => `
+    <div class="step-panel${i===0?' active':''}" id="cnn-panel-${i}">
+      <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:4px">${s.title}</div>
+      <p class="note" style="margin-bottom:0">${s.desc}</p>
+    </div>`).join('');
+}
+
+function cnnNav(dir) {
+  document.getElementById('cnn-panel-'+cnnStep).classList.remove('active');
+  document.getElementById('cnn-dot-'+cnnStep).className = 'stepper-dot';
+  cnnStep = Math.max(0, Math.min(cnnSteps.length-1, cnnStep+dir));
+  document.getElementById('cnn-panel-'+cnnStep).classList.add('active');
+  document.getElementById('cnn-dot-'+cnnStep).className = 'stepper-dot active-cnn';
+  document.getElementById('cnn-prev').disabled = cnnStep === 0;
+  document.getElementById('cnn-next').disabled = cnnStep === cnnSteps.length-1;
+  drawCNNCanvas();
+}
+
+function drawCNNCanvas() {
+  const canvas = document.getElementById('cnn-canvas');
+  const W = canvas.parentElement.clientWidth;
+  const H = 160;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  const c = tc();
+  const h = cnnSteps[cnnStep].highlight;
+
+  const stages = [
+    { label: 'Image', w: 60, h2: 60, x: 30 },
+    { label: 'Filters', w: 30, h2: 30, x: 130 },
+    { label: 'Feature maps', w: 50, h2: 50, x: 210 },
+    { label: 'Pooling', w: 36, h2: 36, x: 310 },
+    { label: 'Deep features', w: 24, h2: 80, x: 400 },
+  ];
+  const hlMap = ['input','filter','features','pool','deep'];
+  const stageX = [50, 140, 225, 325, 420];
+
+  const centerY = H / 2 - 10;
+
+  stages.forEach((s, i) => {
+    const active = hlMap[i] === h;
+    const x = stageX[i] - s.w/2;
+    const y = centerY - s.h2/2;
+
+    if (active) {
+      ctx.fillStyle = c.blueL;
+      ctx.fillRect(x-4, y-4, s.w+8, s.h2+8);
+    }
+
+    if (i === 1) {
+      [0,1,2].forEach(k => {
+        ctx.strokeStyle = active ? c.blue : c.border;
+        ctx.lineWidth = active ? 1.5 : 0.5;
+        ctx.fillStyle = active ? c.blueL : 'transparent';
+        ctx.beginPath();
+        ctx.rect(x + k*4, y + k*4, s.w, s.h2);
+        ctx.fill(); ctx.stroke();
+      });
+    } else {
+      ctx.strokeStyle = active ? c.blue : c.border;
+      ctx.lineWidth = active ? 1.5 : 0.5;
+      ctx.fillStyle = active ? c.blueL : c.bg2;
+      ctx.beginPath(); ctx.roundRect(x, y, s.w, s.h2, 4);
+      ctx.fill(); ctx.stroke();
+
+      if (active && i === 2) {
+        [0,1].forEach(k => {
+          ctx.strokeStyle = c.blue + '66';
+          ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          ctx.rect(x+k*5+2, y+k*5+2, s.w-k*10-4, s.h2-k*10-4);
+          ctx.stroke();
+        });
+      }
+
+      if (i === 4 && active) {
+        for(let r=0;r<5;r++) {
+          ctx.fillStyle = c.blue + Math.round(40+r*30).toString(16);
+          ctx.fillRect(x+2, y+4+r*14, s.w-4, 10);
+        }
+      }
+    }
+
+    ctx.fillStyle = active ? c.blue : c.text;
+    ctx.font = `${active?'500 ':''}11px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(s.label, stageX[i], centerY + Math.max(s.h2/2, 30) + 18);
+
+    if (i < stages.length-1 && stageX[i+1] - stageX[i] > 40) {
+      const ax = stageX[i] + s.w/2 + 4;
+      const ay = centerY;
+      const bx = stageX[i+1] - stages[i+1].w/2 - 4;
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, ay);
+      ctx.strokeStyle = c.border; ctx.lineWidth = 0.5; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(bx, ay-4); ctx.lineTo(bx+6, ay); ctx.lineTo(bx, ay+4);
+      ctx.fillStyle = c.border; ctx.fill();
+    }
+  });
+
+  if (h === 'filter') {
+    ctx.strokeStyle = c.blue;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3,3]);
+    ctx.beginPath();
+    ctx.moveTo(stageX[0]+18, centerY-8);
+    ctx.lineTo(stageX[1]-8, centerY-10);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = c.blue;
+    ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('slides across →', (stageX[0]+stageX[1])/2, centerY - 22);
+  }
+
+  ctx.fillStyle = c.text; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(`Step ${cnnStep+1} of ${cnnSteps.length}`, 8, H-6);
+}
+
+// ─── PART 4: ViT stepper ─────────────────────────────────────────────────────
+const vitSteps = [
+  {
+    title: 'Step 1 — Divide the image into patches',
+    desc: 'The image is split into a regular grid of non-overlapping patches — typically 16×16 pixels each. A 224×224 image becomes 196 patches (14×14 grid). These patches are the ViT\'s "vocabulary" — the equivalent of words in a sentence.',
+    highlight: 'patches',
+  },
+  {
+    title: 'Step 2 — Embed each patch as a vector',
+    desc: 'Each 16×16 patch (768 pixel values for RGB) is flattened and projected to a fixed-size embedding vector (a compact list of numbers — e.g. 768 values — that represents the patch in a form the model can process, rather than raw pixels) through a linear layer. A special [CLS] token (a learnable "summary slot" prepended to the sequence — think of it as an empty notebook page that will collect information from all patches) is added at the start.',
+    highlight: 'embed',
+  },
+  {
+    title: 'Step 3 — Add positional encodings',
+    desc: 'Unlike CNNs, the transformer has no built-in sense of where patches are. Positional encodings — learnable vectors added to each patch embedding — give the model information about each patch\'s location in the grid. Without them, all spatial information would be lost.',
+    highlight: 'pos',
+  },
+  {
+    title: 'Step 4 — Self-attention across all patches',
+    desc: 'In each transformer layer, every patch computes three things: a query ("what am I looking for?"), a key ("what do I contain?"), and a value ("what information do I share if selected?"). Each patch then compares its query against every other patch\'s key to decide how much attention to give it. A patch representing the sky can attend strongly to the patch representing the ocean — even if they are on opposite sides of the image.',
+    highlight: 'attn',
+  },
+  {
+    title: 'Step 5 — The [CLS] token predicts the class',
+    desc: 'After all transformer layers, the [CLS] token (our "summary slot" from Step 2) — which has attended to every patch in the image — is fed into a classification head (a simple layer that converts the summary into class probabilities). It now contains a global summary of the entire image, informed by long-range relationships between every patch pair.',
+    highlight: 'cls',
+  },
+];
+
+let vitStep = 0;
+
+function buildViTStepper() {
+  document.getElementById('vit-dots').innerHTML = vitSteps.map((_,i) =>
+    `<div class="stepper-dot${i===0?' active-vit':''}" id="vit-dot-${i}"></div>`).join('');
+  document.getElementById('vit-panels').innerHTML = vitSteps.map((s,i) => `
+    <div class="step-panel${i===0?' active':''}" id="vit-panel-${i}">
+      <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:4px">${s.title}</div>
+      <p class="note" style="margin-bottom:0">${s.desc}</p>
+    </div>`).join('');
+}
+
+function vitNav(dir) {
+  document.getElementById('vit-panel-'+vitStep).classList.remove('active');
+  document.getElementById('vit-dot-'+vitStep).className = 'stepper-dot';
+  vitStep = Math.max(0, Math.min(vitSteps.length-1, vitStep+dir));
+  document.getElementById('vit-panel-'+vitStep).classList.add('active');
+  document.getElementById('vit-dot-'+vitStep).className = 'stepper-dot active-vit';
+  document.getElementById('vit-prev').disabled = vitStep === 0;
+  document.getElementById('vit-next').disabled = vitStep === vitSteps.length-1;
+  drawViTCanvas();
+}
+
+function drawViTCanvas() {
+  const canvas = document.getElementById('vit-canvas');
+  const W = canvas.parentElement.clientWidth;
+  const H = 160;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  const c = tc();
+  const h = vitSteps[vitStep].highlight;
+
+  const GRID = 4;
+  const CELL = 18;
+  const gridW = GRID * CELL;
+  const gridH = GRID * CELL;
+  const gx = 20, gy = (H - gridH) / 2 - 10;
+
+  for (let r = 0; r < GRID; r++) {
+    for (let col = 0; col < GRID; col++) {
+      const px = gx + col * CELL, py = gy + r * CELL;
+      const active = h === 'patches' || h === 'embed' || h === 'pos' || h === 'attn' || h === 'cls';
+      const shade = (r + col) % 2 === 0;
+      ctx.fillStyle = shade ? (isDark()?'#2c2c2a':'#e8e6de') : (isDark()?'#252522':'#f5f4f0');
+      ctx.fillRect(px, py, CELL, CELL);
+      ctx.strokeStyle = h==='patches' ? c.green : c.border;
+      ctx.lineWidth = h==='patches' ? 1.5 : 0.5;
+      ctx.strokeRect(px, py, CELL, CELL);
+    }
+  }
+  ctx.fillStyle = h==='patches' ? c.green : c.text;
+  ctx.font = `${h==='patches'?'500 ':''}10px sans-serif`; ctx.textAlign = 'center';
+  ctx.fillText('Patches', gx + gridW/2, gy + gridH + 16);
+
+  const numPatches = 5;
+  const patchStartX = gx + gridW + 28;
+  const patchSpacing = Math.min(36, (W - patchStartX - 80) / numPatches);
+
+  if (h === 'embed' || h === 'pos' || h === 'attn' || h === 'cls') {
+    const embedH = 60;
+    const embedY = (H - embedH) / 2 - 10;
+    for (let i = 0; i < numPatches; i++) {
+      const ex = patchStartX + i * patchSpacing;
+      const isActive = h === 'attn' || h === 'cls';
+      const isCLS = i === 0 && (h === 'cls');
+      ctx.fillStyle = isCLS ? c.greenL : (isActive ? c.greenL : c.bg2);
+      ctx.strokeStyle = isCLS ? c.green : (h==='embed'||h==='pos' ? c.green : c.green+'88');
+      ctx.lineWidth = isCLS ? 2 : 1;
+      ctx.beginPath(); ctx.roundRect(ex, embedY, 22, embedH, 3); ctx.fill(); ctx.stroke();
+
+      const segments = 4;
+      for (let s = 0; s < segments; s++) {
+        ctx.fillStyle = c.green + Math.round(30 + s*25).toString(16).padStart(2,'0');
+        ctx.fillRect(ex+2, embedY+2+s*(embedH-4)/segments, 18, (embedH-4)/segments - 1);
+      }
+
+      const label = i===0 ? '[CLS]' : `P${i}`;
+      ctx.fillStyle = isCLS ? c.green : c.text;
+      ctx.font = `${isCLS?'500 ':''}9px sans-serif`; ctx.textAlign = 'center';
+      ctx.fillText(label, ex+11, embedY + embedH + 13);
+    }
+
+    if (h === 'attn') {
+      const queryIdx = 2;
+      const qx = patchStartX + queryIdx * patchSpacing + 11;
+      const qy = (H - 60)/2 - 10;
+      [0,1,3,4].forEach(i => {
+        const tx = patchStartX + i * patchSpacing + 11;
+        const alpha = [0.6,0.3,0.9,0.4][i < queryIdx ? i : i-1];
+        ctx.beginPath();
+        ctx.moveTo(qx, qy);
+        const cy2 = qy - 28 - Math.abs(i-queryIdx)*4;
+        ctx.quadraticCurveTo((qx+tx)/2, cy2, tx, qy);
+        ctx.strokeStyle = c.green + Math.round(alpha*255).toString(16).padStart(2,'0');
+        ctx.lineWidth = 0.5 + alpha * 1.5;
+        ctx.stroke();
+      });
+      ctx.fillStyle = c.green;
+      ctx.font = '500 10px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('Attention', patchStartX + (numPatches/2)*patchSpacing, 14);
+    }
+
+    if (h === 'pos') {
+      for (let i = 0; i < numPatches; i++) {
+        const ex = patchStartX + i * patchSpacing + 11;
+        const embedY2 = (H-60)/2 - 10;
+        ctx.fillStyle = c.amber;
+        ctx.font = '500 9px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(`+pos${i}`, ex, embedY2 - 6);
+      }
+      ctx.fillStyle = c.amber;
+      ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('+ positional encoding', patchStartX + (numPatches/2)*patchSpacing, H-4);
+    }
+
+    if (h === 'cls') {
+      const clsX = patchStartX + 11;
+      const clsY = (H-60)/2 - 10;
+      const arrowX = clsX + 22 + 8;
+      ctx.beginPath(); ctx.moveTo(arrowX, clsY+30); ctx.lineTo(arrowX+30, clsY+30);
+      ctx.strokeStyle = c.green; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(arrowX+24, clsY+25); ctx.lineTo(arrowX+30, clsY+30); ctx.lineTo(arrowX+24, clsY+35);
+      ctx.fillStyle = c.green; ctx.fill();
+      ctx.fillStyle = c.green; ctx.font = '500 10px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText('→ Classify', arrowX+34, clsY+34);
+    }
+  }
+
+  ctx.fillStyle = c.text; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(`Step ${vitStep+1} of ${vitSteps.length}`, 8, H-6);
+}
+
+// ─── PART 5: Receptive field ──────────────────────────────────────────────────
+let currentReceptive = 'cnn';
+
+function setReceptive(name) {
+  currentReceptive = name;
+  document.getElementById('btn-local').classList.toggle('active',  name==='cnn');
+  document.getElementById('btn-global').classList.toggle('active', name==='vit');
+  drawReceptiveCanvas();
+  const ins = document.getElementById('receptive-insight');
+  if (name === 'cnn') {
+    ins.className = 'insight';
+    ins.textContent = 'A CNN filter sees only a small patch (e.g. 3×3 pixels) at each step. To connect a pixel in the top-left to one in the bottom-right, the signal must travel through many layers — each layer slightly expanding the window. Long-range relationships are expensive to learn.';
+  } else {
+    ins.className = 'insight success';
+    ins.textContent = 'A Vision Transformer patch attends to every other patch simultaneously from the very first layer. The patch in the top-left corner and the patch in the bottom-right corner are connected with equal ease — distance is irrelevant. Long-range relationships are free.';
+  }
+}
+
+function drawReceptiveCanvas() {
+  const canvas = document.getElementById('receptive-canvas');
+  const W = canvas.parentElement.clientWidth;
+  const H = 190;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  const c = tc();
+  const isCNN = currentReceptive === 'cnn';
+  const accent = isCNN ? c.blue : c.green;
+  const accentL = isCNN ? c.blueL : c.greenL;
+
+  const GRID = 8, CELL = Math.min(18, Math.floor((W*0.45) / GRID));
+  const gridW = GRID * CELL, gridH = GRID * CELL;
+  const gx = Math.floor(W*0.05), gy = (H - gridH)/2;
+
+  for (let r = 0; r < GRID; r++) {
+    for (let col = 0; col < GRID; col++) {
+      const px = gx + col*CELL, py = gy + r*CELL;
+      const shade = (r+col)%2===0;
+      ctx.fillStyle = shade ? (isDark()?'#2c2c2a':'#e8e6de') : (isDark()?'#252522':'#f5f4f0');
+      ctx.fillRect(px, py, CELL, CELL);
+      ctx.strokeStyle = c.border; ctx.lineWidth = 0.5;
+      ctx.strokeRect(px, py, CELL, CELL);
+    }
+  }
+
+  if (isCNN) {
+    const fr = 2, fc = 2, fs = 3;
+    ctx.fillStyle = accent + '33';
+    ctx.fillRect(gx+fc*CELL, gy+fr*CELL, fs*CELL, fs*CELL);
+    ctx.strokeStyle = accent; ctx.lineWidth = 2;
+    ctx.strokeRect(gx+fc*CELL, gy+fr*CELL, fs*CELL, fs*CELL);
+    ctx.fillStyle = accent; ctx.font = '500 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('3×3 filter', gx+gridW/2, gy+gridH+16);
+
+    const midX = gx + (fc + fs/2)*CELL, midY = gy + (fr + fs/2)*CELL;
+    ctx.beginPath(); ctx.arc(midX, midY, 4, 0, Math.PI*2);
+    ctx.fillStyle = accent; ctx.fill();
+
+    const rx = gx + gridW + 30;
+    ctx.fillStyle = c.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ['Layer 1: sees 3×3', 'Layer 2: sees 5×5', 'Layer 3: sees 7×7', 'Layer N: sees full image'].forEach((line, i) => {
+      const ly = gy + 20 + i*30;
+      const fw = 14 + i*8;
+      ctx.fillStyle = accent + Math.round(80+i*44).toString(16).padStart(2,'0');
+      ctx.fillRect(rx, ly-10, fw, fw);
+      ctx.strokeStyle = accent; ctx.lineWidth = 0.5; ctx.strokeRect(rx, ly-10, fw, fw);
+      ctx.fillStyle = c.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(line, rx + fw + 8, ly+2);
+    });
+    ctx.fillStyle = c.text; ctx.font = '500 11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('Receptive field grows layer by layer', rx, gy+gridH+16);
+
+  } else {
+    const numPatches = 4;
+    const patchSz = Math.floor(gridW / numPatches);
+    const patchGrid = numPatches;
+    for (let r = 0; r < patchGrid; r++) {
+      for (let col2 = 0; col2 < patchGrid; col2++) {
+        ctx.fillStyle = accent + '22';
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(gx+col2*patchSz, gy+r*patchSz, patchSz, patchSz);
+      }
+    }
+    ctx.fillStyle = accent; ctx.font = '500 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('4×4 patch grid', gx+gridW/2, gy+gridH+16);
+
+    const queryR = 0, queryC = 0;
+    const qcx = gx + queryC*patchSz + patchSz/2;
+    const qcy = gy + queryR*patchSz + patchSz/2;
+    ctx.fillStyle = accent;
+    ctx.beginPath(); ctx.arc(qcx, qcy, 6, 0, Math.PI*2); ctx.fill();
+
+    for (let r = 0; r < patchGrid; r++) {
+      for (let col2 = 0; col2 < patchGrid; col2++) {
+        if (r===queryR && col2===queryC) continue;
+        const tx = gx + col2*patchSz + patchSz/2;
+        const ty = gy + r*patchSz + patchSz/2;
+        const dist = Math.sqrt((r-queryR)**2+(col2-queryC)**2);
+        const alpha = Math.max(0.2, 1 - dist*0.2);
+        ctx.beginPath(); ctx.moveTo(qcx, qcy); ctx.lineTo(tx, ty);
+        ctx.strokeStyle = accent + Math.round(alpha*200).toString(16).padStart(2,'0');
+        ctx.lineWidth = 0.5 + alpha;
+        ctx.stroke();
+        ctx.beginPath(); ctx.arc(tx, ty, 4, 0, Math.PI*2);
+        ctx.fillStyle = accent + Math.round(alpha*200).toString(16).padStart(2,'0');
+        ctx.fill();
+      }
+    }
+
+    const rx = gx + gridW + 30;
+    ctx.fillStyle = accent; ctx.font = '500 11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('Every patch attends to', rx, gy+20);
+    ctx.fillText('every other patch —', rx, gy+36);
+    ctx.fillText('from layer 1.', rx, gy+52);
+    ctx.fillStyle = c.text; ctx.font = '11px sans-serif';
+    ctx.fillText('Distance is irrelevant.', rx, gy+76);
+    ctx.fillText('Global context is free.', rx, gy+92);
+    ctx.fillStyle = c.text; ctx.font = '500 11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('Full receptive field from layer 1', rx, gy+gridH+16);
+  }
+}
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+function initAll() {
+  selectParadigm('cnn');
+  buildCNNStepper();
+  drawCNNCanvas();
+  buildViTStepper();
+  drawViTCanvas();
+  setReceptive('cnn');
+}
+
+initAll();
+
+window.addEventListener('resize', () => {
+  drawCNNCanvas();
+  drawViTCanvas();
+  drawReceptiveCanvas();
+});
+
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', initAll);
+</script>
+</body>
+</html>

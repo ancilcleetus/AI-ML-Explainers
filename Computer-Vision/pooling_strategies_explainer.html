@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pooling Strategies — Interactive Explainer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary:#ffffff; --bg-secondary:#f5f4f0; --bg-tertiary:#eeece6;
+      --bg-info:#e6f1fb; --bg-success:#e1f5ee; --bg-warning:#faeeda; --bg-danger:#fcebeb;
+      --text-primary:#1a1a18; --text-secondary:#5f5e5a; --text-tertiary:#888780;
+      --text-info:#185fa5; --text-success:#0f6e56; --text-warning:#854f0b; --text-danger:#a32d2d;
+      --border-tertiary:rgba(0,0,0,0.12); --border-secondary:rgba(0,0,0,0.22);
+      --border-info:#85b7eb; --border-success:#5dcaa5; --border-warning:#ef9f27; --border-danger:#e24b4a;
+      --radius-md:8px; --radius-lg:12px;
+      --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      --font-mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+    }
+    @media (prefers-color-scheme:dark) {
+      :root {
+        --bg-primary:#1c1c1a; --bg-secondary:#252522; --bg-tertiary:#2c2c2a;
+        --bg-info:#042c53; --bg-success:#04342c; --bg-warning:#412402; --bg-danger:#501313;
+        --text-primary:#e8e6de; --text-secondary:#b4b2a9; --text-tertiary:#73726c;
+        --text-info:#85b7eb; --text-success:#5dcaa5; --text-warning:#ef9f27; --text-danger:#f09595;
+        --border-tertiary:rgba(255,255,255,0.10); --border-secondary:rgba(255,255,255,0.20);
+        --border-info:#185fa5; --border-success:#0f6e56; --border-warning:#854f0b; --border-danger:#a32d2d;
+      }
+    }
+    body { font-family:var(--font); background:var(--bg-tertiary); color:var(--text-primary); min-height:100vh; padding:2rem 1rem 3rem; line-height:1.6; }
+    .page { max-width:760px; margin:0 auto; }
+    header { margin-bottom:2rem; }
+    header h1 { font-size:24px; font-weight:500; color:var(--text-primary); margin-bottom:6px; }
+    header p  { font-size:14px; color:var(--text-secondary); max-width:580px; line-height:1.65; }
+    .card { background:var(--bg-primary); border:0.5px solid var(--border-tertiary); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; margin-bottom:1.25rem; }
+    h2 { font-size:15px; font-weight:500; color:var(--text-primary); margin-bottom:8px; }
+    p.note { font-size:13px; color:var(--text-secondary); line-height:1.65; margin-bottom:0.75rem; }
+    .step-label { font-size:11px; font-weight:500; color:var(--text-tertiary); letter-spacing:.05em; text-transform:uppercase; margin:1rem 0 6px; }
+    .divider { border:none; border-top:0.5px solid var(--border-tertiary); margin:1.25rem 0; }
+    .eq-box { background:var(--bg-secondary); border:0.5px solid var(--border-tertiary); border-radius:var(--radius-md); padding:0.875rem 1rem; margin:0.5rem 0; font-family:var(--font-mono); font-size:14px; color:var(--text-primary); }
+    .eq-note { font-family:var(--font); font-size:12px; color:var(--text-secondary); margin-top:6px; }
+    .insight { border-left:2px solid var(--border-info); padding:7px 12px; font-size:13px; color:var(--text-secondary); background:var(--bg-info); border-radius:0 var(--radius-md) var(--radius-md) 0; margin:0.5rem 0; line-height:1.55; }
+    .insight.success { border-color:var(--border-success); background:var(--bg-success); color:var(--text-success); }
+    .insight.warning { border-color:var(--border-warning); background:var(--bg-warning); color:var(--text-warning); }
+    .insight.danger  { border-color:var(--border-danger);  background:var(--bg-danger);  color:var(--text-danger); }
+    .row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:0.75rem; }
+    .tab-btn { padding:6px 14px; border:0.5px solid var(--border-secondary); border-radius:var(--radius-md); background:var(--bg-primary); color:var(--text-primary); font-size:13px; font-family:var(--font); cursor:pointer; transition:background 0.15s,border-color 0.15s; }
+    .tab-btn.active { background:var(--bg-info); border-color:var(--border-info); color:var(--text-info); }
+    .tab-btn:hover:not(.active) { background:var(--bg-secondary); }
+    .slider-row { display:flex; align-items:center; gap:10px; margin:8px 0; }
+    .slider-name { font-size:12px; color:var(--text-tertiary); width:140px; flex-shrink:0; }
+    .slider-val  { font-size:13px; color:var(--text-primary); width:50px; text-align:right; font-family:var(--font-mono); flex-shrink:0; }
+    input[type=range] { flex:1; }
+    table.pgrid { border-collapse:collapse; margin:0 auto; }
+    table.pgrid td { width:44px; height:44px; border:0.5px solid var(--border-secondary); text-align:center; vertical-align:middle; font-family:var(--font-mono); font-size:14px; font-weight:500; color:var(--text-primary); transition:background 0.25s,color 0.25s; cursor:pointer; user-select:none; }
+    table.pgrid td:hover { background:var(--bg-secondary); }
+    table.pgrid td.hl-window { background:var(--bg-info); border-color:var(--border-info); color:var(--text-info); }
+    table.pgrid td.hl-avg    { background:var(--bg-success); border-color:var(--border-success); color:var(--text-success); }
+    table.pgrid td.hl-out    { background:var(--bg-warning); border-color:var(--border-warning); color:var(--text-warning); }
+    table.ogrid { border-collapse:collapse; margin:0 auto; }
+    table.ogrid td { width:44px; height:44px; border:0.5px solid var(--border-secondary); text-align:center; vertical-align:middle; font-family:var(--font-mono); font-size:14px; font-weight:500; color:var(--text-primary); transition:background 0.3s; cursor:pointer; }
+    table.ogrid td.hl-out { background:var(--bg-warning); border-color:var(--border-warning); color:var(--text-warning); font-weight:600; }
+    .grid-wrap { text-align:center; }
+    .grid-label { font-size:11px; font-weight:500; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; }
+    .grid-display { display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; margin:0.75rem 0; justify-content:center; }
+    .calc-block { background:var(--bg-secondary); border-radius:var(--radius-md); padding:0.75rem 1rem; margin:0.5rem 0; font-size:12px; font-family:var(--font-mono); line-height:1.8; }
+    .calc-block-label { font-size:10px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.05em; font-family:var(--font); margin-bottom:4px; }
+    .metric-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:0.75rem 0; }
+    @media (max-width:480px) { .metric-grid { grid-template-columns:repeat(2,1fr); } }
+    .metric-card { background:var(--bg-secondary); border-radius:var(--radius-md); padding:0.65rem 0.875rem; }
+    .metric-card .mc-label { font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.04em; margin-bottom:3px; }
+    .metric-card .mc-val   { font-size:18px; font-weight:500; font-family:var(--font-mono); color:var(--text-primary); transition:color 0.3s; }
+    .decision-card { border:0.5px solid var(--border-tertiary); border-radius:var(--radius-md); padding:0.875rem 1rem; margin-bottom:8px; }
+    .decision-card .dc-q { font-size:13px; font-weight:500; color:var(--text-primary); margin-bottom:4px; }
+    .decision-card .dc-a { font-size:12px; color:var(--text-secondary); line-height:1.55; }
+    .toc-nav { background:var(--bg-primary); border:0.5px solid var(--border-tertiary); border-radius:var(--radius-lg); padding:0.875rem 1.25rem; margin-bottom:1.5rem; }
+    .toc-title { font-size:11px; font-weight:500; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.05em; margin-bottom:0.5rem; }
+    .toc-item { display:flex; align-items:flex-start; gap:10px; padding:5px 6px; margin:2px -6px; border-radius:var(--radius-md); text-decoration:none; transition:background 0.15s; }
+    .toc-item:hover { background:var(--bg-secondary); }
+    .toc-num { width:22px; height:22px; border-radius:50%; flex-shrink:0; background:var(--bg-info); color:var(--text-info); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; margin-top:1px; }
+    .toc-label { font-size:13px; color:var(--text-info); font-weight:500; line-height:1.45; }
+    .toc-item:hover .toc-label { color:var(--text-primary); }
+    .toc-item:hover .toc-num { opacity:0.7; }
+    footer { text-align:center; font-size:12px; color:var(--text-tertiary); margin-top:2rem; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>Pooling Strategies Explainer</h1>
+    <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)" target="_blank" rel="noopener">Ancil Cleetus</a></p>
+    <p>Convolution produces rich feature maps — but raw feature maps are enormous. Pooling is the operation that compresses them: keeping what matters, discarding what doesn't, and making the network faster, smaller, and more robust. There are three strategies, each with a different answer to the question "what do I keep?"</p>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc-nav" aria-label="Table of contents">
+    <div class="toc-title">Contents</div>
+    <a href="#sec-why-pool"   class="toc-item"><div class="toc-num">1</div><span class="toc-label">Why do we pool at all?</span></a>
+    <a href="#sec-max"        class="toc-item"><div class="toc-num">2</div><span class="toc-label">Max pooling — keep the loudest signal</span></a>
+    <a href="#sec-avg"        class="toc-item"><div class="toc-num">3</div><span class="toc-label">Average pooling — take the average signal</span></a>
+    <a href="#sec-gap"        class="toc-item"><div class="toc-num">4</div><span class="toc-label">Global average pooling — collapse the entire map</span></a>
+    <a href="#sec-compare"    class="toc-item"><div class="toc-num">5</div><span class="toc-label">Comparing all three — live on the same input</span></a>
+    <a href="#sec-compression" class="toc-item"><div class="toc-num">6</div><span class="toc-label">Spatial compression — the numbers</span></a>
+  </nav>
+
+  <!-- PART 1: Why pool at all -->
+  <div class="card">
+    <h2 id="sec-why-pool">Why do we pool at all?</h2>
+    <p class="note">After a convolution layer you have a feature map — a rich grid of values showing where each pattern was detected. But feature maps are expensive. Consider what happens without pooling:</p>
+
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;margin-bottom:0.75rem;font-size:13px;color:var(--text-secondary);line-height:1.55;border-left:3px solid var(--border-danger)">
+      A 224×224 image passed through a layer with 64 filters produces <strong>64 feature maps, each 224×224 = 3,211,264 values</strong>. That is just one layer. Without pooling, every subsequent layer operates on that full volume — quickly becoming computationally impossible.
+    </div>
+
+    <div class="step-label">Three reasons pooling exists</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:0.75rem">
+      <div style="display:flex;gap:12px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;align-items:flex-start">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--bg-info);color:var(--text-info);font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+        <div><div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:2px">Spatial compression</div><div style="font-size:12px;color:var(--text-secondary)">Reduce the height and width of feature maps so later layers process far fewer values — making the network faster and cheaper to train.</div></div>
+      </div>
+      <div style="display:flex;gap:12px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;align-items:flex-start">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--bg-success);color:var(--text-success);font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+        <div><div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:2px">Translation invariance</div><div style="font-size:12px;color:var(--text-secondary)">A cat ear detected at position (3,4) versus (3,5) still produces the same pooled output — the network stops caring exactly where a feature appears, only whether it appears.</div></div>
+      </div>
+      <div style="display:flex;gap:12px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;align-items:flex-start">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--bg-warning);color:var(--text-warning);font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+        <div><div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:2px">Expanding receptive field</div><div style="font-size:12px;color:var(--text-secondary)">After pooling, each cell in the next layer's feature map "sees" a larger region of the original image — allowing deeper layers to detect larger structures without adding parameters.</div></div>
+      </div>
+    </div>
+
+    <div class="step-label">Interactive — drag to see how pooling shrinks the feature map</div>
+    <div class="slider-row">
+      <span class="slider-name">Input spatial size</span>
+      <input type="range" id="sl-why-size" min="8" max="224" step="8" value="64">
+      <span class="slider-val" id="lbl-why-size">64</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-name">Number of channels</span>
+      <input type="range" id="sl-why-ch" min="1" max="256" step="1" value="32">
+      <span class="slider-val" id="lbl-why-ch">32</span>
+    </div>
+    <div class="metric-grid" style="grid-template-columns:repeat(2,1fr);margin-top:0.5rem">
+      <div class="metric-card">
+        <div class="mc-label">Values before pooling</div>
+        <div class="mc-val" id="why-before" style="font-size:14px;padding-top:2px">131,072</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">Values after 2×2 pool</div>
+        <div class="mc-val" id="why-after" style="font-size:14px;padding-top:2px;color:var(--text-success)">32,768</div>
+      </div>
+    </div>
+    <div id="why-insight" class="insight"></div>
+  </div>
+
+  <!-- PART 2: Max pooling -->
+  <div class="card">
+    <h2 id="sec-max">Max pooling — keep the loudest signal</h2>
+    <p class="note"><strong>How it works:</strong> Divide the feature map into non-overlapping rectangular windows. Inside each window, keep only the largest value and discard the rest. The output is a smaller grid of those maximum values.</p>
+
+    <div class="insight">
+      Why keep the maximum? Because in a feature map, a high value means "this filter detected its pattern strongly here." Keeping the maximum preserves the strongest detection in each region — even if the exact location shifts slightly.<br><br>
+      <strong>Where max pooling excels:</strong> It is ideal for tasks where you care about <em>whether</em> a feature is present, not <em>where exactly</em> it is. This includes detecting edges (a strong edge response anywhere in the window survives), corners, textures, and other sharp localised patterns. For this reason, max pooling is the default choice in most image classification and object detection networks.
+    </div>
+
+    <div class="eq-box">
+      MaxPool(i, j) = max(window at position i, j)
+      <div class="eq-note">For a 2×2 window at row i, col j: MaxPool(i,j) = max(f[2i][2j], f[2i][2j+1], f[2i+1][2j], f[2i+1][2j+1])</div>
+    </div>
+
+    <div class="step-label">Interactive — adjust pool size and stride, click any output cell to see the calculation</div>
+    <div class="row">
+      <button class="tab-btn active" id="btn-max-ps2" onclick="setMaxPool(2)">Pool 2×2</button>
+      <button class="tab-btn" id="btn-max-ps3" onclick="setMaxPool(3)">Pool 3×3</button>
+    </div>
+    <div class="row">
+      <button class="tab-btn active" id="btn-max-s1" onclick="setMaxStride(1)">Stride 1</button>
+      <button class="tab-btn" id="btn-max-s2" onclick="setMaxStride(2)">Stride 2</button>
+    </div>
+
+    <div class="grid-display">
+      <div class="grid-wrap">
+        <div class="grid-label">Input feature map (6×6)</div>
+        <table class="pgrid" id="max-input"></table>
+      </div>
+      <div style="display:flex;align-items:center;font-size:18px;color:var(--text-tertiary);padding-top:24px">→</div>
+      <div class="grid-wrap">
+        <div class="grid-label" id="max-out-label">Output</div>
+        <table class="ogrid" id="max-output"></table>
+      </div>
+    </div>
+
+    <div class="calc-block" id="max-calc-block">
+      <div class="calc-block-label">Calculation — click any output cell</div>
+      <div id="max-calc-lines" style="color:var(--text-info)">Click an output cell above to see the calculation.</div>
+    </div>
+
+    <div id="max-size-insight" class="insight"></div>
+
+    <div class="insight warning">
+      <strong>Gradient note:</strong> During backpropagation, only the cell that produced the maximum receives the gradient. All other cells in the window receive a gradient of zero — they had no influence on the output, so the network does not adjust them for this pool window.
+    </div>
+  </div>
+
+  <!-- PART 3: Average pooling -->
+  <div class="card">
+    <h2 id="sec-avg">Average pooling — take the average signal</h2>
+    <p class="note"><strong>How it works:</strong> Same idea as max pooling — divide into windows — but instead of keeping the maximum, compute the <em>average</em> of all values in each window. Every cell contributes equally; no single value dominates.</p>
+
+    <div class="insight">
+      Average pooling is gentler than max pooling. It is better at preserving diffuse features — background texture, overall colour tone, gradual gradients — where no single pixel stands out but the average signal is meaningful.
+    </div>
+
+    <div class="eq-box">
+      AvgPool(i, j) = (1 / (p×p)) × Σ values in window at position i, j
+      <div class="eq-note">For a 2×2 window: AvgPool(i,j) = (f[2i][2j] + f[2i][2j+1] + f[2i+1][2j] + f[2i+1][2j+1]) / 4</div>
+    </div>
+
+    <div class="step-label">Interactive — same 6×6 input, now with average pooling. Click any output cell.</div>
+
+    <div class="grid-display">
+      <div class="grid-wrap">
+        <div class="grid-label">Input feature map (6×6)</div>
+        <table class="pgrid" id="avg-input"></table>
+      </div>
+      <div style="display:flex;align-items:center;font-size:18px;color:var(--text-tertiary);padding-top:24px">→</div>
+      <div class="grid-wrap">
+        <div class="grid-label">Output (3×3, 2×2 avg pool)</div>
+        <table class="ogrid" id="avg-output"></table>
+      </div>
+    </div>
+
+    <div class="calc-block" id="avg-calc-block">
+      <div class="calc-block-label">Calculation — click any output cell</div>
+      <div id="avg-calc-lines" style="color:var(--text-success)">Click an output cell above to see the calculation.</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="step-label">Max vs Average — same input, side by side</div>
+    <p class="note" style="margin-bottom:0.5rem">The same input produces different outputs. Max preserves the sharpest activations. Average smooths them.</p>
+
+    <div class="grid-display">
+      <div class="grid-wrap">
+        <div class="grid-label" style="color:var(--text-info)">Max pool output</div>
+        <table class="ogrid" id="cmp-max"></table>
+      </div>
+      <div class="grid-wrap">
+        <div class="grid-label" style="color:var(--text-success)">Average pool output</div>
+        <table class="ogrid" id="cmp-avg"></table>
+      </div>
+    </div>
+    <div id="avg-compare-insight" class="insight success"></div>
+  </div>
+
+  <!-- PART 4: Global average pooling -->
+  <div class="card">
+    <h2 id="sec-gap">Global average pooling — collapse the entire map</h2>
+    <p class="note"><strong>How it works:</strong> Instead of pooling small windows, average <em>every</em> value in the entire feature map into a single number. One feature map of any size → one scalar. 512 feature maps → 512 scalars.</p>
+
+    <div class="insight">
+      Global average pooling (GAP) is not a spatial compression step — it is a <strong>complete spatial collapse</strong>. It is used as the final step before the classification layer in modern CNNs, replacing the old Flatten + Dense approach.
+    </div>
+
+    <div class="eq-box">
+      GAP(channel k) = (1 / (H×W)) × Σ all values in feature map k
+      <div class="eq-note">H = height, W = width of the feature map. The result is one number per channel — the spatial average activation of that filter across the entire image.</div>
+    </div>
+
+    <div class="step-label">Why GAP instead of Flatten + Dense?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0.75rem">
+      <div style="background:var(--bg-danger);border-radius:var(--radius-md);padding:10px 12px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-danger);margin-bottom:4px">Old approach — Flatten + Dense</div>
+        <div style="font-size:12px;color:var(--text-danger);line-height:1.55">512 maps × 7×7 = <strong>25,088</strong> values → flatten to a 25,088-long vector → Dense layer with millions of parameters. Prone to overfitting. Input size must be fixed.</div>
+      </div>
+      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:10px 12px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-success);margin-bottom:4px">New approach — Global Average Pooling</div>
+        <div style="font-size:12px;color:var(--text-success);line-height:1.55">512 maps × 7×7 → one average per map → <strong>512</strong> values. Tiny, robust, works with any input size. Used in ResNet, MobileNet, EfficientNet.</div>
+      </div>
+    </div>
+
+    <div class="step-label">Interactive — edit any cell, watch the global average update live</div>
+    <p class="note" style="margin-bottom:0.5rem">This represents a single 4×4 feature map (channel k). Click any cell to edit its value (any value between 0 and 9).</p>
+
+    <div class="grid-display">
+      <div class="grid-wrap">
+        <div class="grid-label">Feature map (4×4) — click to edit</div>
+        <table class="pgrid" id="gap-input"></table>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding-top:10px">
+        <div style="font-size:11px;color:var(--text-tertiary)">GAP</div>
+        <div style="font-size:20px;color:var(--text-tertiary)">→</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+        <div class="grid-label">One scalar</div>
+        <div style="width:64px;height:64px;border-radius:var(--radius-md);background:var(--bg-info);border:1.5px solid var(--border-info);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:18px;font-weight:500;color:var(--text-info)" id="gap-result">—</div>
+        <div style="font-size:10px;color:var(--text-tertiary)">avg of 16 values</div>
+      </div>
+    </div>
+
+    <div class="calc-block">
+      <div class="calc-block-label">Calculation (mean over 16 values)</div>
+      <div id="gap-formula-line"  style="color:var(--text-info)"></div>
+      <div id="gap-values-line"   style="color:var(--text-info)"></div>
+      <div id="gap-result-line"   style="color:var(--text-info);font-weight:600"></div>
+    </div>
+
+    <div id="gap-insight" class="insight"></div>
+  </div>
+
+  <!-- PART 5: Comparing all three -->
+  <div class="card">
+    <h2 id="sec-compare">Comparing all three — live on the same input</h2>
+    <p class="note">Edit any cell in the 4×4 input grid below (any value between 0 and 9). All three pooling strategies update simultaneously — showing their outputs on the same data.</p>
+
+    <div class="grid-display">
+      <div class="grid-wrap">
+        <div class="grid-label">Shared input (4×4) — click to edit</div>
+        <table class="pgrid" id="cmp3-input"></table>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:0.75rem 0" id="cmp3-outputs">
+      <div style="text-align:center">
+        <div class="grid-label" style="color:var(--text-info)">Max Pool 2×2</div>
+        <table class="ogrid" id="cmp3-max" style="margin:0 auto"></table>
+        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px">Output: 2×2</div>
+      </div>
+      <div style="text-align:center">
+        <div class="grid-label" style="color:var(--text-success)">Average Pool 2×2</div>
+        <table class="ogrid" id="cmp3-avg" style="margin:0 auto"></table>
+        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px">Output: 2×2</div>
+      </div>
+      <div style="text-align:center">
+        <div class="grid-label" style="color:var(--text-warning)">Global Average Pool</div>
+        <div id="cmp3-gap-wrap" style="margin:0 auto;display:flex;justify-content:center;align-items:center;height:88px">
+          <div style="width:64px;height:64px;border-radius:var(--radius-md);background:var(--bg-warning);border:1.5px solid var(--border-warning);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:20px;font-weight:500;color:var(--text-warning)" id="cmp3-gap">—</div>
+        </div>
+        <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px">Output: 1 scalar</div>
+      </div>
+    </div>
+
+    <div class="step-label">Decision guide — which pooling to use</div>
+    <div class="decision-card">
+      <div class="dc-q">🎯 "I want to detect whether a feature is present anywhere in a region"</div>
+      <div class="dc-a"><strong style="color:var(--text-info)">Max pooling</strong> — keeps only the strongest activation. If the feature fires even once in the window, it survives. Ideal for edge detection, texture detection, sharp localised patterns.</div>
+    </div>
+    <div class="decision-card">
+      <div class="dc-q">🌊 "I want to measure the average intensity or texture across a region"</div>
+      <div class="dc-a"><strong style="color:var(--text-success)">Average pooling</strong> — every cell contributes equally. Preserves diffuse, spread-out signals. Sometimes used in attention mechanisms and in some branches of inception modules.</div>
+    </div>
+    <div class="decision-card">
+      <div class="dc-q">🏁 "I need one final summary number per channel before classification"</div>
+      <div class="dc-a"><strong style="color:var(--text-warning)">Global average pooling</strong> — completely collapses spatial dimensions. Modern default for the final reduction step. Used in ResNet, MobileNet, EfficientNet, and most architectures published after 2015.</div>
+    </div>
+  </div>
+
+  <!-- PART 6: Spatial compression numbers -->
+  <div class="card">
+    <h2 id="sec-compression">Spatial compression — the numbers</h2>
+    <p class="note">Every 2×2 max pool with stride 2 halves the height and width — quarter the spatial area. Through a typical CNN with multiple pooling stages, the feature map shrinks dramatically. See the exact numbers for a real architecture.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0.75rem">
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 12px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-primary);margin-bottom:4px">Parameters</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.55">The learned weights of the network — filter values, classifier weights, biases. Fixed per architecture, independent of input image size. Pooling does <em>not</em> directly reduce parameters.</div>
+      </div>
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 12px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-primary);margin-bottom:4px">Activations</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.55">The intermediate tensors — the feature map values flowing through the network during a forward pass. These depend on input size and grow with image resolution. Pooling directly reduces activations.</div>
+      </div>
+    </div>
+    <p class="note" style="margin-bottom:0.5rem">The table below tracks <strong>activations</strong> at each stage. Fewer activations per forward pass means less memory consumed per training step — allowing larger batch sizes, faster training, and making deep CNNs practical to train and deploy.</p>
+
+    <div class="step-label">Trace through a typical CNN — adjust the starting image size</div>
+    <div class="slider-row">
+      <span class="slider-name">Input image size</span>
+      <input type="range" id="sl-comp-size" min="32" max="256" step="32" value="224">
+      <span class="slider-val" id="lbl-comp-size">224</span>
+    </div>
+
+    <div style="overflow-x:auto;margin:0.75rem 0">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:7px 10px;background:var(--bg-secondary);color:var(--text-tertiary);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;border-bottom:0.5px solid var(--border-tertiary)">Stage</th>
+            <th style="text-align:left;padding:7px 10px;background:var(--bg-secondary);color:var(--text-tertiary);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;border-bottom:0.5px solid var(--border-tertiary)">Operation</th>
+            <th style="text-align:left;padding:7px 10px;background:var(--bg-secondary);color:var(--text-tertiary);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;border-bottom:0.5px solid var(--border-tertiary)">Spatial size</th>
+            <th style="text-align:left;padding:7px 10px;background:var(--bg-secondary);color:var(--text-tertiary);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;border-bottom:0.5px solid var(--border-tertiary)">Activations</th>
+            <th style="text-align:left;padding:7px 10px;background:var(--bg-secondary);color:var(--text-tertiary);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;border-bottom:0.5px solid var(--border-tertiary)">Reduction in activations</th>
+          </tr>
+        </thead>
+        <tbody id="comp-table-body"></tbody>
+      </table>
+    </div>
+
+    <div id="comp-insight" class="insight"></div>
+  </div>
+
+  <footer>
+    Built with <span style="color:var(--text-danger);font-size:18px;vertical-align:middle">♥</span> by
+    <a href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">Ancil Cleetus</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://ancilcleetus.github.io/AI-ML-Explainers/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">AI ML Explainers</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp; No external dependencies
+    &nbsp;&nbsp;·&nbsp;&nbsp; MIT License
+  </footer>
+
+</div>
+<script>
+const isDark = () => matchMedia('(prefers-color-scheme: dark)').matches;
+
+// ─── Shared 6×6 input data ────────────────────────────────────────────────────
+const INPUT6 = [
+  [6,2,3,1,4,2],
+  [1,7,0,4,2,5],
+  [8,0,5,2,3,1],
+  [3,1,2,9,1,4],
+  [2,4,7,3,6,0],
+  [5,1,0,2,4,8],
+];
+
+// Shared 4×4 input (editable)
+let DATA4_GAP = [
+  [4,2,7,1],
+  [3,8,0,5],
+  [6,1,4,2],
+  [9,3,1,6],
+];
+
+let DATA4_CMP = [
+  [4,2,7,1],
+  [3,8,0,5],
+  [6,1,4,2],
+  [9,3,1,6],
+];
+
+// ─── PART 1: Why pool slider ──────────────────────────────────────────────────
+function updateWhy() {
+  const sz  = +document.getElementById('sl-why-size').value;
+  const ch  = +document.getElementById('sl-why-ch').value;
+  document.getElementById('lbl-why-size').textContent = sz;
+  document.getElementById('lbl-why-ch').textContent   = ch;
+
+  const before = sz * sz * ch;
+  const outSz  = Math.floor(sz / 2);
+  const after  = outSz * outSz * ch;
+  const fmtN   = n => n.toLocaleString();
+
+  document.getElementById('why-before').textContent = fmtN(before);
+  document.getElementById('why-after').textContent  = fmtN(after);
+  document.getElementById('why-after').style.color  = 'var(--text-success)';
+
+  const ratio = (before / after).toFixed(1);
+  const ins   = document.getElementById('why-insight');
+  ins.className = 'insight';
+  ins.textContent = `A ${sz}×${sz} feature map with ${ch} channels has ${fmtN(before)} values. After one 2×2 max pool (stride 2), the output is ${outSz}×${outSz} — just ${fmtN(after)} values. That is a ${ratio}× reduction in a single step, with the channel count unchanged.`;
+}
+['sl-why-size','sl-why-ch'].forEach(id => document.getElementById(id).addEventListener('input', updateWhy));
+
+// ─── PART 2: Max pooling ──────────────────────────────────────────────────────
+let maxPoolSize = 2, maxStride = 1;
+let maxSelR = 0, maxSelC = 0;
+
+function setMaxPool(ps) {
+  maxPoolSize = ps;
+  ['2','3'].forEach(n => document.getElementById('btn-max-ps'+n).classList.toggle('active', n==ps));
+  renderMaxPool();
+}
+function setMaxStride(s) {
+  maxStride = s;
+  ['1','2'].forEach(n => document.getElementById('btn-max-s'+n).classList.toggle('active', n==s));
+  renderMaxPool();
+}
+
+function maxPoolOutput() {
+  const out = [];
+  const inSz = 6;
+  const outSz = Math.floor((inSz - maxPoolSize) / maxStride) + 1;
+  for (let r = 0; r < outSz; r++) {
+    out[r] = [];
+    for (let c = 0; c < outSz; c++) {
+      let mx = -Infinity;
+      for (let pr = 0; pr < maxPoolSize; pr++)
+        for (let pc = 0; pc < maxPoolSize; pc++) {
+          const ir = r*maxStride+pr, ic = c*maxStride+pc;
+          if (ir < inSz && ic < inSz) mx = Math.max(mx, INPUT6[ir][ic]);
+        }
+      out[r][c] = mx;
+    }
+  }
+  return out;
+}
+
+function renderMaxPool() {
+  const outData = maxPoolOutput();
+  const outSz   = outData.length;
+
+  // Input table — highlight window of selected output cell
+  const inp = document.getElementById('max-input');
+  inp.innerHTML = '';
+  INPUT6.forEach((row, r) => {
+    const tr = document.createElement('tr');
+    row.forEach((val, c) => {
+      const td = document.createElement('td');
+      td.textContent = val;
+      const inWindow = r >= maxSelR*maxStride && r < maxSelR*maxStride+maxPoolSize &&
+                       c >= maxSelC*maxStride && c < maxSelC*maxStride+maxPoolSize;
+      if (inWindow) td.className = 'hl-window';
+      tr.appendChild(td);
+    });
+    inp.appendChild(tr);
+  });
+
+  // Output table
+  const out = document.getElementById('max-output');
+  out.innerHTML = '';
+  outData.forEach((row, r) => {
+    const tr = document.createElement('tr');
+    row.forEach((val, c) => {
+      const td = document.createElement('td');
+      td.textContent = val;
+      if (r === maxSelR && c === maxSelC) td.className = 'hl-out';
+      td.style.cursor = 'pointer';
+      td.onclick = () => { maxSelR=r; maxSelC=c; renderMaxPool(); };
+      tr.appendChild(td);
+    });
+    out.appendChild(tr);
+  });
+
+  document.getElementById('max-out-label').textContent = `Output (${outSz}×${outSz})`;
+
+  // Calculation for selected cell
+  const vals = [];
+  for (let pr = 0; pr < maxPoolSize; pr++)
+    for (let pc = 0; pc < maxPoolSize; pc++) {
+      const ir = maxSelR*maxStride+pr, ic = maxSelC*maxStride+pc;
+      if (ir < 6 && ic < 6) vals.push({ r:ir, c:ic, v:INPUT6[ir][ic] });
+    }
+  const mx = Math.max(...vals.map(x=>x.v));
+  const winnerIdx = vals.findIndex(x=>x.v===mx);
+  const fmtVals = vals.map((x,i) => `${x.v}${i===winnerIdx?'*':''}`).join(', ');
+  document.getElementById('max-calc-lines').innerHTML =
+    `Window at output(${maxSelR},${maxSelC}): cells [${vals.map(x=>`(${x.r},${x.c})`).join(', ')}]<br>` +
+    `Values: max(${fmtVals}) = <strong>${mx}</strong>  (* = winner)`;
+
+  const ins = document.getElementById('max-size-insight');
+  ins.className = 'insight';
+  ins.textContent = `Pool ${maxPoolSize}×${maxPoolSize}, stride ${maxStride}: input 6×6 → output ${outSz}×${outSz}. ` +
+    `Output size = ⌊(6 − ${maxPoolSize}) / ${maxStride}⌋ + 1 = ${outSz}. ` +
+    (maxStride===2 && maxPoolSize===2 ? 'Non-overlapping windows — the standard setting in most CNNs.' :
+     maxStride===1 ? 'Overlapping windows (stride 1) — output is almost as large as the input. Less compression but more spatial detail.' :
+     'Large pool with stride 2 — aggressive compression.');
+}
+
+// ─── PART 3: Average pooling ─────────────────────────────────────────────────
+let avgSelR = 0, avgSelC = 0;
+
+function avgPoolOutput6() {
+  const out = [];
+  for (let r = 0; r < 3; r++) {
+    out[r] = [];
+    for (let c = 0; c < 3; c++) {
+      const vals = [INPUT6[r*2][c*2], INPUT6[r*2][c*2+1], INPUT6[r*2+1][c*2], INPUT6[r*2+1][c*2+1]];
+      out[r][c] = vals.reduce((s,v)=>s+v,0)/4;
+    }
+  }
+  return out;
+}
+
+function maxPoolOutput6_2x2() {
+  const out = [];
+  for (let r = 0; r < 3; r++) {
+    out[r] = [];
+    for (let c = 0; c < 3; c++) {
+      out[r][c] = Math.max(INPUT6[r*2][c*2], INPUT6[r*2][c*2+1], INPUT6[r*2+1][c*2], INPUT6[r*2+1][c*2+1]);
+    }
+  }
+  return out;
+}
+
+function renderAvgPool() {
+  const avgData = avgPoolOutput6();
+  const maxData = maxPoolOutput6_2x2();
+
+  // Input with highlighted window
+  const inp = document.getElementById('avg-input');
+  inp.innerHTML = '';
+  INPUT6.forEach((row, r) => {
+    const tr = document.createElement('tr');
+    row.forEach((val, c) => {
+      const td = document.createElement('td');
+      td.textContent = val;
+      const inW = r>=avgSelR*2 && r<avgSelR*2+2 && c>=avgSelC*2 && c<avgSelC*2+2;
+      if (inW) td.className = 'hl-avg';
+      tr.appendChild(td);
+    });
+    inp.appendChild(tr);
+  });
+
+  // Output
+  const out = document.getElementById('avg-output');
+  out.innerHTML = '';
+  avgData.forEach((row, r) => {
+    const tr = document.createElement('tr');
+    row.forEach((val, c) => {
+      const td = document.createElement('td');
+      td.textContent = val.toFixed(2);
+      if (r===avgSelR && c===avgSelC) td.className = 'hl-out';
+      td.style.cursor = 'pointer';
+      td.onclick = () => { avgSelR=r; avgSelC=c; renderAvgPool(); };
+      tr.appendChild(td);
+    });
+    out.appendChild(tr);
+  });
+
+  // Calculation
+  const r=avgSelR, c=avgSelC;
+  const vs = [INPUT6[r*2][c*2], INPUT6[r*2][c*2+1], INPUT6[r*2+1][c*2], INPUT6[r*2+1][c*2+1]];
+  const sm = vs.reduce((s,v)=>s+v,0);
+  document.getElementById('avg-calc-lines').innerHTML =
+    `Window at output(${r},${c}): cells (${r*2},${c*2}), (${r*2},${c*2+1}), (${r*2+1},${c*2}), (${r*2+1},${c*2+1})<br>` +
+    `Values: (${vs.join(' + ')}) / 4 = ${sm} / 4 = <strong>${(sm/4).toFixed(2)}</strong>`;
+
+  // Comparison grids
+  const cmpMax = document.getElementById('cmp-max');
+  cmpMax.innerHTML = '';
+  maxData.forEach(row => {
+    const tr = document.createElement('tr');
+    row.forEach(v => { const td=document.createElement('td'); td.textContent=v; td.style.color='var(--text-info)'; tr.appendChild(td); });
+    cmpMax.appendChild(tr);
+  });
+
+  const cmpAvg = document.getElementById('cmp-avg');
+  cmpAvg.innerHTML = '';
+  avgData.forEach(row => {
+    const tr = document.createElement('tr');
+    row.forEach(v => { const td=document.createElement('td'); td.textContent=v.toFixed(2); td.style.color='var(--text-success)'; tr.appendChild(td); });
+    cmpAvg.appendChild(tr);
+  });
+
+  // Compare insight
+  const maxVals = maxData.flat(), avgVals = avgData.flat();
+  const maxRange = Math.max(...maxVals) - Math.min(...maxVals);
+  const avgRange = Math.max(...avgVals) - Math.min(...avgVals);
+  const ins = document.getElementById('avg-compare-insight');
+  ins.className = 'insight success';
+  ins.textContent = `Max pool output range: ${Math.min(...maxVals).toFixed(0)} – ${Math.max(...maxVals).toFixed(0)} (spread = ${maxRange.toFixed(0)}). ` +
+    `Average pool output range: ${Math.min(...avgVals).toFixed(2)} – ${Math.max(...avgVals).toFixed(2)} (spread = ${avgRange.toFixed(2)}). ` +
+    `Max pooling preserves extreme values. Average pooling compresses the range — all outputs lie between the min and max of the window.`;
+}
+
+// ─── PART 4: Global average pooling ──────────────────────────────────────────
+function makeGapGrid() {
+  const tbl = document.getElementById('gap-input');
+  tbl.innerHTML = '';
+  DATA4_GAP.forEach((row, r) => {
+    const tr = document.createElement('tr');
+    row.forEach((val, c) => {
+      const td = document.createElement('td');
+      td.textContent = val;
+      td.onclick = () => {
+        const nv = parseInt(prompt(`Enter new value (0–9) for cell (${r},${c}):`, val), 10);
+        if (!isNaN(nv) && nv >= 0 && nv <= 9) { DATA4_GAP[r][c] = nv; renderGAP(); }
+      };
+      tr.appendChild(td);
+    });
+    tbl.appendChild(tr);
+  });
+}
+
+function renderGAP() {
+  makeGapGrid();
+  const vals = DATA4_GAP.flat();
+  const n    = vals.length;
+  const sum  = vals.reduce((s,v)=>s+v,0);
+  const avg  = sum / n;
+
+  document.getElementById('gap-result').textContent = avg.toFixed(2);
+  document.getElementById('gap-formula-line').textContent =
+    `GAP = (${vals.join(' + ')}) / ${n}`;
+  document.getElementById('gap-values-line').textContent =
+    `    = ${sum} / ${n}`;
+  document.getElementById('gap-result-line').textContent =
+    `    = ${avg.toFixed(4)}`;
+
+  const ins = document.getElementById('gap-insight');
+  ins.className = 'insight';
+  ins.textContent = `This 4×4 feature map (16 values) collapses to a single number: ${avg.toFixed(4)}. ` +
+    `In a real CNN with 512 such feature maps, GAP produces a 512-element vector — one scalar per channel — that the final classifier uses directly.`;
+}
+
+// ─── PART 5: Three-way comparison ────────────────────────────────────────────
+function makeCmp3Grid() {
+  const tbl = document.getElementById('cmp3-input');
+  tbl.innerHTML = '';
+  DATA4_CMP.forEach((row, r) => {
+    const tr = document.createElement('tr');
+    row.forEach((val, c) => {
+      const td = document.createElement('td');
+      td.textContent = val;
+      td.onclick = () => {
+        const nv = parseInt(prompt(`New value (0–9) for cell (${r},${c}):`, val), 10);
+        if (!isNaN(nv) && nv >= 0 && nv <= 9) { DATA4_CMP[r][c] = nv; renderCmp3(); }
+      };
+      tr.appendChild(td);
+    });
+    tbl.appendChild(tr);
+  });
+}
+
+function renderCmp3() {
+  makeCmp3Grid();
+  const d = DATA4_CMP;
+
+  // Max 2×2 output
+  const maxOut = [[0,0],[0,0]];
+  for (let r=0;r<2;r++) for (let c=0;c<2;c++)
+    maxOut[r][c] = Math.max(d[r*2][c*2], d[r*2][c*2+1], d[r*2+1][c*2], d[r*2+1][c*2+1]);
+
+  const mTbl = document.getElementById('cmp3-max');
+  mTbl.innerHTML = '';
+  maxOut.forEach(row => {
+    const tr=document.createElement('tr');
+    row.forEach(v => { const td=document.createElement('td'); td.textContent=v; td.style.color='var(--text-info)'; tr.appendChild(td); });
+    mTbl.appendChild(tr);
+  });
+
+  // Avg 2×2 output
+  const avgOut = [[0,0],[0,0]];
+  for (let r=0;r<2;r++) for (let c=0;c<2;c++)
+    avgOut[r][c] = (d[r*2][c*2]+d[r*2][c*2+1]+d[r*2+1][c*2]+d[r*2+1][c*2+1])/4;
+
+  const aTbl = document.getElementById('cmp3-avg');
+  aTbl.innerHTML = '';
+  avgOut.forEach(row => {
+    const tr=document.createElement('tr');
+    row.forEach(v => { const td=document.createElement('td'); td.textContent=v.toFixed(2); td.style.color='var(--text-success)'; tr.appendChild(td); });
+    aTbl.appendChild(tr);
+  });
+
+  // GAP
+  const vals = d.flat();
+  const gap  = vals.reduce((s,v)=>s+v,0)/vals.length;
+  document.getElementById('cmp3-gap').textContent = gap.toFixed(2);
+}
+
+// ─── PART 6: Compression table ───────────────────────────────────────────────
+function updateCompression() {
+  const imgSz = +document.getElementById('sl-comp-size').value;
+  document.getElementById('lbl-comp-size').textContent = imgSz;
+
+  const stages = [
+    { label:'Input image',  op:'—',            ch:3   },
+    { label:'After Conv 1', op:'Conv 3→64',     ch:64  },
+    { label:'After Pool 1', op:'MaxPool 2×2',  ch:64  },
+    { label:'After Conv 2', op:'Conv 64→128',   ch:128 },
+    { label:'After Pool 2', op:'MaxPool 2×2',  ch:128 },
+    { label:'After Conv 3', op:'Conv 128→256',  ch:256 },
+    { label:'After Pool 3', op:'MaxPool 2×2',  ch:256 },
+    { label:'After GAP',    op:'Global Avg Pool', ch:256},
+  ];
+
+  const sizes = [imgSz];
+  // Conv keeps size (padding=1), pool halves
+  for (let i=1; i<stages.length-1; i++) {
+    sizes.push(stages[i].op.startsWith('MaxPool') ? Math.floor(sizes[i-1]/2) : sizes[i-1]);
+  }
+  sizes.push(1); // GAP
+
+  const inputVals = imgSz * imgSz * 3;
+  const tbody = document.getElementById('comp-table-body');
+  tbody.innerHTML = stages.map((s,i) => {
+    const sp   = sizes[i];
+    const vals = sp * sp * s.ch;
+    const reduc = i===0 ? '—' : `${Math.ceil((inputVals/vals)*100)/100}×`;
+    const color = i===0?'':vals<inputVals/8?'color:var(--text-success);font-weight:500':'';
+    return `<tr>
+      <td style="padding:7px 10px;border-bottom:0.5px solid var(--border-tertiary);font-weight:${i===0?500:400}">${s.label}</td>
+      <td style="padding:7px 10px;border-bottom:0.5px solid var(--border-tertiary);font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary)">${s.op}</td>
+      <td style="padding:7px 10px;border-bottom:0.5px solid var(--border-tertiary);font-family:var(--font-mono)">${sp===1?'1×1 (collapsed)':sp+'×'+sp}</td>
+      <td style="padding:7px 10px;border-bottom:0.5px solid var(--border-tertiary);font-family:var(--font-mono);${color}">${vals.toLocaleString()}</td>
+      <td style="padding:7px 10px;border-bottom:0.5px solid var(--border-tertiary);font-family:var(--font-mono);${color}">${reduc}</td>
+    </tr>`;
+  }).join('');
+
+  const finalVals = 256;
+  const ins = document.getElementById('comp-insight');
+  const poolReduction = Math.ceil((inputVals / (sizes[6]*sizes[6]*256))*100)/100;
+  const gapReduction  = Math.ceil((inputVals / 256)*100)/100;
+  ins.className = 'insight success';
+  ins.textContent = `Starting from a ${imgSz}×${imgSz} image (${(imgSz*imgSz*3).toLocaleString()} activations), ` +
+    `three max pooling stages reduce activations ${poolReduction}× — from ${(imgSz*imgSz*3).toLocaleString()} down to ${(sizes[6]*sizes[6]*256).toLocaleString()}. ` +
+    `Global average pooling then collapses the remaining spatial dimensions entirely, ` +
+    `reducing activations a further ${Math.ceil(((sizes[6]*sizes[6]*256)/256)*100)/100}× to just 256 — ` +
+    `a ${gapReduction}× total reduction from input. ` +
+    `Fewer activations per forward/backward pass means less memory per training step, enabling larger batch sizes and making deep CNNs practical to train.`;
+}
+document.getElementById('sl-comp-size').addEventListener('input', updateCompression);
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+function initAll() {
+  updateWhy();
+  renderMaxPool();
+  renderAvgPool();
+  renderGAP();
+  renderCmp3();
+  updateCompression();
+}
+
+initAll();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', initAll);
+</script>
+</body>
+</html>
