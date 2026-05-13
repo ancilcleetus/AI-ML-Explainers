@@ -110,15 +110,7 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">1</div>
-        <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/how_machines_learned_to_see_explainer.html" target="_blank" rel="noopener">How Machines Learned to See Explainer ↗</a></div>
-          <div class="row-concept">Two paradigms of computer vision, CNN local feature extraction vs ViT global attention, receptive field intuition, CNN and ViT processing pipelines, CNN vs ViT summary</div>
-        </div>
-        <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
-      </div>
-      <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">2</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">1</div>
         <div class="row-body">
           <div class="row-title">Classical Computer Vision — Hand-Crafted Features Explainer</div>
           <div class="row-concept">How computer vision worked before anyone trained a neural network. Edge detection from first principles — the Sobel and Canny operators as carefully-designed convolution kernels (forward pointer to the same operation as a learned filter). Corner detection with the Harris detector and the intuition of "interesting points" in an image. The SIFT descriptor explained step by step — scale-space pyramid, keypoint localisation, orientation assignment, the 128-dimensional descriptor vector — with an interactive demo computing SIFT features on a small image and matching them between two views. HOG (Histogram of Oriented Gradients) as the gradient-histogram descriptor that powered pedestrian detection. Color histograms and texture descriptors as global features. Why these worked, why they hit a ceiling, and why a learned hierarchy of features eventually replaced them.</div>
@@ -126,12 +118,20 @@
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">3</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">2</div>
         <div class="row-body">
           <div class="row-title">Classical ML Pipelines &amp; Viola-Jones — Real-Time CV Before Deep Learning Explainer</div>
           <div class="row-concept">How hand-crafted features combined with classical machine learning to build the first practical CV systems. The classical pipeline architecture — feature extraction (SIFT / HOG from Explainer #2) → bag-of-visual-words quantisation → SVM or Random Forest classifier — illustrated as a flow diagram with each stage's role. A worked example training a HOG + Linear SVM pedestrian detector with the data flow visualised. Then the Viola-Jones face detector in depth, since it's the canonical "real-time CV worked before deep learning" example: Haar-like features as fast convolution approximations, integral images for O(1) rectangle-sum computation with an interactive demo, AdaBoost as a feature-selection mechanism, the attention cascade that rejects most non-faces in microseconds, and why this enabled the first webcam face detection circa 2001. A closing comparison of classical pipelines vs the end-to-end learned features that took over from 2012 onward.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">3</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/how_machines_learned_to_see_explainer.html" target="_blank" rel="noopener">How Machines Learned to See Explainer ↗</a></div>
+          <div class="row-concept">Two paradigms of computer vision, CNN local feature extraction vs ViT global attention, receptive field intuition, CNN and ViT processing pipelines, CNN vs ViT summary</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
     </div>
   </div>
@@ -156,16 +156,16 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">5</div>
         <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/building_CNNs_explainer.html" target="_blank" rel="noopener">Building CNNs Explainer ↗</a></div>
-          <div class="row-concept">Feature hierarchy, ReLU, max pooling, full CNN pipeline, PyTorch code walkthrough, landmark model lineage, locality limitation, CNN vs ViT illustration</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/pooling_strategies_explainer.html" target="_blank" rel="noopener">Pooling Strategies Explainer ↗</a></div>
+          <div class="row-concept">Max pooling, average pooling, global average pooling, spatial compression, translation invariance</div>
         </div>
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">6</div>
         <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/pooling_strategies_explainer.html" target="_blank" rel="noopener">Pooling Strategies Explainer ↗</a></div>
-          <div class="row-concept">Max pooling, average pooling, global average pooling, spatial compression, translation invariance</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/building_CNNs_explainer.html" target="_blank" rel="noopener">Building CNNs Explainer ↗</a></div>
+          <div class="row-concept">Feature hierarchy, ReLU, max pooling, full CNN pipeline, PyTorch code walkthrough, landmark model lineage, locality limitation, CNN vs ViT illustration</div>
         </div>
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
