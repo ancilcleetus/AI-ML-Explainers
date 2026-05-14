@@ -193,7 +193,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">8</div>
         <div class="row-body">
-          <div class="row-title">Loss Landscape &amp; Gradient Descent — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Loss-Landscape-and-Gradient-Descent-Explainer.html" target="_blank" rel="noopener">Loss Landscape &amp; Gradient Descent — Interactive Explainer ↗</a></div>
           <div class="row-concept">What it means to minimise a loss as a function of weights. The 1D loss curve, the 2D loss surface as an interactive contour map, gradient as the direction of steepest ascent, the weight update rule w ← w − η·∂L/∂w with step-by-step trace, the learning rate effect with three side-by-side simulations (too small → crawling, too large → diverging, just right → converging), local minima vs saddle points vs the global minimum, why high-dimensional loss landscapes are kinder than they look, a momentum preview that motivates the next subcategory, and a runnable PyTorch snippet showing manual gradient descent on a single parameter.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -201,7 +201,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">9</div>
         <div class="row-body">
-          <div class="row-title">Mini-Batch Gradient Descent &amp; Batch Size — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Mini-Batch-Gradient-Descent-and-Batch-Size-Explainer.html" target="_blank" rel="noopener">Mini-Batch Gradient Descent &amp; Batch Size — Interactive Explainer ↗</a></div>
           <div class="row-concept">Why we don't compute gradients on the full dataset. Batch GD vs Stochastic GD vs Mini-Batch GD with an interactive trajectory comparison on a 2D loss landscape, gradient noise as an implicit regulariser, the bias–variance trade-off of batch size, the large-batch generalisation gap with a live loss-curve demo, GPU memory as the practical ceiling, batch size as a hyperparameter you tune, and a consolidated PyTorch reference using DataLoader(batch_size=…).</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -213,7 +213,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">10</div>
         <div class="row-body">
-          <div class="row-title">Optimizers — From SGD to AdamW — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Optimizers-From-SGD-to-AdamW-Explainer.html" target="_blank" rel="noopener">Optimizers — From SGD to AdamW — Interactive Explainer ↗</a></div>
           <div class="row-concept">Why plain SGD struggles and how each optimizer fixes a specific failure mode. SGD baseline, SGD with Momentum (ball-rolling-downhill analogy with velocity vector visualisation), Nesterov momentum (look-ahead), RMSProp (per-parameter adaptive LR using gradient-magnitude history), Adam (momentum + RMSProp + bias correction with the math derived), AdamW (the decoupled weight-decay fix), an interactive side-by-side race on a 2D loss landscape with pathological curvature, a decision guide for when to use each, and a consolidated PyTorch reference covering torch.optim.SGD, Adam, and AdamW with sensible default hyperparameters.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -225,7 +225,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">11</div>
         <div class="row-body">
-          <div class="row-title">Chain Rule &amp; Computation Graphs — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Chain-Rule-and-Computation-Graphs-Explainer.html" target="_blank" rel="noopener">Chain Rule &amp; Computation Graphs — Interactive Explainer ↗</a></div>
           <div class="row-concept">The calculus that makes backprop possible, taught from zero. The chain rule from first principles with single-variable then multi-variable examples, a computation graph as a DAG of operations, forward pass annotating each node with its value, backward pass annotating each node with its local gradient, a click-a-node-to-see-gradient interactive graph for a simple expression like f = (a + b) · c, the multivariable chain rule with branching paths, and why this scales to networks with millions of parameters. No PyTorch yet — pure mechanism.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -233,7 +233,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">12</div>
         <div class="row-body">
-          <div class="row-title">Backward Pass on a Single Neuron — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Backward-Pass-on-a-Single-Neuron-Explainer.html" target="_blank" rel="noopener">Backward Pass on a Single Neuron — Interactive Explainer ↗</a></div>
           <div class="row-concept">Hand-worked numerical gradients for one neuron, end to end. Setup: a single neuron with two inputs, weights, bias, sigmoid activation, MSE loss against a target. Forward pass with every intermediate value computed. Backward pass with every gradient computed step by step — ∂L/∂ŷ, then ∂ŷ/∂z (the activation derivative from Explainer #3), then ∂z/∂w, ∂z/∂b, ∂z/∂x — composed via the chain rule into ∂L/∂w, ∂L/∂b, ∂L/∂x. The delta rule emerges naturally. One weight-update step at a finite learning rate. Interactive: change inputs, weights, or target and watch every gradient recompute live. Sanity check using numerical (finite-difference) gradients.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -241,7 +241,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">13</div>
         <div class="row-body">
-          <div class="row-title">Full-Network Backpropagation &amp; Autograd — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Full-Network-Backpropagation-and-Autograd-Explainer.html" target="_blank" rel="noopener">Full-Network Backpropagation &amp; Autograd — Interactive Explainer ↗</a></div>
           <div class="row-concept">Backprop across a real network plus the PyTorch machinery that automates it. A 2-layer MLP worked layer by layer — forward pass computing all activations, backward pass propagating gradients from loss back to input (δ at the output layer, δ pulled back through the weight matrix with the transpose, per-layer weight and bias gradients accumulated). Gradient accumulation across a mini-batch, a numerical-gradient check confirming the analytical gradients match. Then PyTorch autograd — requires_grad=True, the dynamic computation graph built during forward, .backward() triggering the reverse traversal, .grad attributes, torch.no_grad() for inference, and why optimizer.zero_grad() is necessary. Interactive visualisation of a tiny autograd graph.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -262,7 +262,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">14</div>
         <div class="row-body">
-          <div class="row-title">Vanishing &amp; Exploding Gradients — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Vanishing-and-Exploding-Gradients-Explainer.html" target="_blank" rel="noopener">Vanishing &amp; Exploding Gradients — Interactive Explainer ↗</a></div>
           <div class="row-concept">Why deep networks fail to train and how to diagnose it. The compounding effect of multiplying many small (or large) numbers, sigmoid/tanh saturation regions producing tiny gradients (callback to Explainer #3), an interactive depth slider showing gradient-norm decay layer-by-layer for sigmoid vs ReLU networks, the exploding case with a live diverging loss curve, gradient clipping (torch.nn.utils.clip_grad_norm_) with before/after visualisation, why ReLU partly solves vanishing but not exploding, and a preview of the two structural fixes coming next — good initialisation and normalisation.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -270,7 +270,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">15</div>
         <div class="row-body">
-          <div class="row-title">Weight Initialization — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Weight-Initialization-Explainer.html" target="_blank" rel="noopener">Weight Initialization — Interactive Explainer ↗</a></div>
           <div class="row-concept">Why where you start determines whether you can train at all. Zero-init failure visualised as symmetry that backprop cannot break, naive Gaussian init with the wrong variance producing either vanishing or exploding forward activations, the goal of "preserve activation variance across layers" stated as the principle, Xavier/Glorot init derived for sigmoid/tanh, He/Kaiming init derived for ReLU, an interactive visualiser showing the histogram of activations at every layer for a 10-layer network under different init schemes, the empirical impact on early training loss curves, and a PyTorch reference using nn.init.xavier_normal_, nn.init.kaiming_normal_ and what PyTorch's default init actually does for each layer type.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -282,7 +282,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">16</div>
         <div class="row-body">
-          <div class="row-title">Batch Normalization — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Batch-Normalization-Explainer.html" target="_blank" rel="noopener">Batch Normalization — Interactive Explainer ↗</a></div>
           <div class="row-concept">Stabilising activations to make deep networks trainable. The internal-covariate-shift motivation (and the modern "smoother loss landscape" reinterpretation), the BN equation — normalise each feature across the mini-batch to mean 0 / variance 1, then scale by γ and shift by β (both learnable so the network can undo the normalisation if needed), interactive visualisation of activation distributions before vs after BN, the train/eval-mode difference with running statistics, BN's effect on gradient flow and LR tolerance demonstrated with a side-by-side loss curve, the BN-before-or-after-activation debate noted briefly, a preview of LayerNorm / GroupNorm and why they matter for the Transformers explainers to come, and a PyTorch reference using nn.BatchNorm1d and nn.BatchNorm2d.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -290,7 +290,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">17</div>
         <div class="row-body">
-          <div class="row-title">Dropout &amp; Weight Decay — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Dropout-and-Weight-Decay-Explainer.html" target="_blank" rel="noopener">Dropout &amp; Weight Decay — Interactive Explainer ↗</a></div>
           <div class="row-concept">Two complementary regularisers that improve generalisation. Dropout — the stochastic masking mechanism, the inverted-dropout scaling trick, the "ensemble of subnetworks" interpretation, train-vs-eval mode behaviour, and an interactive demo on a small network showing the train/test gap shrink as dropout rate increases. Weight decay — L2 regularisation derived from a Bayesian prior, the gradient-update equation showing weight decay as shrinkage, why L2 and weight-decay-as-applied-in-Adam differ (the AdamW story from Explainer #10 revisited), and an interactive plot of weight magnitudes over training with vs without weight decay. PyTorch reference covering nn.Dropout, the weight_decay parameter in optimizers, and AdamW.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -298,7 +298,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">18</div>
         <div class="row-body">
-          <div class="row-title">Overfitting &amp; Generalization — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Overfitting-and-Generalization-Explainer.html" target="_blank" rel="noopener">Overfitting &amp; Generalization — Interactive Explainer ↗</a></div>
           <div class="row-concept">What overfitting actually looks like and how to see it coming. Live training-vs-validation loss curves diverging in real time as a small network memorises a tiny dataset, the bias–variance trade-off with the classic U-curve, the capacity-vs-data axis (more data → less overfitting; more capacity → more overfitting), early stopping as a regulariser with the moment-of-divergence highlighted on the curve, a brief preview of data augmentation as another regulariser, and a consolidated diagnostic checklist — "your validation loss is going up, here's what to try in priority order" — pulling from Explainers #15, #16, and #17.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -316,7 +316,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">19</div>
         <div class="row-body">
-          <div class="row-title">From Neuron to Network — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/From-Neuron-to-Network-Explainer.html" target="_blank" rel="noopener">From Neuron to Network — Interactive Explainer ↗</a></div>
           <div class="row-concept">The conceptual leap from one neuron to a full network. One neuron (callback to Explainer #1) → a layer of parallel neurons sharing inputs → the layer as a single weight-matrix multiplication (callback to Explainer #2 — the batched matmul view), input vs hidden vs output layers, fully-connected (dense) layers, the depth-vs-width trade-off with intuition for each, a parameter-count calculator that shows total params as you adjust layer sizes, and an interactive network builder where you stack layers, see the shape transformations live, and run a forward pass through your custom architecture.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -324,7 +324,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">20</div>
         <div class="row-body">
-          <div class="row-title">Universal Approximation Theorem — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Universal-Approximation-Theorem-Explainer.html" target="_blank" rel="noopener">Universal Approximation Theorem — Interactive Explainer ↗</a></div>
           <div class="row-concept">What it really says, what it doesn't, and why depth wins anyway. The theorem stated plainly — a single-hidden-layer network with enough neurons can approximate any continuous function to arbitrary precision. The crucial caveats — this is an existence result, not a learnability result; "enough neurons" might mean exponentially many; nothing about how to find the weights. An interactive demo where the user picks a target function (sine, step, spiral boundary) and watches a 1-hidden-layer network with adjustable width fit it by combining sigmoid or ReLU "bumps." Then the punchline — why deep narrow networks generalise and optimise better than shallow wide ones in practice, with a side-by-side comparison.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -342,7 +342,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">21</div>
         <div class="row-body">
-          <div class="row-title">Training Loop &amp; Convergence — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Training-Loop-and-Convergence-Explainer.html" target="_blank" rel="noopener">Training Loop &amp; Convergence — Interactive Explainer ↗</a></div>
           <div class="row-concept">The conceptual loop, language-agnostic, before any code. Epochs vs steps vs iterations defined precisely, the loop body (forward → loss → backward → update → repeat), train/validation/test split with the rationale for each, the loss curve as the primary diagnostic tool, recognising convergence vs divergence vs plateau vs overfitting from the curve shape (with a four-panel diagnostic gallery), when and why to stop training. Interactive: scrub through a recorded training run frame by frame, watching the decision boundary evolve alongside the loss curve.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -350,7 +350,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">22</div>
         <div class="row-body">
-          <div class="row-title">PyTorch Training Loop in Practice — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/PyTorch-Training-Loop-Explainer.html" target="_blank" rel="noopener">PyTorch Training Loop in Practice — Interactive Explainer ↗</a></div>
           <div class="row-concept">The conceptual loop translated into idiomatic PyTorch. The five-line loop body — optimizer.zero_grad(), outputs = model(x), loss = criterion(outputs, y), loss.backward(), optimizer.step() — with line-by-line explanation of what each call does to the autograd graph and the parameters (callback to Explainer #13). model.train() vs model.eval() and why it matters for Dropout and BN (callbacks to #16, #17). torch.no_grad() for evaluation. DataLoader with batch_size, shuffle, num_workers. The complete, runnable training scaffold the learner can copy and adapt. Common pitfalls — forgetting zero_grad, computing loss outside the graph, evaluating in train mode.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -368,7 +368,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">23</div>
         <div class="row-body">
-          <div class="row-title">Learning Rate Schedules — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Learning-Rate-Schedules-Explainer.html" target="_blank" rel="noopener">Learning Rate Schedules — Interactive Explainer ↗</a></div>
           <div class="row-concept">How LR should change during training. Constant LR (baseline), step decay, exponential decay, cosine annealing, linear warmup + cosine (the modern default — explained), cyclical LR, 1cycle policy, ReduceLROnPlateau — each visualised as a schedule curve with a side-by-side live loss simulation showing how the curve shape affects convergence. Why warmup helps with large batch sizes and Adam. A decision guide. PyTorch reference using torch.optim.lr_scheduler.CosineAnnealingLR, OneCycleLR, and the scheduler.step() placement in the training loop.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -376,7 +376,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">24</div>
         <div class="row-body">
-          <div class="row-title">Hyperparameter Tuning — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Hyperparameter-Tuning-Explainer.html" target="_blank" rel="noopener">Hyperparameter Tuning — Interactive Explainer ↗</a></div>
           <div class="row-concept">Which hyperparameters matter, in what order, and how to search. The hyperparameter sensitivity hierarchy (LR ≫ batch size ≈ weight decay > network depth > everything else), a sensible-defaults table for getting a baseline running, grid search vs random search with a 2D visualisation showing why random wins when only some dimensions matter, Bayesian optimisation with intuitive explanation of the surrogate-model idea, the LR finder technique (Leslie Smith) with an interactive demo — train for a few steps while exponentially increasing LR, plot loss vs LR, pick the LR where loss decreases fastest. A practical tuning recipe.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -394,7 +394,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">25</div>
         <div class="row-body">
-          <div class="row-title">Evaluation Metrics for Classification — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Evaluation-Metrics-for-Classification-Explainer.html" target="_blank" rel="noopener">Evaluation Metrics for Classification — Interactive Explainer ↗</a></div>
           <div class="row-concept">Why accuracy alone misleads and what to use instead. The confusion matrix as the source of all metrics, an interactive confusion matrix where you drag the decision threshold and watch precision / recall / F1 update live, the precision–recall trade-off explained intuitively (spam filter vs cancer screening), F1 as the harmonic mean and when it's the right summary, the ROC curve traced out as threshold sweeps with AUC interpretation, the PR curve as the imbalance-aware alternative to ROC, class-imbalance failure modes (the 99%-accurate fraud detector that predicts "no fraud"), macro vs micro vs weighted averaging for multiclass, and a brief reference for regression metrics (MAE, RMSE, R²) since the capstone may use either. PyTorch and sklearn snippets for each metric.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -406,13 +406,13 @@
   <div class="section">
     <div class="section-header">
       <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Capstone</span>
-      <span class="section-title">Capstone — MLP Worked Example</span>
+      <span class="section-title">Deep Learning Capstone — MLP Worked Example</span>
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">26</div>
         <div class="row-body">
-          <div class="row-title">MLP Worked Example — End-to-End Training — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/MLP-Worked-Example-Training-Explainer.html" target="_blank" rel="noopener">MLP Worked Example — End-to-End Training — Interactive Explainer ↗</a></div>
           <div class="row-concept">Everything from Categories 1–6 brought together on one real task. A small MLP solving the Iris classification problem (4 features, 3 classes — perfect for showing multi-class softmax + cross-entropy in action), built from scratch using nn.Sequential — input layer → hidden layer with ReLU → output layer → CrossEntropyLoss → Adam. Step-by-step — data loading and the train/val/test split, model architecture choice motivated by Explainer #19, loss and optimizer choice motivated by #7 and #10, the training loop from #22 running live in the browser (or showing a recorded run frame-by-frame), a 2D scatter of the two most discriminative features (petal length × petal width) with the decision boundary projected onto that plane plus a parallel-coordinates view of all 4 features, the validation loss tracked for early stopping, and the final trained model. Full runnable code at the bottom.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
@@ -420,7 +420,7 @@
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">27</div>
         <div class="row-body">
-          <div class="row-title">MLP Worked Example — Tuning, Evaluation &amp; Deployment — Interactive Explainer ↗</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/MLP-Worked-Example-Hyperparameter-Tuning-Evaluation-Deployment-Explainer.html" target="_blank" rel="noopener">MLP Worked Example — Hyperparameter Tuning, Evaluation &amp; Deployment — Interactive Explainer ↗</a></div>
           <div class="row-concept">Picking up from #26's trained Iris model — how to make it good and how to ship it. The LR finder (from #24) run on this specific problem with the chosen LR justified, a small hyperparameter sweep with results visualised (random search over LR, hidden size, weight decay), the cosine schedule from #23 added with the before/after improvement shown, full evaluation on the held-out test set using every metric from #25 (confusion matrix, precision / recall / F1, ROC), and error analysis on misclassified examples. Then deployment — torch.save and torch.load for the state dict, the difference between saving the state dict vs the whole model, TorchScript export with torch.jit.script and why you'd use it, a brief ONNX mention for cross-framework deployment, and a tiny inference demo with 4 sliders (sepal length, sepal width, petal length, petal width) where the user adjusts values and watches the predicted class and softmax probabilities update live.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
