@@ -7,6 +7,7 @@ Interactive visual explainers for AI/ML — from absolute basics to advanced top
 - Computer Vision
 - Natural Language Processing (NLP)
 - Generative AI
+- Deployment
 - And beyond 🚀
 
 ![rainbow](assets/rainbow-divider.png)
@@ -19,6 +20,7 @@ Interactive visual explainers for AI/ML — from absolute basics to advanced top
 - [Computer Vision](#-computer-vision)
 - [Natural Language Processing](#-natural-language-processing)
 - [Generative AI](#-generative-ai)
+- [Deployment](#-deployment)
 - [Miscellaneous](#-miscellaneous)
 
 ![rainbow](assets/rainbow-divider.png)
@@ -34,6 +36,7 @@ Detailed explainer roadmaps for each area:
 | 🔵 Computer Vision | Coming soon | — |
 | 🟡 Natural Language Processing | Coming soon | — |
 | 🟣 Generative AI | Coming soon | — |
+| 🟠 Deployment | Coming soon | — |
 
 ![rainbow](assets/rainbow-divider.png)
 
@@ -84,7 +87,10 @@ Coming soon 🔜
 
 ![rainbow](assets/rainbow-divider.png)
 
-## 🟠 Miscellaneous
+## 🟠 Deployment
+Coming soon 🔜
+
+## 🟤 Miscellaneous
 Coming soon 🔜
 
 ![rainbow](assets/rainbow-divider.png)

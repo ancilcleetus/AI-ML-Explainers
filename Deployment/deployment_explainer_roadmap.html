@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deployment — Interactive Explainers — Roadmap</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #ffffff; --bg-secondary: #f5f4f0; --bg-tertiary: #eeece6;
+      --bg-info: #e6f1fb; --bg-success: #e1f5ee; --bg-warning: #faeeda; --bg-danger: #fcebeb; --bg-architecture: #ede7f9;
+      --text-primary: #1a1a18; --text-secondary: #5f5e5a; --text-tertiary: #888780;
+      --text-info: #185fa5; --text-success: #0f6e56; --text-warning: #854f0b; --text-danger: #a32d2d; --text-architecture: #5a3a9c;
+      --border-tertiary: rgba(0,0,0,0.12); --border-secondary: rgba(0,0,0,0.22);
+      --border-info: #85b7eb; --border-success: #5dcaa5; --border-warning: #ef9f27;
+      --radius-md: 8px; --radius-lg: 12px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1a; --bg-secondary: #252522; --bg-tertiary: #2c2c2a;
+        --bg-info: #042c53; --bg-success: #04342c; --bg-warning: #412402; --bg-danger: #501313; --bg-architecture: #2a1f4a;
+        --text-primary: #e8e6de; --text-secondary: #b4b2a9; --text-tertiary: #73726c;
+        --text-info: #85b7eb; --text-success: #5dcaa5; --text-warning: #ef9f27; --text-danger: #f09595; --text-architecture: #b8a5e8;
+        --border-tertiary: rgba(255,255,255,0.10); --border-secondary: rgba(255,255,255,0.20);
+        --border-info: #185fa5; --border-success: #0f6e56; --border-warning: #854f0b;
+      }
+    }
+    body { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); min-height: 100vh; padding: 2rem 1rem 3rem; line-height: 1.6; }
+    .page { max-width: 820px; margin: 0 auto; }
+    header { margin-bottom: 2rem; }
+    header h1 { font-size: 24px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+    header p  { font-size: 14px; color: var(--text-secondary); max-width: 600px; line-height: 1.65; }
+    .section { margin-bottom: 1.25rem; }
+    .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; }
+    .section-tag { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; white-space: nowrap; letter-spacing:.04em; }
+    .section-title { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+    .explainer-list { display: flex; flex-direction: column; gap: 8px; }
+    .explainer-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: var(--bg-primary); border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-md); padding: 0.75rem 1rem; transition: border-color 0.15s;
+    }
+    .explainer-row:hover { border-color: var(--border-secondary); }
+    .row-num { width: 26px; height: 26px; border-radius: 50%; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .row-body { flex: 1; min-width: 0; }
+    .row-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 3px; }
+    .row-title a { color: var(--text-info); text-decoration: none; border-bottom: 0.5px solid var(--border-info); }
+    .row-title a:hover { opacity: 0.8; }
+    .row-concept { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .row-status { flex-shrink: 0; }
+    .status-badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+    .status-done    { background: var(--bg-success); color: var(--text-success); }
+    .status-planned { background: var(--bg-secondary); color: var(--text-tertiary); border: 0.5px solid var(--border-tertiary); }
+    .summary-card { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 0.75rem 0; }
+    @media (max-width:500px) { .summary-grid { grid-template-columns: repeat(2,1fr); } }
+    .summary-metric { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 0.65rem 0.875rem; text-align: center; }
+    .sm-val   { font-size: 28px; font-weight: 500; color: var(--text-primary); }
+    .sm-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing:.04em; margin-top: 2px; }
+    .progress-bar-wrap { margin: 6px 0; }
+    .pb-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-bottom: 3px; }
+    .pb-track { height: 7px; background: var(--bg-secondary); border-radius: 3px; overflow: hidden; }
+    .pb-fill  { height: 100%; border-radius: 3px; }
+    .divider { border: none; border-top: 0.5px solid var(--border-tertiary); margin: 0.875rem 0; }
+    h2 { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+    .step-label { font-size: 11px; font-weight: 500; color: var(--text-tertiary); letter-spacing:.05em; text-transform: uppercase; margin: 0.875rem 0 6px; }
+    .subcat-label { font-size: 11px; font-weight: 500; color: var(--text-tertiary); letter-spacing:.06em; text-transform: uppercase; margin: 0.625rem 0 6px 4px; display: flex; align-items: center; gap: 8px; }
+    .subcat-label::before { content: ''; width: 14px; height: 0.5px; background: var(--border-secondary); flex-shrink: 0; }
+    .subcat-label::after { content: ''; flex: 1; height: 0.5px; background: var(--border-tertiary); }
+    .principles-list { margin: 0.5rem 0; }
+    .principle-item { display: flex; gap: 10px; padding: 6px 0; border-bottom: 0.5px solid var(--border-tertiary); font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+    .principle-item:last-child { border-bottom: none; }
+    .pi-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); flex-shrink: 0; margin-top: 6px; }
+    footer { text-align: center; font-size: 12px; color: var(--text-tertiary); margin-top: 2rem; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>Deployment — Interactive Explainers — Roadmap</h1>
+    <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)" target="_blank" rel="noopener">Ancil Cleetus</a></p>
+    <p>A complete plan of Interactive Visual Explainers covering the deployment side of AI/ML — from model optimization (quantization, pruning, distillation) through interchange formats, edge devices, server-side inference, LLM-specific serving, and post-deployment monitoring. The final category surveys training-at-scale, MLOps tooling, and cloud platforms at practitioner depth.</p>
+  </header>
+
+  <!-- Summary -->
+  <div class="summary-card">
+    <h2>Overview</h2>
+    <div class="summary-grid">
+      <div class="summary-metric"><div class="sm-val" id="count-total">—</div><div class="sm-label">Total explainers</div></div>
+      <div class="summary-metric"><div class="sm-val" id="count-done" style="color:var(--text-success)">—</div><div class="sm-label">Completed</div></div>
+      <div class="summary-metric"><div class="sm-val" id="count-planned" style="color:var(--text-warning)">—</div><div class="sm-label">Planned</div></div>
+    </div>
+    <div class="progress-bar-wrap" style="margin-top:0.5rem">
+      <div class="pb-label"><span>Overall progress</span><span id="overall-label">— / —</span></div>
+      <div class="pb-track" style="height:7px"><div class="pb-fill" id="overall-pb" style="width:0%;background:var(--text-danger)"></div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="step-label">Progress by category</div>
+    <div id="category-bars"></div>
+  </div>
+
+
+  <!-- Category 1: Foundations of Deployment -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--bg-info);color:var(--text-info)">Foundations</span>
+      <span class="section-title">Foundations of Deployment</span>
+    </div>
+
+    <div class="subcat-label"><span>What deployment is</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">1</div>
+        <div class="row-body">
+          <div class="row-title">What is Model Deployment? — Interactive Explainer ↗</div>
+          <div class="row-concept">The model lifecycle from a fresh checkpoint to a production endpoint — train → optimize → export → serve → monitor → maintain — illustrated as a flow diagram. The training-vs-inference asymmetry made concrete: training is expensive but one-time, inference is cheap per call but compounds over millions of requests, and they often want different hardware (training likes raw FLOPS, inference often prefers memory bandwidth and INT8 support). Why deployment is its own discipline rather than a coda to training: the engineering constraints are different, the metrics are different, and the failure modes are different. Why "it works in my notebook" almost never translates to production. A quick tour of what the rest of the roadmap covers and the order to read it in.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>The constraints that drive every decision</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">2</div>
+        <div class="row-body">
+          <div class="row-title">The Four Deployment Constraints — Interactive Explainer ↗</div>
+          <div class="row-concept">Every deployment decision trades off four axes: latency (how long a single request takes), throughput (how many requests per second), memory (model size in RAM and on disk), and accuracy (how well it predicts). An interactive 4-axis radar visualiser where you pick two constraints to prioritise and see how the others bend. The canonical scenarios mapped to the axes — real-time camera detection = latency-bound, batch image processing = throughput-bound, on-device deployment = memory-bound, medical diagnosis = accuracy-bound, LLM chat = a mix of latency (first-token) and throughput (decode). A decision table: "my constraint is X, my first move is Y."</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">3</div>
+        <div class="row-body">
+          <div class="row-title">Research Code vs Production Code — Interactive Explainer ↗</div>
+          <div class="row-concept">The unwritten rules that separate a research notebook from a production service. Determinism — why two identical inputs must produce identical outputs and how non-determinism sneaks in (cuDNN nondeterministic kernels, dropout left enabled, autocast precision). No Python objects in hot paths — why a hidden Python dict lookup adds 50µs per request at scale. Logging and error handling — every failure mode that mattered in development must produce an interpretable error in production. Versioning everything — code SHA, weights hash, preprocessing config, dependency lock files. The dependency-pinning story — why "torch&gt;=2.0" is a future incident waiting to happen. Not a step-by-step tutorial but an annotated checklist with concrete examples of what changes.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 2: Model Optimization -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--bg-warning);color:var(--text-warning)">Optimization</span>
+      <span class="section-title">Model Optimization</span>
+    </div>
+
+    <div class="subcat-label"><span>Quantization</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">4</div>
+        <div class="row-body">
+          <div class="row-title">Quantization Fundamentals — Interactive Explainer ↗</div>
+          <div class="row-concept">What bit-width actually means at the tensor level (callback to DL #2 Tensors). The FP32 → FP16 → BF16 → INT8 → INT4 ladder, with worked size and precision numbers for a typical layer. The quantization equation — q = round(x / scale + zero_point) — and what scale and zero_point are. Per-tensor vs per-channel scales explained visually with a real weight matrix. An interactive demo: take a 256×256 weight matrix from a real pretrained layer and quantize it to k bits using a slider, watch the histogram, the reconstruction error, and the layer's output drift. Symmetric vs asymmetric schemes. Forward pointer: this is the foundation for everything in this category.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">5</div>
+        <div class="row-body">
+          <div class="row-title">Post-Training Quantization (PTQ) — Interactive Explainer ↗</div>
+          <div class="row-concept">The "no retraining required" approach — take a trained FP32 model, calibrate it on a small unlabeled validation set, output an INT8 model. The calibration step explained: histograms of activations are collected at each layer to find the optimal scale range. Per-tensor vs per-channel quantization compared on a real ResNet-18 layer (callback to CV #14 MobileNet's pursuit of efficiency) — per-channel typically recovers 0.5–1% accuracy at minimal cost. When PTQ is enough — most CNNs at INT8 lose &lt;1% top-1 accuracy. When PTQ fails — some attention layers and BatchNorm-fused convs need help. PyTorch reference: torch.ao.quantization.quantize_dynamic and the static-quantization workflow with a runnable example.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">6</div>
+        <div class="row-body">
+          <div class="row-title">Quantization-Aware Training (QAT) — Interactive Explainer ↗</div>
+          <div class="row-concept">When PTQ loses too much accuracy, you simulate quantization during training so the model can adapt. Fake quantization nodes inserted into the forward pass; the straight-through estimator letting gradients flow through round() during the backward pass. An interactive side-by-side: same model, same dataset, PTQ vs QAT — watch the val-accuracy gap close as QAT trains. When QAT pays off (low-bit quantization, INT4 weight-only for LLMs, edge deployment of object detectors). The training-cost overhead (typically 10–30% slower than FP32 training). PyTorch's torch.ao.quantization QAT workflow walked through end to end. Brief mention of Brevitas and the more advanced QAT libraries.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>Pruning</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">7</div>
+        <div class="row-body">
+          <div class="row-title">Pruning — Interactive Explainer ↗</div>
+          <div class="row-concept">Removing weights that don't matter much. Unstructured pruning (zeroing individual weights, producing a sparse matrix) vs structured pruning (zeroing entire channels or filters, producing a smaller dense matrix). Magnitude-based pruning explained: rank weights by absolute value, zero the bottom k%. An interactive demo: prune a real Conv layer at different sparsity levels, see the accuracy-vs-size Pareto curve. The iterative prune-fine-tune loop that recovers most of the lost accuracy. The lottery ticket hypothesis as intuition (small subnetworks were always good; pruning just reveals them). Why pruning often underperforms quantization in real deployment — sparse compute is poorly supported on most accelerators outside NVIDIA's 2:4 structured sparsity on Ampere+ GPUs. When pruning still pays off: extreme model compression for storage, latency wins on hardware with sparse-aware kernels.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>Knowledge Distillation</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">8</div>
+        <div class="row-body">
+          <div class="row-title">Knowledge Distillation — Interactive Explainer ↗</div>
+          <div class="row-concept">Compressing a big teacher model into a smaller student that mimics it. The teacher-student paradigm: forward-pass the same input through both, train the student to match the teacher's outputs. Soft labels (the teacher's full probability distribution, not just argmax) carry far more information than hard labels — explained with a worked example showing why "cat 0.82, dog 0.15, fox 0.03" teaches the student more than just "cat". Temperature in softmax (callback to DL #6 Softmax) — why softening the teacher's distribution helps the student learn. KL divergence as the distillation loss. The relationship to CV #30 DeiT's distillation token. Distilling LLMs into smaller LLMs as a preview of Cat 6 (DistilBERT, the modern small-LLM family). When distillation beats quantization (very-different student architectures, multi-task student, accuracy floor matters).</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 3: Interchange Formats &amp; Inference Runtimes -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--bg-architecture);color:var(--text-architecture)">Formats</span>
+      <span class="section-title">Interchange Formats &amp; Inference Runtimes</span>
+    </div>
+
+    <div class="subcat-label"><span>From PyTorch eager mode to graphs</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">9</div>
+        <div class="row-body">
+          <div class="row-title">TorchScript &amp; torch.compile — Interactive Explainer ↗</div>
+          <div class="row-concept">Why PyTorch's default "eager mode" (build the graph as Python runs) is bad for production — every forward pass pays Python interpreter overhead, and you can't ship a Python interpreter to a phone. The fix: capture the model as a static graph. TorchScript via torch.jit.script (parses Python source, supports control flow) vs torch.jit.trace (records one execution, fast but can't handle data-dependent branches) with their gotchas — an interactive flowchart for picking between them. The PyTorch 2.x compile story: torch.compile uses TorchDynamo to capture the graph, AOT autograd to handle the backward, and Inductor as the code generator. What you actually get (typically 1.3–2× speedup on training, similar on inference). When compile fails (unsupported ops, dynamic shapes, custom CUDA kernels) and the fallback graph-break behavior.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>Open exchange formats</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">10</div>
+        <div class="row-body">
+          <div class="row-title">ONNX — The Universal Format — Interactive Explainer ↗</div>
+          <div class="row-concept">ONNX as the lingua franca between training frameworks and inference engines. The opset as a contract — each ONNX version defines a fixed set of operators with fixed semantics; exporters target an opset, importers support a range. Exporting from PyTorch with torch.onnx.export walked through end to end. Numerical validation — the canonical workflow of running the same input through PyTorch eager and ONNX Runtime and asserting agreement to within 1e-5. Debugging "operator not supported" errors (typically: a Python op had no ONNX equivalent in your opset; the fix is usually to bump the opset or rewrite that block). What gets baked into the ONNX file (weights, graph topology, input/output names and shapes). The portability promise — same ONNX file runs on CPU via ONNX Runtime, on NVIDIA via TensorRT, on Apple via Core ML Tools, on edge via TFLite. PyTorch reference + a complete export-and-verify recipe.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>Hardware-specific runtimes</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">11</div>
+        <div class="row-body">
+          <div class="row-title">Inference Engines — A Survey — Interactive Explainer ↗</div>
+          <div class="row-concept">The runtime ecosystem at survey depth. TensorRT for NVIDIA GPUs — kernel fusion, FP16/INT8 calibration, the .plan file as a hardware-specific compiled artifact, why TensorRT often beats raw PyTorch by 3–5× on the same GPU. OpenVINO for Intel CPUs — the IR format, how it pre-compiles for AVX-512/AMX. Apple Core ML — the .mlpackage format, ANE (Apple Neural Engine) targeting, Core ML Tools as the converter. TFLite for mobile (Android NNAPI, iOS Core ML delegate). llama.cpp for CPU LLM inference. ONNX Runtime as the cross-platform fallback. A comparison matrix of (target hardware, supported formats, typical speedup vs eager PyTorch, ease of conversion). A decision flowchart: "my target is X → use Y, here's why". Forward pointer: Cat 4 covers the edge-runtime story in depth; Cat 6 covers LLM-specific stacks.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 4: Edge &amp; Mobile Deployment -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--bg-danger);color:var(--text-danger)">Edge</span>
+      <span class="section-title">Edge &amp; Mobile Deployment</span>
+    </div>
+
+    <div class="subcat-label"><span>Edge hardware landscape</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">12</div>
+        <div class="row-body">
+          <div class="row-title">Edge &amp; Mobile Hardware — Interactive Explainer ↗</div>
+          <div class="row-concept">The hardware you'll actually deploy to. Apple Neural Engine (ANE) — 17–35 TOPS at 1–3W on modern iPhones, INT8 native, accessed via Core ML. Snapdragon Hexagon NPU on Android — comparable specs, accessed via TFLite NNAPI delegate. NVIDIA Jetson Orin family — full CUDA stack, GPU + DLA accelerators, the "server-class edge" tier. Google Coral Edge TPU — INT8-only, 4 TOPS at 2W, USB or M.2 form factors. Raspberry Pi 5 with the AI HAT+ (Hailo-8L) — modern hobbyist edge. A specs table with TOPS, power draw, RAM, typical price, and what software stacks each one supports. The crucial gotcha: most edge devices are <em>memory-bandwidth-bound</em>, not compute-bound, which means FLOPs alone don't predict speed — depthwise separable convs (callback to CV #14 MobileNet) help with FLOPs but not always with memory bandwidth, while quantization (Cat 2) helps with both.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>The on-device pipeline</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">13</div>
+        <div class="row-body">
+          <div class="row-title">The Edge Deployment Pipeline — Interactive Explainer ↗</div>
+          <div class="row-concept">The canonical recipe for shipping a model to edge hardware. Step 1: train and validate in PyTorch on a server. Step 2: quantize PTQ→INT8 (callback to Cat 2). Step 3: convert to the target format (Core ML for iOS, TFLite for Android, TensorRT engine for Jetson). Step 4: operator fusion and hardware-specific optimization (typically automatic during conversion). Step 5: bundle with the app and benchmark on the actual device. A worked example shrinking MobileNetV3 (callback to CV #14) for Pixel phone deployment, with concrete file-size and latency numbers at each stage. Common surgical fixes for operators that don't convert cleanly — replacing custom layers, freezing dynamic shapes, dealing with the "this op is supported on CPU only" delegate fallback that kills performance.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">14</div>
+        <div class="row-body">
+          <div class="row-title">Latency Profiling on Real Hardware — Interactive Explainer ↗</div>
+          <div class="row-concept">Measuring what actually matters — true on-device latency vs FLOPs estimates. Why FLOPs lie: memory-bandwidth-bound layers (BatchNorm, ReLU, large activations) often dominate latency despite low FLOPs. Profiling tools — Xcode Instruments for Apple, Android Profiler for Android, NVIDIA Nsight Systems for Jetson, perf for Linux. The warmup-and-percentile measurement protocol — first 5 runs are JIT/cache cold, throw them out, then measure P50/P95/P99 over hundreds of runs. An interactive demo showing the per-layer latency breakdown of a MobileNet on a simulated phone — see which layers actually cost time vs which the FLOPs counter said would. Common fixes for slow layers: fuse Conv+BN+ReLU, replace channel shuffle with grouped conv, replace small fully-connected with 1×1 conv.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 5: Serving Models in Production -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Serving</span>
+      <span class="section-title">Serving Models in Production</span>
+    </div>
+
+    <div class="subcat-label"><span>Containerization</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">15</div>
+        <div class="row-body">
+          <div class="row-title">Docker for ML — Interactive Explainer ↗</div>
+          <div class="row-concept">What a container actually is — a packaged filesystem + a process spec, not a VM. Layered filesystems explained visually with a real Dockerfile being built line by line. A complete Dockerfile for a Python ML inference service walked through — base image, system deps, Python deps, model weights, the entrypoint. Multi-stage builds — large builder image (with compiler toolchains) + slim runtime image (just Python + the compiled wheels), often cutting image size from 8GB to 1.5GB. Pinning CUDA + cuDNN + Python + torch versions and why every version must be locked. The dev-vs-prod image strategy — dev image has Jupyter and pytest, prod image strips them. Image-size minimisation as a deployment-cost lever (cold-start latency on serverless platforms scales with image pull time). Brief mention of the alternatives — Podman, Singularity for HPC, Apptainer.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>Inference servers</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">16</div>
+        <div class="row-body">
+          <div class="row-title">REST and gRPC Model Serving — Interactive Explainer ↗</div>
+          <div class="row-concept">Exposing your model over the network. FastAPI for the simple case — sync vs async handlers, request validation with Pydantic, automatic OpenAPI schema generation, the runnable hello-world endpoint that wraps an ONNX Runtime session. TorchServe as the PyTorch-native server — model archives, handlers, the built-in batching and model versioning. NVIDIA Triton Inference Server for the multi-framework, multi-model case — ensemble pipelines, dynamic batching, GPU sharing across models. gRPC for low-latency client-server (binary protobuf payload, HTTP/2 streaming) — when it's worth the schema-management overhead. A comparison table — request rate, latency target, model count, language ecosystem — mapped to which server. PyTorch reference for each.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">17</div>
+        <div class="row-body">
+          <div class="row-title">Batching, Concurrency, and GPU Utilization — Interactive Explainer ↗</div>
+          <div class="row-concept">Why GPU utilization is the metric that pays the bills, and why most production deployments idle their GPUs 80% of the time. Static batching — collect N requests, run one big forward pass, return all results; great when traffic is steady, bad when it's bursty. Dynamic batching — collect requests for up-to-W milliseconds or until batch-size N, whichever comes first; the standard Triton/TorchServe technique. Continuous batching — the LLM-specific innovation (deeper coverage in Cat 6 #21) where sequences of different lengths share a batch. Request queueing and backpressure — what happens when traffic exceeds throughput, how to shed load gracefully rather than degrade everyone's latency. Concurrency in Python — why GIL is mostly irrelevant for inference (the work happens in C++ kernels), but matters for preprocessing pipelines. An interactive simulator: pick traffic pattern + batching strategy, watch GPU utilization and P99 latency over time.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 6: LLM-Specific Serving -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--bg-architecture);color:var(--text-architecture)">LLM Serving</span>
+      <span class="section-title">LLM-Specific Serving</span>
+    </div>
+
+    <div class="subcat-label"><span>Why LLM inference is different</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">18</div>
+        <div class="row-body">
+          <div class="row-title">LLM Inference Fundamentals — Interactive Explainer ↗</div>
+          <div class="row-concept">Why everything in Cat 5 needs special treatment for autoregressive models. The two phases — prefill (process the prompt in parallel, compute-bound) vs decode (generate one token at a time, memory-bound). Why decode is the bottleneck — every token depends on the previous one, so you can't parallelize across the sequence; latency is dominated by memory bandwidth (load the KV cache from HBM, do one forward pass, repeat). Per-token latency vs throughput as the two LLM-specific metrics. The KV cache as the central concept — what gets cached, why it gets cached, how it grows linearly with sequence length and number of concurrent requests. An animated visualization of token-by-token autoregressive generation alongside the KV cache filling up. Why all the LLM-specific tricks in this category exist.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>Optimizations specific to LLMs</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">19</div>
+        <div class="row-body">
+          <div class="row-title">KV Cache, FlashAttention &amp; PagedAttention — Interactive Explainer ↗</div>
+          <div class="row-concept">The three innovations that made modern LLM serving possible. KV cache explained from scratch — when generating token N, you've already done all the attention math for tokens 1 through N-1; caching K and V across those tokens lets every new token compute attention in O(N) instead of O(N²). FlashAttention as an IO-aware reformulation — instead of materialising the full N×N attention matrix in HBM, tile it and keep partial results in SRAM; same math, 4–8× faster, much less memory. PagedAttention (vLLM's innovation, 2023) as memory paging applied to the KV cache — fixed-size pages can be allocated and freed independently per sequence, eliminating the fragmentation that limited max-concurrent-users in earlier systems. An interactive memory-allocation visualiser showing naive contiguous KV cache (lots of fragmentation, 30% wasted) vs PagedAttention (near-zero waste). The practical implications — modern LLM servers handle 10× more concurrent users than 2022-era servers at the same hardware budget.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">20</div>
+        <div class="row-body">
+          <div class="row-title">LLM Quantization — GPTQ, AWQ, GGUF — Interactive Explainer ↗</div>
+          <div class="row-concept">Why LLM quantization is different from CNN quantization. Weight-only quantization — for LLMs, weights dominate memory but activations are small, so quantize weights to INT4/INT3, leave activations FP16. The math works out because: (a) the inference is memory-bandwidth-bound, so loading 4-bit weights gives nearly 4× speedup; (b) weights have nicer numerical distributions than activations. GPTQ — calibration-based weight quantization that minimises layer-wise output error via second-order optimization; produces INT4 weights with &lt;1 point perplexity loss. AWQ (Activation-aware Weight Quantization) — preserves the weight rows that correspond to high-magnitude activations at higher precision. GGUF — llama.cpp's binary file format, with quantization levels like Q4_K_M and Q5_K_S that you'll encounter on Hugging Face. An interactive demo: pick a quantization level (FP16 / INT8 / INT4 / INT3) and see the size-vs-perplexity-vs-tokens-per-second trade-off on a small open-weights LLM.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">21</div>
+        <div class="row-body">
+          <div class="row-title">Speculative Decoding &amp; Continuous Batching — Interactive Explainer ↗</div>
+          <div class="row-concept">Two throughput multipliers that don't trade off accuracy. Speculative decoding — a small "draft" model generates k tokens fast; the big target model verifies all k in a single parallel forward pass and accepts the prefix that matches its own distribution. When the draft model is fast and accurate (typically 70%+ acceptance), you get 2–3× wall-clock speedup with zero quality loss. The math of acceptance probability and expected speedup walked through. Continuous batching (vLLM, SGLang) — instead of waiting for the slowest sequence in a batch to finish before starting new ones, swap finished sequences out of the batch as they end and slot new ones in. This is what "continuous" means — the batch is always full. The pair of innovations together transformed LLM serving economics around 2023–2024. When each technique pays off and when it doesn't (very short prompts barely benefit; very long prompts benefit most).</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>The serving stacks</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">22</div>
+        <div class="row-body">
+          <div class="row-title">LLM Serving Stacks Compared — Interactive Explainer ↗</div>
+          <div class="row-concept">The production LLM-serving landscape as of 2026. vLLM — the academic-origin, open-source workhorse; PagedAttention native, continuous batching, broad model support. SGLang — fast and growing, especially strong on structured-output prompts and RadixAttention for shared prefixes. HuggingFace TGI (Text Generation Inference) — production-hardened, tight integration with HF model zoo. llama.cpp — pure C++/CUDA, best for CPU-only or modest-GPU deployments, the de-facto local-inference engine. MLX for Apple Silicon. Ollama as the "docker for LLMs" packaging layer that wraps llama.cpp. NVIDIA TensorRT-LLM for maximum throughput on enterprise NVIDIA setups. A decision flowchart — model size, target hardware, latency vs throughput priority, ops budget — pointing to the right pick. The cost-per-million-tokens equation walked through with real numbers for self-hosted vs API-hosted at different scales.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 7: Monitoring &amp; Maintenance -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--bg-info);color:var(--text-info)">Monitoring</span>
+      <span class="section-title">Monitoring &amp; Maintenance</span>
+    </div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">23</div>
+        <div class="row-body">
+          <div class="row-title">Inference Monitoring — Interactive Explainer ↗</div>
+          <div class="row-concept">What to watch after deployment. Latency percentiles (P50 / P95 / P99) and why averages lie — a P50 of 80ms with P99 of 5s means 1% of users are having a terrible experience and you won't see it in the average. Throughput, error rates, GPU utilization, queue depth, time-to-first-token (LLM-specific). The LLM-specific observability layer — token rates, cost-per-request, prompt + completion logging via LangSmith / Helicone / Langfuse / Phoenix. Distinguishing infrastructure errors (5xx) from model errors (low-confidence outputs, hallucinations, refusals) and why they need different dashboards. What to alert on (sustained P95 regressions, error-rate spikes, throughput drops) and what to ignore (single outlier requests). Brief mention of the Four Golden Signals (latency, traffic, errors, saturation) from SRE practice.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">24</div>
+        <div class="row-body">
+          <div class="row-title">Data Drift &amp; Model Drift — Interactive Explainer ↗</div>
+          <div class="row-concept">The canonical "94% accuracy in eval, 71% in production after three months" problem. Three flavours of drift: input drift (the distribution of your inputs changes — users upload different kinds of photos), label drift (the relationship between inputs and labels changes — fraud patterns evolve), output drift (your model's prediction distribution shifts even when inputs look stable). Detection techniques — Population Stability Index (PSI), Kolmogorov-Smirnov tests, KL divergence between reference and live distributions. An interactive visualisation: a reference distribution and a sliding live distribution; watch PSI tick up as drift increases. When to retrain (rules of thumb based on drift magnitude vs business impact). Shadow deployment — run the new model in parallel with the old, log both, only switch when shadow performance validates. A/B testing for safe model rollouts. Brief mention of canary deployments.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 8: Capstones -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Capstone</span>
+      <span class="section-title">Capstones</span>
+    </div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">25</div>
+        <div class="row-body">
+          <div class="row-title">Deployment Capstone — Server Deployment of a CNN — Interactive Explainer ↗</div>
+          <div class="row-concept">End-to-end worked example bringing Categories 1–7 together for a server-side deployment. Take a trained ResNet-18 image classifier from CV #15. Step 1 — quantize PTQ → INT8 (Cat 2) with a small calibration set, measure accuracy delta. Step 2 — export to ONNX and validate numerically against PyTorch eager (Cat 3). Step 3 — wrap in a FastAPI service that accepts image uploads and returns JSON predictions (Cat 5). Step 4 — containerize with a multi-stage Dockerfile (Cat 5). Step 5 — load-test with locust or k6, measure P50/P95/P99 latency under varying request rates (Cat 7). Step 6 — find the bottleneck (preprocessing? batching? GPU underutilisation?), apply one round of optimization, redeploy, measure again. Step 7 — set up basic Prometheus + Grafana monitoring with latency-percentile and error-rate dashboards. A live in-browser demo at the end where the user uploads an image and gets a classification from a deployment of the model. Full runnable code at the bottom — Dockerfile, FastAPI app, load-test script, monitoring config.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">26</div>
+        <div class="row-body">
+          <div class="row-title">Deployment Capstone — Edge Deployment of a Real-Time Detector — Interactive Explainer ↗</div>
+          <div class="row-concept">Companion to #25 but for the edge story. Take a trained YOLO object detector from CV #21. Step 1 — quantize QAT → INT8 (Cat 2 #6) to recover accuracy that PTQ would have lost. Step 2 — convert to TFLite for Android or Core ML for iOS (Cat 3 #10, Cat 4 #13). Step 3 — profile per-layer latency on a simulated Raspberry Pi / Jetson Nano constraints (Cat 4 #14), find the bottleneck. Step 4 — fuse conv-bn-relu, simplify the NMS post-processing, redeploy. Step 5 — measure final FPS on the target device and verify the accuracy is still acceptable. Step 6 — package the final inference artifact (a .tflite or .mlmodel file plus a tiny inference script). The deliverable is a runnable detector that fits in &lt;10MB and runs at &gt;15 FPS on a Pixel-class device. A live in-browser demo of the deployed model running on a webcam feed, showing detections in real time.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 9: Deployment in Practice -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--bg-info);color:var(--text-info)">Practice</span>
+      <span class="section-title">Deployment in Practice</span>
+    </div>
+
+    <div style="font-size:12px;color:var(--text-tertiary);font-style:italic;margin:0 4px 0.5rem;line-height:1.55">This final category covers three important practitioner topics at <em>survey depth</em> — training at scale, MLOps tooling, and cloud platforms. These topics are visual but less interactive than the rest of the roadmap; the goal is to give you the map of each territory and concrete starting points for deeper study, not to teach every detail.</div>
+
+    <div class="subcat-label"><span>Training at scale</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">27</div>
+        <div class="row-body">
+          <div class="row-title">Distributed Training — Data Parallel, FSDP &amp; ZeRO — Interactive Explainer ↗</div>
+          <div class="row-concept">Survey of how modern models train on more than one GPU. The single-GPU memory wall — a 7B-parameter model in FP16 needs ~14GB for weights, ~14GB for gradients, ~28GB+ for Adam optimizer states (1st and 2nd moments), plus activations — easily 100GB+ during training. Data Parallelism (DP, DDP) — every GPU holds a full model copy and processes a different mini-batch; gradients are all-reduced after each backward pass. The visual: a worked example showing gradient sync via ring all-reduce across 4 GPUs. The memory problem with naïve DP — every GPU holds a full model copy, so you can't train a model that doesn't fit on one GPU. The ZeRO progression (DeepSpeed's contribution) — ZeRO-1 shards optimizer states across GPUs, ZeRO-2 also shards gradients, ZeRO-3 / FSDP shards parameters too (only assemble what you need for each forward step, gather on demand). A memory-budget diagram showing each stage's footprint per GPU. Brief mention of tensor parallelism (split a single layer across GPUs) and pipeline parallelism (different GPUs handle different layers). Forward pointer: this is the only training-side explainer in Deployment — for the full training-infrastructure story, a future "Scaling Training" roadmap will go deep on Megatron-LM, DeepSpeed, and the 3D parallelism story.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">28</div>
+        <div class="row-body">
+          <div class="row-title">Gradient Checkpointing &amp; Memory-Efficient Training — Interactive Explainer ↗</div>
+          <div class="row-concept">Two more techniques for training big models on small GPUs. Why activations dominate training memory — for backprop you need to remember the activations from the forward pass at every layer; for a deep model these can easily 10× the weight memory. Gradient checkpointing as the time-vs-memory trade-off — instead of storing every layer's activations, store a few "checkpoints" along the network and recompute the in-between activations during the backward pass. A visual showing the layer-by-layer memory profile with and without checkpointing (~70% memory reduction typical, ~25% slower training). Mixed-precision training — fp16 / bf16 weights and activations halve the memory and double the throughput on modern GPUs; the loss-scaling trick that prevents underflow in the fp16 backward pass; bf16 as the modern default (same exponent range as fp32, less mantissa precision). Combined with FSDP (#27), these are how trillion-parameter models train at all. A brief mention of activation offloading to CPU as the extreme-memory-pressure option.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>MLOps &amp; experiment tooling</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">29</div>
+        <div class="row-body">
+          <div class="row-title">Experiment Tracking &amp; Model Registries — Interactive Explainer ↗</div>
+          <div class="row-concept">Solving the "which run produced this checkpoint" problem. The need: a typical research effort runs hundreds of training jobs with different hyperparameters, code versions, datasets; six months later you need to reproduce one. Weights &amp; Biases (W&amp;B), MLflow, Neptune as the three main contenders. What they all store — scalar metrics over time (loss, accuracy), hyperparameters, code SHA, system info (GPU, library versions), artifacts (model checkpoints, sample outputs). Annotated screenshots of a W&amp;B run page walking through what each panel means. The run / artifact / model-registry hierarchy — runs produce artifacts, artifacts get promoted to versioned models, the registry tracks which model is currently in staging / production. A comparison table: open-source vs hosted, single-user vs team, free-tier limits, integration story. The model registry as the bridge from research to deployment — a model that ships to prod should always come <em>from</em> the registry, never directly from a researcher's laptop. A decision table for picking a tool.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">30</div>
+        <div class="row-body">
+          <div class="row-title">CI/CD for ML — Continuous Training &amp; Deployment Pipelines — Interactive Explainer ↗</div>
+          <div class="row-concept">Why ML pipelines differ from software CI/CD. In software, the only inputs are code; in ML, the inputs are code <em>and</em> data <em>and</em> hyperparameters <em>and</em> the previous model — and data changes, models drift (callback to #24). The canonical pipeline diagram: new data arrives → data validation (schema checks, drift detection) → training run → eval on holdout → comparison-with-prod model → if improved, blessed and promoted to staging → automated tests against staging → deployed to production. Tools at survey depth — GitHub Actions for the simple case (great when you only retrain monthly), Kubeflow Pipelines for the Kubernetes-native case, Argo Workflows for the general-purpose orchestrator, Airflow as the venerable workflow tool, Prefect as the modern Python-native alternative. DVC for data versioning (git for datasets). Brief mention of feature stores (Feast, Tecton) for when many models share preprocessing. When to invest in CI/CD (production traffic with frequent retraining) vs when not to (research, prototypes, one-off models). Honest take: most teams under-invest in this until they have an incident.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>Cloud deployment landscape</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">31</div>
+        <div class="row-body">
+          <div class="row-title">Cloud Deployment Platforms — A Survey — Interactive Explainer ↗</div>
+          <div class="row-concept">The four-tier landscape, organised by how much the platform does for you. Tier 1: raw IaaS (AWS EC2, GCP Compute Engine, Azure VMs) — you provision the machine, install CUDA, manage scaling. Maximum control, maximum ops burden. Tier 2: managed ML platforms (AWS SageMaker, GCP Vertex AI, Azure ML) — they orchestrate training jobs, endpoints, model versioning; you bring the model and config. Tier 3: serverless ML inference (Modal, Replicate, RunPod, Banana, Beam) — they handle scaling and GPU allocation; you bring a Python function. Cold-start costs apply. Tier 4: BYO-LLM and managed-LLM platforms (Together AI, Anyscale Endpoints, Fireworks, Groq) — they host the LLM, you call an API. Plus the API-only providers (OpenAI, Anthropic, Google) at the far end. A decision flowchart based on (latency tolerance, cost predictability, ops budget, GPU availability, model size). The unwritten rule for most teams: start serverless to validate, graduate to managed when you outgrow it, only build raw if you have a specialised need. Honest caveat: pricing and exact features in this space date <em>fast</em> — focus on the structural differences, not specific dollar figures.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Design principles -->
+  <div class="summary-card">
+    <h2>Design principles</h2>
+    <div class="principles-list">
+      <div class="principle-item"><div class="pi-dot"></div><div>Each explainer introduces <strong>exactly one new idea</strong> — no explainer tries to cover an entire area at once.</div></div>
+      <div class="principle-item"><div class="pi-dot"></div><div>All explainers follow the same <strong>header, footer, and style conventions</strong> established in the series.</div></div>
+      <div class="principle-item"><div class="pi-dot"></div><div>Every explainer is a <strong>self-contained single HTML file</strong> — no external dependencies, no frameworks, no install required.</div></div>
+      <div class="principle-item"><div class="pi-dot"></div><div>Category 9 (Deployment in Practice) is intentionally <strong>survey depth</strong> — those topics are practitioner-essential but less suited to deeply-interactive treatment. The rest of the roadmap is full interactive depth.</div></div>
+    </div>
+  </div>
+
+  <footer>
+    Built with <span style="color:var(--text-danger);font-size:18px;vertical-align:middle">&hearts;</span> by
+    <a href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">Ancil Cleetus</a>
+    &nbsp;&nbsp;&middot;&nbsp;&nbsp;
+    <a href="https://ancilcleetus.github.io/AI-ML-Explainers/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">AI ML Explainers</a>
+    &nbsp;&nbsp;&middot;&nbsp;&nbsp; No external dependencies
+    &nbsp;&nbsp;&middot;&nbsp;&nbsp; MIT License
+  </footer>
+
+</div>
+<script>
+// Dynamic progress computation
+// All counts derived from DOM, no hardcoding.
+// Each .section maps to a category via its .section-title text.
+// Done = rows with status-done badge. Total = all explainer-row elements.
+
+function computeProgress() {
+  const sections = document.querySelectorAll('.section');
+  const catData  = [];
+  let grandTotal = 0, grandDone = 0;
+
+  sections.forEach(sec => {
+    const titleEl = sec.querySelector('.section-title');
+    if (!titleEl) return;
+    const label = titleEl.textContent.trim();
+    const rows  = sec.querySelectorAll('.explainer-row');
+    const done  = sec.querySelectorAll('.status-done').length;
+    const total = rows.length;
+    grandTotal += total;
+    grandDone  += done;
+    catData.push({ label, total, done });
+  });
+
+  document.getElementById('count-total').textContent   = grandTotal;
+  document.getElementById('count-done').textContent    = grandDone;
+  document.getElementById('count-planned').textContent = grandTotal - grandDone;
+
+  const overallPct  = grandTotal > 0 ? (grandDone / grandTotal) * 100 : 0;
+  const overallCeil = Math.ceil(overallPct);
+  document.getElementById('overall-label').textContent =
+    `${grandDone} / ${grandTotal}  (${overallCeil}%)`;
+  const pb = document.getElementById('overall-pb');
+  pb.style.width      = overallPct.toFixed(1) + '%';
+  pb.style.background = overallPct <= 25 ? 'var(--text-danger)'
+    : overallPct <= 50 ? 'var(--text-warning)'
+    : overallPct <= 75 ? 'var(--text-info)'
+    : 'var(--text-success)';
+
+  const barsEl = document.getElementById('category-bars');
+  barsEl.innerHTML = catData.map(c => {
+    const pct      = c.total > 0 ? (c.done / c.total) * 100 : 0;
+    const pctCeil  = Math.ceil(pct);
+    const barColor = pct <= 25 ? 'var(--text-danger)' : pct <= 50 ? 'var(--text-warning)'
+      : pct <= 75 ? 'var(--text-info)' : 'var(--text-success)';
+    return `<div class="progress-bar-wrap">
+    <div class="pb-label"><span>${c.label}</span><span style="font-family:var(--font-mono)">${c.done}/${c.total} (${pctCeil}%)</span></div>
+    <div class="pb-track"><div class="pb-fill" style="width:${pct.toFixed(1)}%;background:${barColor}"></div></div>
+  </div>`;
+  }).join('');
+}
+
+computeProgress();
+</script>
+</body>
+</html>
