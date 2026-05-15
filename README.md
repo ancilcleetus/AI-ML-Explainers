@@ -33,7 +33,7 @@ Detailed explainer roadmaps for each area:
 | :--- | :------ | :------- |
 | 🔴 Deep Learning | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Deep-Learning-Explainer-Roadmap.html) | 7 / 27 (26%) |
 | 🟢 Machine Learning | Coming soon | — |
-| 🔵 Computer Vision | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Computer-Vision-Explainer-Roadmap.html) | 0 / 46 (0%) |
+| 🔵 Computer Vision | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Computer-Vision-Explainer-Roadmap.html) | 1 / 46 (2%) |
 | 🟡 Natural Language Processing | Coming soon | — |
 | 🟣 Generative AI | Coming soon | — |
 | 🟠 Deployment | Coming soon | — |
@@ -68,7 +68,8 @@ Coming soon 🔜
 
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
-| How Machines Learned to See Explainer | Interactive introduction to the two paradigms of computer vision — local feature extraction with CNNs and global attention with Vision Transformers | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
+| [What Is an Image? — Pixels, Coordinates, and Resolution](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/What-is-an-Image-Pixels-Coordinates-Resolution-Explainer.html) | To be added | ![Status](https://img.shields.io/badge/Live-brightgreen) |
+| How Machines Learned to See Explainer | To be added | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
 
 ![rainbow](assets/rainbow-divider.png)
 
