@@ -31,9 +31,9 @@ Detailed explainer roadmaps for each area:
 
 | Area | Roadmap | Progress |
 | :--- | :------ | :------- |
-| 🔴 Deep Learning | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/deep_learning_explainer_roadmap.html) | 7 / 27 (26%) |
+| 🔴 Deep Learning | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Deep-Learning-Explainer-Roadmap.html) | 7 / 27 (26%) |
 | 🟢 Machine Learning | Coming soon | — |
-| 🔵 Computer Vision | Coming soon | — |
+| 🔵 Computer Vision | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Computer-Vision-Explainer-Roadmap.html) | 0 / 46 (0%) |
 | 🟡 Natural Language Processing | Coming soon | — |
 | 🟣 Generative AI | Coming soon | — |
 | 🟠 Deployment | Coming soon | — |
@@ -47,7 +47,7 @@ Coming soon 🔜
 
 ## 🔴 Deep Learning
 
-📋 [View Deep Learning Explainer Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/deep_learning_explainer_roadmap.html)
+📋 [View Deep Learning Explainer Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Deep-Learning-Explainer-Roadmap.html)
 
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
@@ -63,6 +63,8 @@ Coming soon 🔜
 ![rainbow](assets/rainbow-divider.png)
 
 ## 🔵 Computer Vision
+
+📋 [View Computer Vision Explainer Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Computer-Vision-Explainer-Roadmap.html)
 
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
