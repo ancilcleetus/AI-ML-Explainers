@@ -340,7 +340,7 @@ optimizer.step()</div>
     <p class="note" style="margin-bottom:0.5rem">Imagine a tiny task: the network should learn that <strong>cat</strong> and <strong>kitten</strong> are similar. We start their 2-dim embeddings far apart and apply gradient descent steps that pull them together. Click "train one step" to see them move.</p>
 
     <div class="insight" style="margin-bottom:0.5rem">
-      <strong>What is being minimised?</strong> The loss here is the squared distance between the two embeddings: <code style="font-family:var(--font-mono);font-size:12px">L = ‖cat − kitten‖²</code>. Each step moves both points in the direction of the negative gradient — exactly the same gradient descent mechanic you will see formalised in the upcoming Loss &amp; Gradient Descent Explainer.
+      <strong>What is being minimised?</strong> The loss here is the squared distance between the two embeddings: <code style="font-family:var(--font-mono);font-size:12px">L = ‖cat − kitten‖²</code>. Each step moves both points in the direction of the negative gradient — exactly the same gradient descent mechanic you will see formalised in the upcoming Loss Landscape &amp; Gradient Descent Explainer.
     </div>
 
     <div style="display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap;background:var(--bg-secondary);border-radius:var(--radius-md);padding:1rem;margin:0.5rem 0">
