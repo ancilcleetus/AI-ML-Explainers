@@ -33,7 +33,7 @@ Detailed explainer roadmaps for each area:
 | :--- | :------ | :------- |
 | 🔴 Deep Learning | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Deep-Learning-Explainer-Roadmap.html) | 7 / 27 (26%) |
 | 🟢 Machine Learning | Coming soon | — |
-| 🔵 Computer Vision | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Computer-Vision-Explainer-Roadmap.html) | 1 / 46 (2%) |
+| 🔵 Computer Vision | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Computer-Vision-Explainer-Roadmap.html) | 2 / 46 (4%) |
 | 🟡 Natural Language Processing | Coming soon | — |
 | 🟣 Generative AI | Coming soon | — |
 | 🟠 Deployment | Coming soon | — |
@@ -58,7 +58,7 @@ Coming soon 🔜
 | [Loss Functions Overview](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_functions_overview_explainer.html) | Visual introduction to loss functions — what loss is, task-to-loss mapping, and interactive deep dive into MSE, MAE, Huber, and Cross-Entropy with a practical decision guide | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Softmax & Probability Outputs](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/softmax_explainer.html) | How raw network outputs become a probability distribution — the softmax formula, why it's designed that way, numerical stability, temperature scaling, and when to use softmax vs sigmoid | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Cross-Entropy Loss](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/cross_entropy_loss_explainer.html) | Cross-entropy loss explained from first principles — information theory intuition, binary vs categorical formulas, and an interactive multiclass classification example | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Loss Landscape & Gradient Descent](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html) | To be added | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
+| [Loss Landscape & Gradient Descent](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html) | Visualization of loss, gradient descent, and how neural networks learn step by step | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
 
 ![rainbow](assets/rainbow-divider.png)
 
@@ -69,6 +69,7 @@ Coming soon 🔜
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
 | [What Is an Image? — Pixels, Coordinates, and Resolution](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/What-is-an-Image-Pixels-Coordinates-Resolution-Explainer.html) | Interactive visual introduction to images as grids of numbers — pixels, coordinate systems, resolution, aspect ratio, and storage size | ![Status](https://img.shields.io/badge/Live-brightgreen) |
+| [Colour — RGB, BGR, HSV, and Grayscale](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Colour-RGB-BGR-HSV-Grayscale-Explainer.html) | Interactive introduction to how computer images carry colour — three numbers per pixel, the BGR-vs-RGB bug every beginner hits, HSV and grayscale as alternative colour spaces, with cross-library code references | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 
 ![rainbow](assets/rainbow-divider.png)
 
@@ -76,7 +77,7 @@ Coming soon 🔜
 
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
-| Word Embeddings | To be added | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
+| Word Embeddings | Visual intuition behind embeddings | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
 
 ![rainbow](assets/rainbow-divider.png)
 
@@ -84,7 +85,7 @@ Coming soon 🔜
 
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
-| Transformers Explainer | To be added | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
+| Transformers Explainer | Attention mechanism visualization | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
 | GPT Explainer | To be added | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
 
 ![rainbow](assets/rainbow-divider.png)

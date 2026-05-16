@@ -120,12 +120,12 @@
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">2</div>
+        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">2</div>
         <div class="row-body">
-          <div class="row-title">Colour — RGB, BGR, HSV, and Grayscale — Interactive Explainer</div>
-          <div class="row-concept">Why each pixel carries three numbers instead of one. The biology — human eyes have three types of cone cells sensitive to roughly red, green, and blue wavelengths; the RGB representation matches how we see. The 8-bit-per-channel convention (0–255 per channel, 256³ ≈ 16.8 million representable colours), why we often normalise to 0.0–1.0 floating-point for neural network input. An interactive RGB colour picker showing how (R, G, B) triples produce colours, with worked examples — pure red = (255, 0, 0), white = (255, 255, 255), the colour of a sunset ≈ (255, 100, 50). Then the gotcha that bites every beginner — OpenCV reads images in BGR order while every other Python library uses RGB. A side-by-side demo showing the same image displayed correctly (RGB) vs the cyan-and-orange disaster you get when you forget to convert. Why this happened historically and how to detect-and-fix the bug in code (cv2.cvtColor(img, cv2.COLOR_BGR2RGB)). Then HSV (Hue–Saturation–Value) as an alternative colour space — an interactive HSV picker, why HSV is sometimes more useful for colour-based segmentation. Grayscale as the one-channel reduction — when you&apos;d convert (most classical CV algorithms operate on intensity only, many object-detection features are colour-invariant). The conversion formula gray = 0.299·R + 0.587·G + 0.114·B and why green has the largest weight (human eyes are most sensitive to green). PyTorch / OpenCV / PIL references for each operation.</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Colour-RGB-BGR-HSV-Grayscale-Explainer.html" target="_blank" rel="noopener">Colour — RGB, BGR, HSV, and Grayscale — Interactive Explainer ↗</a></div>
+          <div class="row-concept">Three numbers per pixel, biological motivation for RGB, interactive RGB and HSV pickers, the BGR-vs-RGB bug with side-by-side disaster demo, grayscale conversion methods compared on yellow and red-dominant subjects, code reference across PIL/OpenCV/PyTorch</div>
         </div>
-        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+        <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">3</div>
