@@ -51,14 +51,14 @@ Coming soon 🔜
 
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
-| [The Neuron & Forward Pass](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/neuron_forward_pass_explainer.html) | Step-by-step visualization of how a neuron computes output | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Tensors — The Language of Deep Learning](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/tensors_explainer.html) | To be added | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Activation Functions](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html) | Visualization of various activation functions | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Embeddings — Representing Discrete Data as Vectors](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/embeddings_explainer.html) | To be added | ![Status](https://img.shields.io/badge/Live-brightgreen) |
+| [The Neuron & Forward Pass](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/neuron_forward_pass_explainer.html) | Step-by-step walkthrough of a single neuron — biological motivation, weighted-sum-plus-activation math, an interactive weights-and-inputs simulator, and what this minimal unit actually computes | ![Status](https://img.shields.io/badge/Live-brightgreen) |
+| [Tensors — The Language of Deep Learning](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/tensors_explainer.html) | Visual tour of the universal data structure of deep learning — from scalars and vectors to N-dimensional tensors, shapes and axes, broadcasting, and why every model input ends up as a tensor | ![Status](https://img.shields.io/badge/Live-brightgreen) |
+| [Activation Functions](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html) | Why neural networks need nonlinearity — interactive curve explorer for Sigmoid, Tanh, ReLU, and GELU, the vanishing gradient problem, and a practical guide for choosing between them | ![Status](https://img.shields.io/badge/Live-brightgreen) |
+| [Embeddings — Representing Discrete Data as Vectors](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/embeddings_explainer.html) | How neural networks turn words, IDs, and categories into meaningful vectors — one-hot's limits, embedding lookup tables, similarity in embedding space, and how embeddings are learned end-to-end | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Loss Functions Overview](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_functions_overview_explainer.html) | Visual introduction to loss functions — what loss is, task-to-loss mapping, and interactive deep dive into MSE, MAE, Huber, and Cross-Entropy with a practical decision guide | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Softmax & Probability Outputs](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/softmax_explainer.html) | To be added | ![Status](https://img.shields.io/badge/Live-brightgreen) |
+| [Softmax & Probability Outputs](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/softmax_explainer.html) | How raw network outputs become a probability distribution — the softmax formula, why it's designed that way, numerical stability, temperature scaling, and when to use softmax vs sigmoid | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Cross-Entropy Loss](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/cross_entropy_loss_explainer.html) | Cross-entropy loss explained from first principles — information theory intuition, binary vs categorical formulas, and an interactive multiclass classification example | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Loss & Gradient Descent](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html) | Visualization of loss, gradient descent, and how neural networks learn step by step | ![Status](https://img.shields.io/badge/Live-brightgreen) |
+| [Loss Landscape & Gradient Descent](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html) | To be added | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
 
 ![rainbow](assets/rainbow-divider.png)
 
@@ -68,8 +68,7 @@ Coming soon 🔜
 
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
-| [What Is an Image? — Pixels, Coordinates, and Resolution](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/What-is-an-Image-Pixels-Coordinates-Resolution-Explainer.html) | To be added | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| How Machines Learned to See Explainer | To be added | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
+| [What Is an Image? — Pixels, Coordinates, and Resolution](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/What-is-an-Image-Pixels-Coordinates-Resolution-Explainer.html) | Interactive visual introduction to images as grids of numbers — pixels, coordinate systems, resolution, aspect ratio, and storage size | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 
 ![rainbow](assets/rainbow-divider.png)
 
@@ -77,7 +76,7 @@ Coming soon 🔜
 
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
-| Word Embeddings | Visual intuition behind embeddings | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
+| Word Embeddings | To be added | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
 
 ![rainbow](assets/rainbow-divider.png)
 
@@ -85,7 +84,7 @@ Coming soon 🔜
 
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
-| Transformers Explainer | Attention mechanism visualization | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
+| Transformers Explainer | To be added | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
 | GPT Explainer | To be added | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
 
 ![rainbow](assets/rainbow-divider.png)

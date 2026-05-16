@@ -112,12 +112,12 @@
     <div class="subcat-label"><span>How images work</span></div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">1</div>
+        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">1</div>
         <div class="row-body">
-          <div class="row-title">What Is an Image? — Pixels, Coordinates, and Resolution — Interactive Explainer</div>
-          <div class="row-concept">The absolute starting point. An image is a grid of numbers — each cell is a pixel, and each pixel&apos;s number represents brightness or colour intensity. An interactive zoomable grid where the user starts with a small recognisable photo, can zoom all the way in to see individual pixel values, and can click any pixel to see its (row, col) and intensity value. The coordinate system — rows-and-columns indexing (the NumPy convention, used throughout this roadmap) vs (x, y) Cartesian (used in some OpenCV display functions) — the difference matters because the y-axis is flipped between them, an easy source of off-by-everything bugs. Resolution defined as height × width with concrete examples — a phone photo at 4032×3024 has ~12 million pixels, a thumbnail at 96×96 has ~9,000, the 224×224 size that essentially every CNN expects as input has ~50,000 — and why this drastic downsampling is what makes deep learning on images tractable at all. Aspect ratio — what happens when you change it (squish vs crop) with a visual comparison. A worked example computing the storage size of an uncompressed image — 4032×3024×3 bytes ≈ 36 MB per photo — motivating why image compression exists.</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/What-is-an-Image-Pixels-Coordinates-Resolution-Explainer.html" target="_blank" rel="noopener">What Is an Image? — Pixels, Coordinates, and Resolution — Interactive Explainer ↗</a></div>
+          <div class="row-concept">Image as grid of numbers, 8-bit pixel intensity, (row, col) vs (x, y) coordinate systems, resolution &amp; the 224×224 milestone, aspect ratio (squish/crop/letterbox), byte-size calculator, why compression exists</div>
         </div>
-        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+        <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">2</div>
@@ -187,7 +187,7 @@
         <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">9</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/From-Classical-to-Modern-CNN-and-ViT-Paradigms-Explainer.html" target="_blank" rel="noopener">From Classical to Modern — The CNN and ViT Paradigms — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Two paradigms of computer vision, CNN local feature extraction vs ViT global attention, receptive field intuition, CNN and ViT processing pipelines, CNN vs ViT summary</div>
+          <div class="row-concept">What it means to &quot;see&quot; — the two paradigms of modern computer vision (CNN local feature extraction vs ViT global attention), how each processes an image, the local-vs-global trade-off, side-by-side summary</div>
         </div>
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
@@ -207,7 +207,7 @@
         <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">10</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/convolution_operation_explainer.html" target="_blank" rel="noopener">The Convolution Operation — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Sliding filter, weighted sum, feature maps, output size formula, filter presets, learnable filters</div>
+          <div class="row-concept">The magnifying glass intuition for convolution — step-by-step worked example, interactive filter-sliding demo, edge/blur/sharpen kernels and what they detect, the key insight that filters are learnable, and the output size formula</div>
         </div>
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
@@ -215,7 +215,7 @@
         <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">11</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/pooling_strategies_explainer.html" target="_blank" rel="noopener">Pooling Strategies — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Max pooling, average pooling, global average pooling, spatial compression, translation invariance</div>
+          <div class="row-concept">Why we pool at all (translation invariance, compute reduction), max pooling vs average pooling vs global average pooling, a live side-by-side comparison on the same input, and the spatial-compression numbers</div>
         </div>
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
@@ -223,7 +223,7 @@
         <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">12</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/building_CNNs_explainer.html" target="_blank" rel="noopener">Building CNNs — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Feature hierarchy, ReLU, max pooling, full CNN pipeline, PyTorch code walkthrough, landmark model lineage, locality limitation, CNN vs ViT illustration</div>
+          <div class="row-concept">Stacking convolutions to build a feature hierarchy, ReLU and max pooling between layers, the full CNN pipeline, a minimal CNN in PyTorch, landmark architectures lineage, and the limitation of locality</div>
         </div>
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
