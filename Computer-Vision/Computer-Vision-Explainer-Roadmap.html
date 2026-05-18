@@ -128,12 +128,12 @@
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">3</div>
+        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">3</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Images-as-NumPy-Arrays-Explainer.html" target="_blank" rel="noopener">Images as NumPy Arrays — Interactive Explainer ↗</a></div>
-          <div class="row-concept">The conceptual bridge between &quot;an image&quot; and &quot;data your code can manipulate.&quot; An RGB image is a NumPy array of shape (H, W, 3); a grayscale image is shape (H, W). The dtype is typically uint8 (8-bit unsigned integers, 0–255) for storage and float32 for neural-network input. The indexing rules walked through with interactive examples — img[y, x] returns one pixel as a length-3 array, img[y:y+h, x:x+w] returns an (h, w, 3) region (a crop), img[:, :, 0] returns just the red channel as a 2D array. Why NumPy is the right abstraction for image work — vectorised operations are 100–1000× faster than Python loops, and pretty much every CV library accepts NumPy arrays as input/output. A worked-example interactive — take a small image, apply a sequence of NumPy operations (crop a 100×100 region, flip horizontally with img[:, ::-1], brighten by 30 with np.clip(img + 30, 0, 255), swap red and blue channels with img[:, :, [2, 1, 0]]) and watch each step&apos;s output. The data-type pitfall — uint8 + uint8 wraps around (255 + 30 = 29, not 285), which is why we use np.clip or convert to int16 first. A PyTorch reference showing how transforms.ToTensor() converts the (H, W, C) uint8 NumPy array to a (C, H, W) float32 PyTorch tensor with values in 0.0–1.0 — the format every PyTorch CNN expects.</div>
+          <div class="row-concept">NumPy array shapes for grayscale and RGB images, interactive pixel-click readout showing img[row, col] expressions, slicing patterns, the 1,600× vectorisation speedup measured live, step-through worked example, the uint8 wraparound bug demonstrated with continuous slider, HWC-to-CHW conversion for PyTorch tensors</div>
         </div>
-        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+        <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
     </div>
 

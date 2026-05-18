@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Images as NumPy Arrays — Interactive Explainer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #ffffff; --bg-secondary: #f5f4f0; --bg-tertiary: #eeece6;
+      --bg-info: #e6f1fb; --bg-success: #e1f5ee; --bg-warning: #faeeda; --bg-danger: #fcebeb;
+      --text-primary: #1a1a18; --text-secondary: #5f5e5a; --text-tertiary: #888780;
+      --text-info: #185fa5; --text-success: #0f6e56; --text-warning: #854f0b; --text-danger: #a32d2d;
+      --border-tertiary: rgba(0,0,0,0.12); --border-secondary: rgba(0,0,0,0.22);
+      --border-info: #85b7eb; --border-success: #5dcaa5; --border-warning: #ef9f27; --border-danger: #e24b4a;
+      --radius-md: 8px; --radius-lg: 12px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1a; --bg-secondary: #252522; --bg-tertiary: #2c2c2a;
+        --bg-info: #042c53; --bg-success: #04342c; --bg-warning: #412402; --bg-danger: #501313;
+        --text-primary: #e8e6de; --text-secondary: #b4b2a9; --text-tertiary: #73726c;
+        --text-info: #85b7eb; --text-success: #5dcaa5; --text-warning: #ef9f27; --text-danger: #f09595;
+        --border-tertiary: rgba(255,255,255,0.10); --border-secondary: rgba(255,255,255,0.20);
+        --border-info: #185fa5; --border-success: #0f6e56; --border-warning: #854f0b; --border-danger: #a32d2d;
+      }
+    }
+    body { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary);
+           min-height: 100vh; padding: 2rem 1rem 3rem; line-height: 1.6; }
+    .page { max-width: 760px; margin: 0 auto; }
+    header { margin-bottom: 2rem; }
+    header h1 { font-size: 24px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+    header p { font-size: 14px; color: var(--text-secondary); max-width: 600px; line-height: 1.65; }
+    header a { color: var(--text-info); text-decoration: none; border-bottom: 0.5px solid var(--border-info); }
+    .card { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary);
+            border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+    h2 { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+    p.note { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 0.75rem; }
+    p.note a { color: var(--text-info); text-decoration: none; border-bottom: 0.5px solid var(--border-info); }
+    p.note a:hover { opacity: 0.75; }
+    p.note + p.note { margin-top: -0.25rem; }
+    p.note em { color: var(--text-primary); font-style: italic; }
+    code.inline { font-family: var(--font-mono); font-size: 11.5px; background: var(--bg-secondary);
+                  padding: 1px 5px; border-radius: 4px; color: var(--text-primary); }
+    .step-label { font-size: 11px; font-weight: 500; color: var(--text-tertiary); letter-spacing: .05em;
+                  text-transform: uppercase; margin: 1rem 0 6px; }
+    .eq-box { background: var(--bg-secondary); border: 0.5px solid var(--border-tertiary);
+              border-radius: var(--radius-md); padding: 0.875rem 1rem; margin: 0.5rem 0;
+              font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); line-height: 1.7;
+              white-space: pre; overflow-x: auto; }
+    .insight { border-left: 2px solid var(--border-info); padding: 7px 12px; font-size: 13px;
+               color: var(--text-secondary); background: var(--bg-info);
+               border-radius: 0 var(--radius-md) var(--radius-md) 0; margin: 0.75rem 0; line-height: 1.55; }
+    .insight.success { border-color: var(--border-success); background: var(--bg-success); color: var(--text-success); }
+    .insight.warning { border-color: var(--border-warning); background: var(--bg-warning); color: var(--text-warning); }
+    .insight.danger { border-color: var(--border-danger); background: var(--bg-danger); color: var(--text-danger); }
+    .insight strong { color: var(--text-primary); }
+    .insight.success strong { color: var(--text-success); }
+    .insight.warning strong { color: var(--text-warning); }
+    .insight.danger strong { color: var(--text-danger); }
+    .code-block { background: var(--bg-secondary); border: 0.5px solid var(--border-tertiary);
+                  border-radius: var(--radius-md); padding: 1rem 1.125rem; margin: 0.75rem 0;
+                  font-family: var(--font-mono); font-size: 12px; line-height: 1.7;
+                  color: var(--text-primary); overflow-x: auto; white-space: pre; }
+    .code-kw { color: var(--text-info); }
+    .code-cls { color: var(--text-success); }
+    .code-num { color: var(--text-danger); }
+    .code-cmt { color: var(--text-tertiary); font-style: italic; }
+    .code-str { color: var(--text-success); }
+    .code-fn { color: var(--text-warning); }
+    .toc-nav { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary);
+               border-radius: var(--radius-lg); padding: 0.875rem 1.25rem; margin-bottom: 1.5rem; }
+    .toc-title { font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+                 text-transform: uppercase; letter-spacing: .05em; margin-bottom: 0.5rem; }
+    .toc-item { display: flex; align-items: flex-start; gap: 10px; padding: 5px 6px;
+                margin: 2px -6px; border-radius: var(--radius-md); text-decoration: none; transition: background 0.15s; }
+    .toc-item:hover { background: var(--bg-secondary); }
+    .toc-num { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; background: var(--bg-info);
+               color: var(--text-info); font-size: 11px; font-weight: 600;
+               display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+    .toc-label { font-size: 13px; color: var(--text-info); font-weight: 500; line-height: 1.45; }
+    .toc-item:hover .toc-label { color: var(--text-primary); }
+    .toc-item:hover .toc-num { opacity: 0.7; }
+
+    /* === §1: shape annotation === */
+    .shape-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 0.75rem 0; }
+    @media (max-width: 500px) { .shape-grid { grid-template-columns: 1fr; } }
+    .shape-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 0.75rem;
+                  border: 0.5px solid var(--border-tertiary); }
+    .shape-card .sc-title { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase;
+                            letter-spacing: .04em; margin-bottom: 6px; text-align: center; }
+    .shape-card img { width: 96px; height: 96px; display: block; margin: 6px auto; border-radius: 4px; }
+    .shape-card img.gray-filter { filter: grayscale(1); }
+    .shape-card .sc-shape { font-family: var(--font-mono); font-size: 12px; text-align: center;
+                            color: var(--text-info); margin-top: 6px; font-weight: 500; }
+    .shape-card .sc-total { font-size: 11px; text-align: center; color: var(--text-tertiary); margin-top: 2px; font-style: italic; }
+
+    /* === §2: pixel-click grid (RGB readout this time) === */
+    .pixel-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 0.75rem 0; }
+    @media (max-width: 500px) { .pixel-demo { grid-template-columns: 1fr; } }
+    .pd-side { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 0.625rem;
+               border: 0.5px solid var(--border-tertiary); }
+    .pd-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase;
+                letter-spacing: .04em; margin-bottom: 6px; text-align: center; }
+    .pd-grid { width: 100%; aspect-ratio: 1; display: grid;
+               grid-template-columns: repeat(16, 1fr); grid-template-rows: repeat(16, 1fr);
+               gap: 1px; background: var(--border-tertiary); border-radius: 4px; overflow: hidden; }
+    .pd-cell { cursor: pointer; transition: outline 0.05s; outline: 0 solid var(--text-info); }
+    .pd-cell:hover { outline-width: 2px; }
+    .pd-cell.selected { outline: 2px solid var(--text-info); }
+    .pd-readout { margin-top: 8px; padding: 8px 10px; background: var(--bg-primary);
+                  border-radius: 6px; font-family: var(--font-mono); font-size: 11.5px;
+                  color: var(--text-primary); min-height: 72px; line-height: 1.55; }
+    .pd-readout .pd-prompt { color: var(--text-tertiary); font-size: 11px; }
+    .pd-readout .pd-expr { color: var(--text-info); }
+    .pd-readout .pd-result { color: var(--text-success); }
+
+    /* === §3: slicing demos === */
+    .slice-demos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0.75rem 0; }
+    @media (max-width: 500px) { .slice-demos { grid-template-columns: 1fr; } }
+    .slice-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 8px;
+                  border: 0.5px solid var(--border-tertiary); display: flex; flex-direction: column; gap: 4px; align-items: center; }
+    .slice-card img { width: 100%; aspect-ratio: 1; object-fit: contain; background: var(--bg-primary); border-radius: 4px; display: block; }
+    .slice-card .slice-expr { font-family: var(--font-mono); font-size: 11px; color: var(--text-info); text-align: center; }
+    .slice-card .slice-desc { font-size: 11px; color: var(--text-tertiary); text-align: center; }
+
+    /* === §4: vectorization bar chart === */
+    .bench-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 0.875rem 1rem;
+                  margin: 0.75rem 0; border: 0.5px solid var(--border-tertiary); }
+    .bench-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: 12px; }
+    .bench-label { width: 110px; color: var(--text-primary); font-weight: 500; font-size: 11.5px; }
+    .bench-bar-wrap { flex: 1; height: 22px; background: var(--bg-primary); border-radius: 4px; overflow: hidden;
+                      border: 0.5px solid var(--border-tertiary); position: relative; }
+    .bench-bar { height: 100%; transition: width 0.4s; }
+    .bench-bar.naive { background: var(--text-danger); }
+    .bench-bar.vec { background: var(--text-success); }
+    .bench-time { width: 84px; font-family: var(--font-mono); font-size: 11px; color: var(--text-primary); text-align: right; }
+    .bench-conclusion { margin-top: 10px; padding: 6px 10px; background: var(--bg-primary); border-radius: 4px;
+                        font-size: 12px; color: var(--text-secondary); }
+    .bench-conclusion strong { color: var(--text-success); font-family: var(--font-mono); }
+
+    /* === §5: step-through worked example === */
+    .step-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 0.875rem 1rem;
+                 margin: 0.75rem 0; border: 0.5px solid var(--border-tertiary); }
+    .step-canvas-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; margin: 0.75rem 0; }
+    @media (max-width: 500px) { .step-canvas-row { grid-template-columns: 1fr; } }
+    .step-canvas-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .step-canvas-wrap canvas { width: 100%; max-width: 192px; aspect-ratio: 1; background: var(--bg-primary);
+                               border-radius: 4px; border: 0.5px solid var(--border-tertiary); display: block; }
+    .step-canvas-wrap .scw-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase;
+                                    letter-spacing: .04em; }
+    .step-arrow { font-size: 22px; color: var(--text-tertiary); text-align: center; }
+    @media (max-width: 500px) { .step-arrow { transform: rotate(90deg); } }
+    .step-controls { display: flex; gap: 6px; flex-wrap: wrap; margin: 0.5rem 0; }
+    .step-btn { padding: 5px 10px; font-size: 11.5px; border-radius: 6px; border: 0.5px solid var(--border-secondary);
+                background: var(--bg-primary); color: var(--text-primary); cursor: pointer; font-family: var(--font);
+                transition: all 0.15s; }
+    .step-btn:hover { background: var(--bg-tertiary); }
+    .step-btn.active { background: var(--bg-info); border-color: var(--border-info); color: var(--text-info); }
+    .step-code { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: 4px;
+                 padding: 8px 10px; font-family: var(--font-mono); font-size: 11.5px; color: var(--text-primary);
+                 overflow-x: auto; white-space: pre; margin-top: 0.5rem; }
+    .step-shape { font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono); margin-top: 4px; text-align: center; }
+
+    /* === §6: wraparound slider === */
+    .wrap-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 0.875rem 1rem;
+                 margin: 0.75rem 0; border: 0.5px solid var(--border-tertiary); }
+    .wrap-row { display: flex; align-items: center; gap: 12px; margin: 0.5rem 0; font-size: 12px; flex-wrap: wrap; }
+    .wrap-row label { color: var(--text-secondary); }
+    .wrap-row input[type=range] { flex: 1; max-width: 320px; }
+    .wrap-row .wrap-val { font-family: var(--font-mono); color: var(--text-info); width: 38px; text-align: right; font-weight: 500; }
+    .wrap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0.5rem 0; }
+    @media (max-width: 500px) { .wrap-grid { grid-template-columns: 1fr; } }
+    .wrap-canvas-wrap { background: var(--bg-primary); border-radius: 4px; padding: 6px;
+                        border: 0.5px solid var(--border-tertiary); display: flex; flex-direction: column;
+                        align-items: center; gap: 4px; }
+    .wrap-canvas-wrap canvas { width: 100%; max-width: 240px; aspect-ratio: 1; border-radius: 4px;
+                                display: block; image-rendering: auto; }
+    .wrap-canvas-wrap .wcw-title { font-size: 11.5px; font-weight: 500; }
+    .wrap-canvas-wrap.bad .wcw-title { color: var(--text-danger); }
+    .wrap-canvas-wrap.good .wcw-title { color: var(--text-success); }
+    .wrap-canvas-wrap .wcw-formula { font-size: 10.5px; color: var(--text-tertiary); font-family: var(--font-mono); }
+
+    /* === §7: HWC → CHW axis diagram === */
+    .axis-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 0.875rem 1rem;
+                 margin: 0.75rem 0; border: 0.5px solid var(--border-tertiary); }
+    .axis-svg-wrap { display: block; width: 100%; padding: 8px 0; }
+    .axis-svg-wrap svg { display: block; width: 100%; height: auto; max-width: 100%; }
+    .axis-arrow-vert { text-align: center; font-size: 24px; color: var(--text-info); margin: 4px 0; line-height: 1; }
+    .axis-flow { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: center; margin: 0.75rem 0; }
+    @media (max-width: 500px) { .axis-flow { grid-template-columns: 1fr; } }
+    .axis-side { background: var(--bg-primary); border-radius: 6px; padding: 12px;
+                 border: 0.5px solid var(--border-tertiary); text-align: center; }
+    .axis-side .axis-shape-tag { font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;
+                                 font-family: var(--font-mono); }
+    .axis-side .axis-vis { display: flex; justify-content: center; align-items: flex-end; gap: 6px;
+                           margin: 8px 0; min-height: 100px; }
+    .axis-side .axis-vis.hwc .stack { width: 70px; height: 70px; background: var(--bg-secondary);
+                                       border: 0.5px solid var(--border-secondary); border-radius: 4px;
+                                       position: relative; }
+    .axis-side .axis-vis.hwc .stack::before,
+    .axis-side .axis-vis.hwc .stack::after { content: ''; position: absolute; width: 100%; height: 100%;
+                                              border: 0.5px solid var(--border-tertiary); border-radius: 4px; }
+    .axis-side .axis-vis.hwc .stack::before { background: rgba(216,53,53,0.45); transform: translate(-4px,-4px); }
+    .axis-side .axis-vis.hwc .stack::after  { background: rgba(43,143,87,0.45); transform: translate(-2px,-2px); }
+    .axis-side .axis-vis.hwc .stack { background: rgba(56,128,224,0.55); }
+    .axis-side .axis-vis.chw { gap: 4px; }
+    .axis-side .axis-vis.chw .ch { width: 50px; height: 70px; border-radius: 3px;
+                                    border: 0.5px solid var(--border-tertiary); }
+    .axis-side .axis-vis.chw .ch.r { background: rgba(216,53,53,0.55); }
+    .axis-side .axis-vis.chw .ch.g { background: rgba(43,143,87,0.55); }
+    .axis-side .axis-vis.chw .ch.b { background: rgba(56,128,224,0.55); }
+    .axis-side .axis-caption { font-size: 11.5px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5; }
+    .axis-side .axis-caption strong { color: var(--text-primary); }
+    .axis-arrow { font-size: 28px; color: var(--text-info); text-align: center; }
+    @media (max-width: 500px) { .axis-arrow { transform: rotate(90deg); } }
+
+    footer { text-align: center; font-size: 12px; color: var(--text-tertiary); margin-top: 2rem; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>Images as NumPy Arrays — Interactive Explainer</h1>
+    <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener">Ancil Cleetus</a></p>
+    <p>The third explainer in the Computer Vision roadmap. So far you&apos;ve clicked on pixels and seen their values. This time you&apos;ll learn how those same operations look in Python code — slicing, channel extraction, vectorised arithmetic — and meet the one bug that catches every beginner: integer wraparound.</p>
+  </header>
+  <nav class="toc-nav" aria-label="Table of contents">
+    <div class="toc-title">Contents</div>
+    <a href="#sec-bridge" class="toc-item"><div class="toc-num">1</div><span class="toc-label">From &ldquo;a grid of numbers&rdquo; to a NumPy array</span></a>
+    <a href="#sec-pixel" class="toc-item"><div class="toc-num">2</div><span class="toc-label">Reading a pixel: <code>img[row, col]</code></span></a>
+    <a href="#sec-slice" class="toc-item"><div class="toc-num">3</div><span class="toc-label">Reading a region: slicing</span></a>
+    <a href="#sec-vec" class="toc-item"><div class="toc-num">4</div><span class="toc-label">Vectorisation &mdash; why NumPy at all</span></a>
+    <a href="#sec-worked" class="toc-item"><div class="toc-num">5</div><span class="toc-label">A worked example: applying a sequence of operations</span></a>
+    <a href="#sec-wrap" class="toc-item"><div class="toc-num">6</div><span class="toc-label">The <code>uint8</code> wraparound trap</span></a>
+    <a href="#sec-pytorch" class="toc-item"><div class="toc-num">7</div><span class="toc-label">From NumPy to PyTorch tensors</span></a>
+  </nav>
+
+  <!-- §1 -->
+  <div class="card">
+    <h2 id="sec-bridge">From &ldquo;a grid of numbers&rdquo; to a NumPy array</h2>
+
+    <p class="note">In the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/What-is-an-Image-Pixels-Coordinates-Resolution-Explainer.html" target="_blank" rel="noopener">What Is an Image? — Interactive Explainer</a>, you clicked on individual pixels and saw their grayscale intensity values. In the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Colour-RGB-BGR-HSV-Grayscale-Explainer.html" target="_blank" rel="noopener">Colour — RGB, BGR, HSV, and Grayscale — Interactive Explainer</a>, the same click gave you three numbers per pixel instead of one.</p>
+
+    <p class="note">In Python, that whole grid of numbers is a <strong>NumPy array</strong> — a multidimensional rectangular box of numbers that you can index, slice, and transform with concise syntax. This explainer is where &quot;an image is a grid of numbers&quot; stops being a mental model and becomes <code class="inline">numpy.ndarray</code>, a data structure you can manipulate.</p>
+
+    <div class="shape-grid">
+      <div class="shape-card">
+        <div class="sc-title">Grayscale image</div>
+        <img class="gray-filter" id="sc-gray" alt="Kitten in grayscale">
+        <div class="sc-shape">shape = (96, 96)</div>
+        <div class="sc-total">9,216 numbers total</div>
+      </div>
+      <div class="shape-card">
+        <div class="sc-title">RGB image</div>
+        <img id="sc-rgb" alt="Kitten in colour">
+        <div class="sc-shape">shape = (96, 96, 3)</div>
+        <div class="sc-total">27,648 numbers total</div>
+      </div>
+    </div>
+
+    <p class="note">Two layouts to remember:</p>
+
+    <p class="note" style="margin-left:1rem;padding-left:0.75rem;border-left:0.5px solid var(--border-tertiary)">
+      <strong>Grayscale = 2D array</strong>: <code class="inline">shape = (height, width)</code> — one number per pixel.<br>
+      <strong>RGB = 3D array</strong>: <code class="inline">shape = (height, width, 3)</code> — three numbers per pixel, one per colour channel.
+    </p>
+
+    <p class="note">Throughout this explainer we&apos;ll use NumPy&apos;s row-major convention: the first axis is <em>height</em> (rows, top-to-bottom), the second is <em>width</em> (columns, left-to-right), and (for RGB) the third is <em>channel</em> (R, G, B in that order). The pixel data type is typically <code class="inline">uint8</code> — 8-bit unsigned integers in the range 0–255, exactly as the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/What-is-an-Image-Pixels-Coordinates-Resolution-Explainer.html" target="_blank" rel="noopener">first explainer</a> introduced. We&apos;ll come back to data types and their consequences in <a href="#sec-wrap">§6</a>.</p>
+
+    <div class="insight">
+      <strong>Why NumPy specifically?</strong> Every Python image library — PIL, OpenCV, scikit-image, torchvision — eventually represents images as NumPy arrays under the hood. Learning to think in NumPy array terms is learning to think in the universal Python image format.
+    </div>
+  </div>
+
+  <!-- §2 -->
+  <div class="card">
+    <h2 id="sec-pixel">Reading a pixel: <code>img[row, col]</code></h2>
+
+    <p class="note">The simplest possible operation. Click any cell in the 16×16 region from the kitten&apos;s face, and watch what Python returns from the corresponding indexing expression:</p>
+
+    <div class="pixel-demo">
+      <div class="pd-side">
+        <div class="pd-label">The pixel grid</div>
+        <div class="pd-grid" id="pixel-grid" role="grid"></div>
+      </div>
+      <div class="pd-side">
+        <div class="pd-label">The Python expression</div>
+        <div class="pd-readout" id="pixel-readout">
+          <span class="pd-prompt">Click a cell to read its value.</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="note">Two patterns to internalize:</p>
+
+    <p class="note" style="margin-left:1rem;padding-left:0.75rem;border-left:0.5px solid var(--border-tertiary)">
+      <strong>For an RGB image</strong>: <code class="inline">img[row, col]</code> returns a length-3 array — one number per channel: <code class="inline">array([R, G, B])</code>.<br>
+      <strong>For a grayscale image</strong>: <code class="inline">img[row, col]</code> returns a single number — the intensity.
+    </p>
+
+    <p class="note">The order is always <em>row first, then column</em>. This is the NumPy / PyTorch convention you saw in the first explainer&apos;s coordinate-systems discussion. Some other libraries (notably OpenCV&apos;s drawing functions) use <code class="inline">(x, y)</code> instead — column first, then row. Mixing them up is the source of the most common indexing bug in CV code.</p>
+
+    <p class="note">To read a specific channel of a specific pixel, you add a third index:</p>
+
+    <div class="eq-box">img[5, 8, 0]   <span style="color:var(--text-tertiary)"># the red value at row 5, col 8</span>
+img[5, 8, 1]   <span style="color:var(--text-tertiary)"># the green value</span>
+img[5, 8, 2]   <span style="color:var(--text-tertiary)"># the blue value</span></div>
+
+    <p class="note">These three values together are exactly what you see in the readout above when you click a cell.</p>
+  </div>
+
+  <!-- §3 -->
+  <div class="card">
+    <h2 id="sec-slice">Reading a region: slicing</h2>
+
+    <p class="note">Reading one pixel is fine, but most CV operations work on <em>regions</em> — many pixels at once. NumPy uses Python&apos;s slice syntax for this: <code class="inline">start:stop:step</code> on each axis. Here are the three patterns you&apos;ll use most often, with concrete results on a 192×192 kitten:</p>
+
+    <div class="slice-demos">
+      <div class="slice-card">
+        <img id="slice-crop" alt="Cropped region">
+        <div class="slice-expr">img[10:50, 20:80]</div>
+        <div class="slice-desc">crop a rectangular region<br>result shape: (40, 60, 3)</div>
+      </div>
+      <div class="slice-card">
+        <img id="slice-channel" alt="Red channel only">
+        <div class="slice-expr">img[:, :, 0]</div>
+        <div class="slice-desc">extract the red channel<br>result shape: (192, 192)</div>
+      </div>
+      <div class="slice-card">
+        <img id="slice-flip" alt="Horizontally flipped">
+        <div class="slice-expr">img[:, ::-1]</div>
+        <div class="slice-desc">flip horizontally<br>result shape: (192, 192, 3)</div>
+      </div>
+    </div>
+
+    <p class="note">Three things to notice. <strong>First</strong>, a colon by itself (<code class="inline">:</code>) means &quot;all of this axis&quot; — so <code class="inline">img[:, :, 0]</code> reads &quot;all rows, all columns, channel index 0.&quot; <strong>Second</strong>, slicing reduces dimensionality when you use a single index but preserves it when you use a range — <code class="inline">img[:, :, 0]</code> gives a 2D array but <code class="inline">img[:, :, 0:1]</code> keeps the third axis with size 1. <strong>Third</strong>, a negative step like <code class="inline">::-1</code> reverses an axis — a trick we&apos;ll use again in <a href="#sec-worked">§5</a>.</p>
+
+    <div class="step-label">A small reference of slice patterns</div>
+
+    <div class="eq-box">img[10:50, 20:80]    <span style="color:var(--text-tertiary)"># rectangular crop</span>
+img[:, :, 0]         <span style="color:var(--text-tertiary)"># red channel (2D result)</span>
+img[:, :, ::-1]      <span style="color:var(--text-tertiary)"># reverse channel order: RGB &rarr; BGR</span>
+img[::2, ::2]        <span style="color:var(--text-tertiary)"># every second pixel (4&times; downsample)</span>
+img[:, ::-1]         <span style="color:var(--text-tertiary)"># horizontal flip (mirror)</span>
+img[::-1, :]         <span style="color:var(--text-tertiary)"># vertical flip (upside-down)</span></div>
+
+    <p class="note">All of these are <em>view operations</em> — they don&apos;t copy memory by default; they just give you a different way of looking at the same underlying data. That&apos;s why they&apos;re extremely fast even on large images.</p>
+
+    <div class="insight">
+      The <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Basic-Image-Operations-Resize-Crop-Rotate-Flip-Explainer.html" target="_blank" rel="noopener">Basic Image Operations &mdash; Resize, Crop, Rotate, Flip &mdash; Interactive Explainer</a> later in this category goes deeper into the practical use of these operations &mdash; including interpolation choices for resizing, which slice syntax alone doesn&apos;t cover.
+    </div>
+  </div>
+
+  <!-- §4 -->
+  <div class="card">
+    <h2 id="sec-vec">Vectorisation &mdash; why NumPy at all</h2>
+
+    <p class="note">Python loops are slow. If you write a loop that visits every pixel of even a moderately-sized image, you&apos;ll wait noticeably long for it to finish. NumPy&apos;s superpower is <strong>vectorisation</strong> — applying an operation to every element of an array in a single function call that runs in tight, compiled C code under the hood.</p>
+
+    <p class="note">Concrete example: brighten every pixel of a 224×224 RGB image by 30.</p>
+
+    <div class="step-label">The slow way (naive Python loop)</div>
+    <div class="code-block"><span class="code-kw">def</span> <span class="code-fn">brighten_naive</span>(img, n):
+    out = img.copy()
+    h, w, c = img.shape
+    <span class="code-kw">for</span> y <span class="code-kw">in</span> <span class="code-fn">range</span>(h):
+        <span class="code-kw">for</span> x <span class="code-kw">in</span> <span class="code-fn">range</span>(w):
+            <span class="code-kw">for</span> ch <span class="code-kw">in</span> <span class="code-fn">range</span>(c):
+                out[y, x, ch] = <span class="code-fn">min</span>(<span class="code-fn">int</span>(img[y, x, ch]) + n, <span class="code-num">255</span>)
+    <span class="code-kw">return</span> out</div>
+
+    <div class="step-label">The fast way (vectorised NumPy)</div>
+    <div class="code-block"><span class="code-kw">def</span> <span class="code-fn">brighten_vec</span>(img, n):
+    <span class="code-kw">return</span> np.<span class="code-fn">clip</span>(img.<span class="code-fn">astype</span>(np.<span class="code-cls">int16</span>) + n, <span class="code-num">0</span>, <span class="code-num">255</span>).<span class="code-fn">astype</span>(np.<span class="code-cls">uint8</span>)</div>
+
+    <p class="note">Both functions produce <em>identical</em> output. But on the same 224×224 image:</p>
+
+    <div class="bench-card">
+      <div class="bench-row">
+        <span class="bench-label">Naive loop</span>
+        <div class="bench-bar-wrap"><div class="bench-bar naive" style="width:100%"></div></div>
+        <span class="bench-time">~55 ms</span>
+      </div>
+      <div class="bench-row">
+        <span class="bench-label">Vectorised</span>
+        <div class="bench-bar-wrap"><div class="bench-bar vec" style="width:0.06%"></div></div>
+        <span class="bench-time">~0.034 ms</span>
+      </div>
+      <div class="bench-conclusion">
+        Same result, <strong>~1,600&times; faster</strong>. The naive version visits 150,528 pixels one at a time in Python; the vectorised version hands the entire array to a single C function.
+      </div>
+    </div>
+
+    <p class="note">This speedup matters more than it first appears. Training a CNN involves applying preprocessing to thousands of images per second — a 1,600× speedup on each one is the difference between a model that trains overnight and a model that doesn&apos;t train at all. Every PyTorch image-augmentation pipeline you&apos;ll encounter is built on vectorised NumPy or its GPU equivalent.</p>
+
+    <div class="insight success">
+      <strong>The rule of thumb:</strong> if you find yourself writing a <code class="inline">for</code> loop over pixel coordinates, pause and look for the vectorised equivalent. NumPy has direct functions for nearly every common operation — addition, multiplication, clipping, masking, comparison, sorting — and they all work on whole arrays at once.
+    </div>
+  </div>
+
+  <!-- §5 -->
+  <div class="card">
+    <h2 id="sec-worked">A worked example: applying a sequence of operations</h2>
+
+    <p class="note">Let&apos;s put everything from <a href="#sec-slice">§3</a> and <a href="#sec-vec">§4</a> together. Starting from the original kitten image, we&apos;ll apply four operations in sequence: a crop, a horizontal flip, a brightness boost, and a channel swap. Click each button below to see the result and the code at that step.</p>
+
+    <div class="step-card">
+      <div class="step-controls" id="step-controls">
+        <button class="step-btn active" data-step="0">0 &mdash; Original</button>
+        <button class="step-btn" data-step="1">1 &mdash; Crop</button>
+        <button class="step-btn" data-step="2">2 &mdash; Flip horizontally</button>
+        <button class="step-btn" data-step="3">3 &mdash; Brighten by 40</button>
+        <button class="step-btn" data-step="4">4 &mdash; Swap R&harr;B</button>
+      </div>
+
+      <div class="step-canvas-row">
+        <div class="step-canvas-wrap">
+          <canvas id="step-orig-canvas" width="192" height="192"></canvas>
+          <div class="scw-label">Original</div>
+          <div class="step-shape" id="step-orig-shape">shape = (192, 192, 3)</div>
+        </div>
+        <div class="step-arrow">&rarr;</div>
+        <div class="step-canvas-wrap">
+          <canvas id="step-result-canvas" width="192" height="192"></canvas>
+          <div class="scw-label">After step <span id="step-num">0</span></div>
+          <div class="step-shape" id="step-result-shape">shape = (192, 192, 3)</div>
+        </div>
+      </div>
+
+      <div class="step-code" id="step-code">img = ...   # the original 192&times;192 RGB image</div>
+    </div>
+
+    <p class="note">The whole sequence is just five short lines of code. Each line takes the result of the previous one and transforms it further. This kind of chained transformation is the backbone of every image preprocessing pipeline in deep learning — and you&apos;ve just written one.</p>
+
+    <div class="insight">
+      <strong>The full pipeline as one expression:</strong> <code class="inline">np.clip(img[80:160, 30:130, :][:, ::-1].astype(np.int16) + 40, 0, 255).astype(np.uint8)[:, :, [2, 1, 0]]</code> &mdash; all four operations chained together. This is what makes NumPy concise: a sequence of slices, arithmetic, and conversions can produce a final image without ever writing a loop.
+    </div>
+  </div>
+
+  <!-- §6 -->
+  <div class="card">
+    <h2 id="sec-wrap">The <code>uint8</code> wraparound trap</h2>
+
+    <p class="note">You may have noticed that the vectorised brighten function in <a href="#sec-vec">§4</a> did something extra: <code class="inline">.astype(np.int16) + n</code> before clipping. Why convert to <code class="inline">int16</code> first instead of just writing <code class="inline">img + n</code>?</p>
+
+    <p class="note">Try it both ways and see what happens. The slider below adds <code class="inline">N</code> to every pixel of the kitten. On the left: the naive way (<code class="inline">img + N</code> with <code class="inline">uint8</code> arithmetic). On the right: the correct way (<code class="inline">np.clip(img + N, 0, 255)</code>). Drag the slider and watch.</p>
+
+    <div class="wrap-card">
+      <div class="wrap-row">
+        <label for="wrap-slider">Brightness offset N:</label>
+        <input type="range" id="wrap-slider" min="0" max="200" step="1" value="0">
+        <span class="wrap-val" id="wrap-val">0</span>
+      </div>
+      <div class="wrap-grid">
+        <div class="wrap-canvas-wrap bad">
+          <canvas id="wrap-bad-canvas" width="192" height="192"></canvas>
+          <div class="wcw-title">&#x2718; img + N (uint8 wraps)</div>
+          <div class="wcw-formula">pixel = (orig + N) % 256</div>
+        </div>
+        <div class="wrap-canvas-wrap good">
+          <canvas id="wrap-good-canvas" width="192" height="192"></canvas>
+          <div class="wcw-title">&#x2714; np.clip(img + N, 0, 255)</div>
+          <div class="wcw-formula">pixel = min(orig + N, 255)</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="note">Around N=10 the white fur starts developing <em>black holes</em>. By N=60 the image is barely recognisable — bright regions have turned into dark spots, sometimes with completely wrong colours. This is <strong>integer wraparound</strong>: when an arithmetic result exceeds the maximum value of the data type, it wraps back to zero instead of saturating. For <code class="inline">uint8</code>:</p>
+
+    <div class="eq-box">uint8(240) + uint8(30)   &rarr; uint8(14)        <span style="color:var(--text-danger)"># wrong! 270 wraps to 14</span>
+uint8(255) + uint8(1)    &rarr; uint8(0)         <span style="color:var(--text-danger)"># wrong! 256 wraps to 0</span></div>
+
+    <p class="note">The fix has two parts. First, do the arithmetic in a wider type (<code class="inline">int16</code> or <code class="inline">int32</code>) that can hold values above 255. Then use <code class="inline">np.clip</code> to saturate values back into the 0&ndash;255 range before converting to <code class="inline">uint8</code>:</p>
+
+    <div class="code-block"><span class="code-cmt"># Wrong: stays in uint8, wraps</span>
+result = img + n
+
+<span class="code-cmt"># Right: widen, add, clip, convert back</span>
+result = np.<span class="code-fn">clip</span>(img.<span class="code-fn">astype</span>(np.<span class="code-cls">int16</span>) + n, <span class="code-num">0</span>, <span class="code-num">255</span>).<span class="code-fn">astype</span>(np.<span class="code-cls">uint8</span>)</div>
+
+    <p class="note">This is the same conceptual problem you have any time you do arithmetic on integer types whose range you might exceed. NumPy follows C&apos;s integer-overflow conventions because it<em>is</em> running C arithmetic. So does JavaScript&apos;s <code class="inline">Uint8Array</code> (in fact the wraparound demo above is running the same buggy math in your browser, not just simulating it).</p>
+
+    <div class="insight danger">
+      <strong>This is why neural networks always use float32, not uint8.</strong> Floating-point arithmetic doesn&apos;t wrap around &mdash; it has effectively infinite range for image-scale values. PyTorch&apos;s <code class="inline">transforms.ToTensor()</code> automatically converts <code class="inline">uint8</code> arrays to <code class="inline">float32</code> tensors with values in 0.0&ndash;1.0, sidestepping this entire class of bug. We&apos;ll see exactly that conversion in <a href="#sec-pytorch">&sect;7</a>.
+    </div>
+  </div>
+
+  <!-- §7 -->
+  <div class="card">
+    <h2 id="sec-pytorch">From NumPy to PyTorch tensors</h2>
+
+    <p class="note">The final move. Every PyTorch CNN you&apos;ll meet later in this roadmap expects images as <strong>PyTorch tensors</strong>, not NumPy arrays. The conversion is one line of code, but it changes three things at once — the data type, the value range, and the axis order.</p>
+
+    <div class="step-label">What <code>transforms.ToTensor()</code> does</div>
+
+    <p class="note" style="margin-left:1rem;padding-left:0.75rem;border-left:0.5px solid var(--border-tertiary)">
+      <strong>1.</strong> Converts <code class="inline">uint8</code> (0&ndash;255) to <code class="inline">float32</code> (0.0&ndash;1.0) by dividing every value by 255.<br>
+      <strong>2.</strong> Reorders axes from <code class="inline">(H, W, C)</code> (NumPy convention) to <code class="inline">(C, H, W)</code> (PyTorch convention).<br>
+      <strong>3.</strong> Converts from NumPy array to PyTorch <code class="inline">Tensor</code>.
+    </p>
+
+    <p class="note">In code:</p>
+
+    <div class="code-block"><span class="code-kw">import</span> numpy <span class="code-kw">as</span> np
+<span class="code-kw">from</span> torchvision <span class="code-kw">import</span> transforms
+
+img_np = np.<span class="code-fn">array</span>(pil_image)        <span class="code-cmt"># shape (H, W, 3), dtype uint8, values 0-255</span>
+img_pt = transforms.<span class="code-cls">ToTensor</span>()(img_np)   <span class="code-cmt"># shape (3, H, W), dtype float32, values 0.0-1.0</span></div>
+
+    <p class="note">The axis reorder is the most surprising change. Visually:</p>
+
+    <div class="axis-card">
+      <div class="axis-svg-wrap">
+        <svg viewBox="0 0 760 500" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" preserveAspectRatio="xMidYMid meet">
+  <style>
+    .svg-text { fill: #1a1a18; }
+    .svg-muted { fill: #5f5e5a; }
+    .svg-title { fill: #1a1a18; font-weight: 600; font-size: 16px; }
+    .svg-bold { font-weight: 600; }
+    .svg-mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 11px; }
+    .cell-val { font-family: "SFMono-Regular", Consolas, monospace; font-size: 9.5px; font-weight: 700; fill: #000; }
+    .grid-line { stroke: rgba(0,0,0,0.28); stroke-width: 0.7; fill: none; }
+    .box-border { stroke: rgba(0,0,0,0.4); stroke-width: 0.7; }
+    .arrow-line { stroke: #1a1a18; stroke-width: 1.6; fill: none; }
+    @media (prefers-color-scheme: dark) {
+      .svg-text, .svg-title { fill: #e8e6de; }
+      .svg-muted { fill: #b4b2a9; }
+      .grid-line { stroke: rgba(255,255,255,0.22); }
+      .box-border { stroke: rgba(255,255,255,0.28); }
+      .arrow-line { stroke: #e8e6de; }
+      /* Cell values stay BLACK in dark mode too — they're inside coloured cells, not the page background */
+    }
+  </style>
+  
+  <defs>
+    <marker id="ahead" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto-start-reverse" markerUnits="strokeWidth">
+      <path d="M 0 0 L 7 3.5 L 0 7 z" fill="context-stroke" />
+    </marker>
+  </defs>
+  
+  <text x="380" y="24" class="svg-title" text-anchor="middle">NumPy Array Representation  →  (H, W, C)</text>
+  
+  <!-- ==================== LANE 1: PIXEL STACK ==================== -->
+  <text x="100" y="60" class="svg-bold svg-text" text-anchor="middle">Pixel</text>
+  <text x="50" y="93" class="svg-bold svg-text" text-anchor="end">Blue</text>
+  <text x="40" y="113" class="svg-bold svg-text" text-anchor="end">Green</text>
+  <text x="30" y="133" class="svg-bold svg-text" text-anchor="end">Red</text>
+  
+  <g transform="translate(72,80)">
+    <rect x="20" y="0" width="55" height="55" fill="#3070e0" class="box-border" />
+    <rect x="10" y="10" width="55" height="55" fill="#1ab548" class="box-border" />
+    <rect x="0" y="20" width="55" height="55" fill="#e02020" class="box-border" />
+  </g>
+  
+  <text x="100" y="190" class="svg-muted" text-anchor="middle">RGB image channels</text>
+  <text x="100" y="212" class="svg-bold svg-text" text-anchor="middle">Pixel = [Red, Green, Blue]</text>
+  
+  <!-- ==================== LANE 2: EXAMPLE PIXELS ==================== -->
+  <text x="265" y="80" class="svg-text" text-anchor="middle">Pixel A</text>
+  <rect x="240" y="92" width="50" height="40" fill="#ffff00" class="box-border" />
+  <text x="265" y="150" class="svg-mono svg-muted" text-anchor="middle">[255, 255, 0]</text>
+  
+  <text x="265" y="190" class="svg-text" text-anchor="middle">Pixel B</text>
+  <rect x="240" y="202" width="50" height="40" fill="#ff00ff" class="box-border" />
+  <text x="265" y="260" class="svg-mono svg-muted" text-anchor="middle">[255, 0, 255]</text>
+  
+  <text x="265" y="300" class="svg-text" text-anchor="middle">Pixel C</text>
+  <rect x="240" y="312" width="50" height="40" fill="#7f7f7f" class="box-border" />
+  <text x="265" y="370" class="svg-mono svg-muted" text-anchor="middle">[127, 127, 127]</text>
+  
+  <!-- ==================== LANE 3: DIGITAL IMAGE STACK WITH IN-CELL VALUES ==================== -->
+  <text x="580" y="60" class="svg-bold svg-text" text-anchor="middle">Digital Image</text>
+  
+  <g transform="translate(460,80)">
+    <!-- BLUE BACK LAYER -->
+    <g transform="translate(40,0)">
+      <rect x="0" y="0" width="140" height="140" fill="#3070e0" class="box-border" />
+      <g class="grid-line">
+        <line x1="23.3" y1="0" x2="23.3" y2="140"/><line x1="46.6" y1="0" x2="46.6" y2="140"/>
+        <line x1="70" y1="0" x2="70" y2="140"/><line x1="93.3" y1="0" x2="93.3" y2="140"/>
+        <line x1="116.6" y1="0" x2="116.6" y2="140"/>
+        <line x1="0" y1="23.3" x2="140" y2="23.3"/><line x1="0" y1="46.6" x2="140" y2="46.6"/>
+        <line x1="0" y1="70" x2="140" y2="70"/><line x1="0" y1="93.3" x2="140" y2="93.3"/>
+        <line x1="0" y1="116.6" x2="140" y2="116.6"/>
+      </g>
+      <!-- In-cell values on BLUE layer.
+           Cell (0,0) needs B=0 for Pixel A
+           Cell (0,3) needs B=255 for Pixel B
+           Cell (5,5) needs B=127 for Pixel C
+           Coordinates within this group (after translate(40,0)): cell (r,c) center = (23.3*(c+0.5), 23.3*(r+0.5))
+      -->
+      <text x="11.65" y="14.8" class="cell-val" text-anchor="middle">0</text>
+      <text x="81.55" y="14.8" class="cell-val" text-anchor="middle">255</text>
+      <text x="128.15" y="131.45" class="cell-val" text-anchor="middle">127</text>
+    </g>
+    
+    <!-- GREEN MIDDLE LAYER -->
+    <g transform="translate(20,20)">
+      <rect x="0" y="0" width="140" height="140" fill="#1ab548" class="box-border" />
+      <g class="grid-line">
+        <line x1="23.3" y1="0" x2="23.3" y2="140"/><line x1="46.6" y1="0" x2="46.6" y2="140"/>
+        <line x1="70" y1="0" x2="70" y2="140"/><line x1="93.3" y1="0" x2="93.3" y2="140"/>
+        <line x1="116.6" y1="0" x2="116.6" y2="140"/>
+        <line x1="0" y1="23.3" x2="140" y2="23.3"/><line x1="0" y1="46.6" x2="140" y2="46.6"/>
+        <line x1="0" y1="70" x2="140" y2="70"/><line x1="0" y1="93.3" x2="140" y2="93.3"/>
+        <line x1="0" y1="116.6" x2="140" y2="116.6"/>
+      </g>
+      <!-- In-cell values on GREEN layer.
+           Cell (0,0) needs G=255 for Pixel A
+           Cell (0,3) needs G=0 for Pixel B
+           Cell (5,5) needs G=127 for Pixel C
+      -->
+      <text x="11.65" y="14.8" class="cell-val" text-anchor="middle">255</text>
+      <text x="81.55" y="14.8" class="cell-val" text-anchor="middle">0</text>
+      <text x="128.15" y="131.45" class="cell-val" text-anchor="middle">127</text>
+    </g>
+    
+    <!-- RED FRONT LAYER -->
+    <g transform="translate(0,40)">
+      <rect x="0" y="0" width="140" height="140" fill="#e02020" class="box-border" />
+      <g class="grid-line">
+        <line x1="23.3" y1="0" x2="23.3" y2="140"/><line x1="46.6" y1="0" x2="46.6" y2="140"/>
+        <line x1="70" y1="0" x2="70" y2="140"/><line x1="93.3" y1="0" x2="93.3" y2="140"/>
+        <line x1="116.6" y1="0" x2="116.6" y2="140"/>
+        <line x1="0" y1="23.3" x2="140" y2="23.3"/><line x1="0" y1="46.6" x2="140" y2="46.6"/>
+        <line x1="0" y1="70" x2="140" y2="70"/><line x1="0" y1="93.3" x2="140" y2="93.3"/>
+        <line x1="0" y1="116.6" x2="140" y2="116.6"/>
+      </g>
+      <!-- In-cell values on RED layer.
+           Cell (0,0) needs R=255 for Pixel A
+           Cell (0,3) needs R=255 for Pixel B
+           Cell (5,5) needs R=127 for Pixel C
+      -->
+      <text x="11.65" y="14.8" class="cell-val" text-anchor="middle">255</text>
+      <text x="81.55" y="14.8" class="cell-val" text-anchor="middle">255</text>
+      <text x="128.15" y="131.45" class="cell-val" text-anchor="middle">127</text>
+    </g>
+  </g>
+  
+  <!-- ===== ARROWS FROM CELLS TO PIXEL BOXES ===== -->
+  <!-- Each arrow starts at the RED cell center (the visible front layer for that pixel),
+       and points to the right edge of the corresponding Pixel box. -->
+  
+  <!-- Pixel A: from red cell (0,0) center at (471.65, 131.65) to Pixel A box right edge (295, 112) -->
+  <line x1="471.65" y1="131.65" x2="295" y2="112" class="arrow-line" marker-end="url(#ahead)" />
+  
+  <!-- Pixel B: from red cell (0,3) center to Pixel B box right edge (295, 222) -->
+  <line x1="541.55" y1="131.65" x2="295" y2="222" class="arrow-line" marker-end="url(#ahead)" />
+  
+  <!-- Pixel C: from red cell (5,5) center to Pixel C box right edge (295, 332) -->
+  <line x1="588.15" y1="248.15" x2="295" y2="332" class="arrow-line" marker-end="url(#ahead)" />
+  
+  <!-- Channels / Matrix label -->
+  <text x="580" y="345" class="svg-muted" text-anchor="middle">Channels / Matrix</text>
+  
+  <!-- ===== BOTTOM ===== -->
+  <text x="380" y="395" class="svg-bold svg-text" text-anchor="middle" font-style="italic">Pixels first, channels last</text>
+  <text x="380" y="425" class="svg-bold svg-text" text-anchor="middle">NumPy array shape = [Height, Width, Channels]</text>
+  <text x="265" y="465" class="svg-mono svg-text" text-anchor="end">arr[:, :, 0]</text>
+  <text x="275" y="465" class="svg-muted">→ Entire Red channel matrix</text>
+  <text x="265" y="490" class="svg-mono svg-text" text-anchor="end">arr[y, x, :]</text>
+  <text x="275" y="490" class="svg-muted">→ RGB values of a single pixel</text>
+  
+</svg>
+      </div>
+      <div class="axis-arrow-vert">&darr;</div>
+      <div class="axis-svg-wrap">
+        <svg viewBox="0 0 760 490" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" preserveAspectRatio="xMidYMid meet">
+  <style>
+    .svg-text { fill: #1a1a18; }
+    .svg-muted { fill: #5f5e5a; }
+    .svg-title { fill: #1a1a18; font-weight: 600; font-size: 16px; }
+    .svg-bold { font-weight: 600; }
+    .svg-mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; }
+    .grid-line { stroke: rgba(0,0,0,0.28); stroke-width: 0.7; fill: none; }
+    .box-border { stroke: rgba(0,0,0,0.4); stroke-width: 0.7; }
+    @media (prefers-color-scheme: dark) {
+      .svg-text, .svg-title { fill: #e8e6de; }
+      .svg-muted { fill: #b4b2a9; }
+      .grid-line { stroke: rgba(255,255,255,0.22); }
+      .box-border { stroke: rgba(255,255,255,0.28); }
+    }
+  </style>
+  
+  <text x="380" y="25" class="svg-title" text-anchor="middle">PyTorch Tensor Representation  →  (C, H, W)</text>
+  
+  <!-- LEFT: 3 stacked channel grids labelled Channel 0/1/2 -->
+  <text x="170" y="60" class="svg-bold svg-text" text-anchor="middle">Tensor</text>
+  
+  <g transform="translate(80,80)">
+    <rect x="0" y="0" width="180" height="72" fill="#e02020" class="box-border" />
+    <g class="grid-line">
+      <line x1="36" y1="0" x2="36" y2="72"/><line x1="72" y1="0" x2="72" y2="72"/>
+      <line x1="108" y1="0" x2="108" y2="72"/><line x1="144" y1="0" x2="144" y2="72"/>
+      <line x1="0" y1="36" x2="180" y2="36"/>
+    </g>
+  </g>
+  <text x="280" y="120" class="svg-bold svg-text">Channel 0 (Red)</text>
+  
+  <g transform="translate(80,180)">
+    <rect x="0" y="0" width="180" height="72" fill="#1ab548" class="box-border" />
+    <g class="grid-line">
+      <line x1="36" y1="0" x2="36" y2="72"/><line x1="72" y1="0" x2="72" y2="72"/>
+      <line x1="108" y1="0" x2="108" y2="72"/><line x1="144" y1="0" x2="144" y2="72"/>
+      <line x1="0" y1="36" x2="180" y2="36"/>
+    </g>
+  </g>
+  <text x="280" y="220" class="svg-bold svg-text">Channel 1 (Green)</text>
+  
+  <g transform="translate(80,280)">
+    <rect x="0" y="0" width="180" height="72" fill="#3070e0" class="box-border" />
+    <g class="grid-line">
+      <line x1="36" y1="0" x2="36" y2="72"/><line x1="72" y1="0" x2="72" y2="72"/>
+      <line x1="108" y1="0" x2="108" y2="72"/><line x1="144" y1="0" x2="144" y2="72"/>
+      <line x1="0" y1="36" x2="180" y2="36"/>
+    </g>
+  </g>
+  <text x="280" y="320" class="svg-bold svg-text">Channel 2 (Blue)</text>
+  
+  <!-- RIGHT: same grids with C= labels and channel names -->
+  <text x="580" y="60" class="svg-bold svg-text" text-anchor="middle">Channels First Storage</text>
+  
+  <text x="475" y="120" class="svg-bold svg-mono svg-text" text-anchor="end">C = 0</text>
+  <g transform="translate(490,80)">
+    <rect x="0" y="0" width="160" height="72" fill="#e02020" class="box-border" />
+    <g class="grid-line">
+      <line x1="32" y1="0" x2="32" y2="72"/><line x1="64" y1="0" x2="64" y2="72"/>
+      <line x1="96" y1="0" x2="96" y2="72"/><line x1="128" y1="0" x2="128" y2="72"/>
+      <line x1="0" y1="36" x2="160" y2="36"/>
+    </g>
+  </g>
+  <text x="660" y="120" class="svg-muted">Red Channel</text>
+  
+  <text x="475" y="220" class="svg-bold svg-mono svg-text" text-anchor="end">C = 1</text>
+  <g transform="translate(490,180)">
+    <rect x="0" y="0" width="160" height="72" fill="#1ab548" class="box-border" />
+    <g class="grid-line">
+      <line x1="32" y1="0" x2="32" y2="72"/><line x1="64" y1="0" x2="64" y2="72"/>
+      <line x1="96" y1="0" x2="96" y2="72"/><line x1="128" y1="0" x2="128" y2="72"/>
+      <line x1="0" y1="36" x2="160" y2="36"/>
+    </g>
+  </g>
+  <text x="660" y="220" class="svg-muted">Green Channel</text>
+  
+  <text x="475" y="320" class="svg-bold svg-mono svg-text" text-anchor="end">C = 2</text>
+  <g transform="translate(490,280)">
+    <rect x="0" y="0" width="160" height="72" fill="#3070e0" class="box-border" />
+    <g class="grid-line">
+      <line x1="32" y1="0" x2="32" y2="72"/><line x1="64" y1="0" x2="64" y2="72"/>
+      <line x1="96" y1="0" x2="96" y2="72"/><line x1="128" y1="0" x2="128" y2="72"/>
+      <line x1="0" y1="36" x2="160" y2="36"/>
+    </g>
+  </g>
+  <text x="660" y="320" class="svg-muted">Blue Channel</text>
+  
+  <!-- ===== BOTTOM: tagline + shape + code refs ===== -->
+  <!-- Edit 8: tagline -->
+  <text x="380" y="395" class="svg-bold svg-text" text-anchor="middle" font-style="italic">Channels first, pixels grouped per channel</text>
+  
+  <!-- Edit 5: renamed shape line -->
+  <text x="380" y="425" class="svg-bold svg-text" text-anchor="middle">PyTorch tensor shape = [Channels, Height, Width]</text>
+  
+  <!-- Existing code refs (unchanged) -->
+  <text x="265" y="460" class="svg-mono svg-text" text-anchor="end">tensor[0, :, :]</text>
+  <text x="275" y="460" class="svg-muted">→ Entire Red channel matrix</text>
+  <text x="265" y="482" class="svg-mono svg-text" text-anchor="end">tensor[:, y, x]</text>
+  <text x="275" y="482" class="svg-muted">→ RGB values of a single pixel</text>
+</svg>
+      </div>
+    </div>
+
+    <p class="note">Why the axis flip? Because <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/convolution_operation_explainer.html" target="_blank" rel="noopener">The Convolution Operation &mdash; Interactive Explainer</a> processes each channel as a contiguous 2D slab of memory, and putting channels first makes each channel-slab a contiguous block in memory. This drastically improves cache locality and GPU throughput — typically 2&ndash;3&times; faster than processing channels-last data.</p>
+
+    <div class="step-label">Going the other way: PyTorch tensor &rarr; NumPy array</div>
+
+    <p class="note">You&apos;ll often need to convert back — for example, to display a model&apos;s output with matplotlib (which expects (H, W, C) NumPy arrays):</p>
+
+    <div class="code-block"><span class="code-cmt"># Tensor in (3, H, W) float32 &rarr; NumPy in (H, W, 3) uint8 for display</span>
+img_back = (img_pt.<span class="code-fn">permute</span>(<span class="code-num">1</span>, <span class="code-num">2</span>, <span class="code-num">0</span>).<span class="code-fn">numpy</span>() * <span class="code-num">255</span>).<span class="code-fn">astype</span>(np.<span class="code-cls">uint8</span>)</div>
+
+    <p class="note"><code class="inline">.permute(1, 2, 0)</code> rearranges the axes: axis 1 (H) becomes the new first axis, axis 2 (W) becomes the new second, axis 0 (C) moves to the end. The result is the original NumPy layout you can pass straight to <code class="inline">plt.imshow</code>.</p>
+
+    <div class="step-label">What you can now do</div>
+
+    <p class="note">You can read individual pixel values, slice out regions and channels, chain transformations together vectorised, avoid the integer-wraparound trap, and move data fluently between NumPy and PyTorch. That&apos;s the everyday toolkit for handling image data in Python.</p>
+
+    <p class="note">Up next: the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Loading-Displaying-Saving-Images-Explainer.html" target="_blank" rel="noopener">Loading, Displaying, and Saving Images &mdash; Interactive Explainer</a> shows how images actually get into and out of these NumPy arrays from disk &mdash; the practical file-IO layer beneath every CV pipeline.</p>
+
+    <div class="insight success">
+      <strong>The mental model that holds:</strong> when you see code like <code class="inline">img[16:80, 30:130, :]</code> in any CV codebase from this point on, you know exactly what it&apos;s doing &mdash; a region of pixels, every channel, returning a sub-array of the original image. The syntax was never the hard part. Knowing what the array <em>is</em> &mdash; a grid of numbers indexed by row, column, channel &mdash; was the hard part. And you&apos;ve had that since the first explainer.
+    </div>
+  </div>
+
+  <footer>
+    Built with <span style="color:var(--text-danger);font-size:18px;vertical-align:middle">&hearts;</span> by
+    <a href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">Ancil Cleetus</a>
+    &nbsp;&nbsp;&middot;&nbsp;&nbsp;
+    <a href="https://ancilcleetus.github.io/AI-ML-Explainers/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">AI ML Explainers</a>
+    &nbsp;&nbsp;&middot;&nbsp;&nbsp; No external dependencies
+    &nbsp;&nbsp;&middot;&nbsp;&nbsp; MIT License
+  </footer>
+
+</div>
+
+<script>
+const ASSETS = {"kitten_thumb_96":"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","kitten_eye_rgb_values":[[120,146,114],[120,146,118],[112,138,107],[97,123,92],[83,109,69],[73,101,49],[67,98,20],[64,96,8],[64,96,7],[57,63,32],[78,68,81],[148,145,156],[174,173,186],[164,159,171],[150,136,145],[142,123,122],[122,145,119],[113,134,117],[104,125,106],[94,113,97],[85,104,85],[88,106,83],[86,103,76],[84,101,73],[65,71,43],[47,37,44],[117,112,125],[167,166,183],[156,151,162],[141,131,137],[136,119,123],[138,112,109],[134,143,158],[119,125,143],[93,95,107],[89,91,108],[88,91,107],[90,92,108],[91,92,111],[79,80,95],[47,38,45],[52,45,53],[124,118,131],[125,120,127],[124,118,126],[148,141,153],[165,157,168],[162,144,147],[90,91,114],[90,90,111],[73,69,87],[64,62,78],[65,63,80],[62,60,75],[49,45,57],[45,37,42],[31,22,29],[44,35,40],[81,71,73],[84,74,72],[104,89,95],[118,100,103],[117,94,95],[147,122,124],[65,59,71],[73,68,81],[64,60,73],[53,49,58],[55,51,61],[45,41,50],[25,17,23],[21,15,14],[14,12,12],[17,11,10],[45,36,33],[66,56,58],[69,49,51],[88,61,61],[113,81,85],[131,97,94],[56,47,55],[96,93,105],[76,73,84],[63,56,68],[60,54,65],[39,34,41],[21,16,19],[15,13,15],[11,10,10],[20,18,18],[49,43,44],[46,33,36],[63,45,45],[82,54,51],[105,69,68],[127,93,83],[45,42,48],[111,111,126],[108,109,127],[95,93,110],[92,91,106],[37,36,44],[11,8,10],[11,11,12],[15,14,15],[41,41,44],[18,16,16],[34,17,15],[60,36,37],[68,41,42],[107,74,75],[136,102,99],[43,41,48],[111,112,128],[139,141,160],[120,120,136],[111,111,126],[59,60,67],[12,11,12],[10,10,11],[42,42,48],[26,25,29],[9,7,8],[40,25,24],[44,28,29],[69,55,57],[119,95,99],[130,101,103],[70,69,80],[163,168,189],[153,158,177],[131,133,150],[146,149,165],[95,97,110],[24,23,24],[38,40,45],[44,48,54],[20,20,21],[28,26,29],[34,29,35],[30,26,31],[77,66,70],[119,97,107],[136,112,124],[100,101,113],[194,196,212],[195,199,214],[170,173,189],[199,202,219],[134,137,156],[75,77,91],[71,75,85],[35,39,44],[34,34,40],[30,28,32],[17,16,19],[29,24,29],[66,55,63],[106,90,101],[131,106,113],[180,181,195],[227,229,239],[223,227,234],[218,221,230],[223,227,237],[196,198,213],[139,140,158],[91,94,104],[72,74,83],[53,54,62],[44,45,54],[38,35,44],[42,39,48],[59,57,67],[94,89,102],[137,124,139],[232,232,240],[234,235,240],[231,234,239],[231,234,240],[227,230,238],[229,232,242],[189,191,204],[139,141,153],[138,139,156],[81,83,98],[61,64,76],[50,49,58],[61,58,69],[50,49,58],[46,44,50],[80,76,88],[235,236,244],[236,237,243],[234,235,240],[234,236,241],[232,233,240],[226,227,235],[208,209,220],[202,202,216],[185,187,202],[139,142,160],[105,111,129],[96,100,115],[105,107,124],[96,95,112],[77,76,87],[51,49,54],[231,231,240],[235,235,241],[232,233,238],[232,232,237],[228,229,234],[216,216,224],[198,193,204],[216,213,227],[235,237,249],[225,228,244],[174,177,196],[134,136,158],[137,139,160],[145,147,166],[121,122,137],[96,95,107],[214,213,219],[228,227,233],[231,230,236],[232,231,237],[219,218,224],[195,191,197],[199,192,201],[192,185,192],[159,155,162],[169,172,186],[181,187,205],[152,155,174],[173,176,194],[191,198,211],[179,185,200],[158,163,178],[217,215,223],[224,223,229],[232,233,238],[234,234,239],[208,206,213],[196,192,202],[171,164,169],[78,69,74],[81,84,105],[42,39,44],[66,61,63],[157,160,173],[202,205,217],[196,201,211],[184,189,201],[178,185,197]],"kitten_192":"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","kitten_crop_demo":"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAwMDAgQDAwMEBAQFBgoGBgUFBgwICQcKDgwPDg4MDQ0PERYTDxAVEQ0NExoTFRcYGRkZDxIbHRsYHRYYGRj/2wBDAQQEBAYFBgsGBgsYEA0QGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBj/wAARCAAoADwDASIAAhEBAxEB/8QAGwAAAQUBAQAAAAAAAAAAAAAABwACBAUGCAH/xAAwEAABAwMDAwIDCAMAAAAAAAABAgMEAAURBhIhEzFRB0FCYYEUFSIyQ2JyoZHB4f/EABkBAAMBAQEAAAAAAAAAAAAAAAMFBgQBAv/EACERAAEEAgMAAwEAAAAAAAAAAAEAAgMRBCEFElETQVLh/9oADAMBAAIRAxEAPwBqQrdgjBHsanx3unjmjXeNBaS1A2ly3JNpmBOE7TubV4BB5oOXuzTLHcnocnYotK270HKVD2NQ+Zh5GCO5Ft9CXywOjO16ucMcVEW+t34qrnH1A4NNRIGe9Zsbkex2h0rRknfg1ZNN7hyap461LUCKt2kubRVFA75GoZUhLeFDBp+4jjIqO44437VDcnkOYNcfjC7XLKPb7LYbKEdQE+wTkVzV60N6i0/ezqa0yEdVCQHUrbPSfSDnYsf79q6LkuoU3lD7ih+3gUO9XW6HdIbjEiYoqVkYUyFEZ+R708ZUjepGvFTzRfpBfT2rLbrCz/aoeI85IzJgKVlbR7ZB+JPgipe5SXsAnFCLW1hnaJ1b972W4JYWlR6bqEbUk+D8j2IraaN1xB1bbOqUiPOaATIjq42nyPKTUVy/COx5BNji2/Y8/iUS4/XbUQre9gjdWjjy0bRyPrWQZJSEqScg1dx4jz6coVjjOaa8e2QgDqsnVWE6Ujpk5H0rNSLigPkFQplzecYeWw4vaoeT3rLyXll/KXARjzTc40jtUuiM+Lqtp9t6PlC0JyOMp5/uste4bhSp1uW5kfCn8I/7SpUeCMKqnedhBf1BhRrjAdi3BMQFX62zhR8LHOP5f5rmWQbjpfWS2IhUxIZOEYVkLR7pz70qVHdvSwORAt/qRJYt8eS49neCogjtitcx6gznLWjDwSCsEFJ7AjkUqVaYnUNIL422oN9vz1wkRZCniAtKm85x+U9/7rNs3sgLSt0khRGc0qVELyDa8gBf/9k=","kitten_red_channel":"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","kitten_flipped":"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"};
+
+/* Globals: source image loaded into an offscreen Image object so we can draw
+   it onto canvases at the right moment. */
+const SRC_192 = new Image();
+SRC_192.src = 'data:image/jpeg;base64,' + ASSETS.kitten_192;
+
+/* ---------------- §1: shape annotation ---------------- */
+document.getElementById('sc-gray').src = 'data:image/jpeg;base64,' + ASSETS.kitten_thumb_96;
+document.getElementById('sc-rgb').src  = 'data:image/jpeg;base64,' + ASSETS.kitten_thumb_96;
+
+/* ---------------- §2: pixel-click 16x16 with RGB readout + Python expression ---------------- */
+(function() {
+  const grid = document.getElementById('pixel-grid');
+  const readout = document.getElementById('pixel-readout');
+  const vals = ASSETS.kitten_eye_rgb_values;  // 256 [r,g,b] triples
+  let selected = null;
+
+  for (let i = 0; i < 256; i++) {
+    const row = Math.floor(i / 16);
+    const col = i % 16;
+    const [r, g, b] = vals[i];
+    const cell = document.createElement('div');
+    cell.className = 'pd-cell';
+    cell.dataset.idx = i;
+    cell.style.background = `rgb(${r}, ${g}, ${b})`;
+    cell.title = `img[${row}, ${col}] = array([${r}, ${g}, ${b}])`;
+    cell.addEventListener('click', () => {
+      if (selected) selected.classList.remove('selected');
+      selected = cell;
+      cell.classList.add('selected');
+      readout.innerHTML =
+        `<div><span class="pd-prompt">Python expression:</span></div>` +
+        `<div><span class="pd-expr">img[${row}, ${col}]</span></div>` +
+        `<div style="margin-top:6px"><span class="pd-prompt">Returns:</span></div>` +
+        `<div><span class="pd-result">array([${r}, ${g}, ${b}], dtype=uint8)</span></div>`;
+    });
+    grid.appendChild(cell);
+  }
+})();
+
+/* ---------------- §3: slicing demos (static images) ---------------- */
+document.getElementById('slice-crop').src    = 'data:image/jpeg;base64,' + ASSETS.kitten_crop_demo;
+document.getElementById('slice-channel').src = 'data:image/jpeg;base64,' + ASSETS.kitten_red_channel;
+document.getElementById('slice-flip').src    = 'data:image/jpeg;base64,' + ASSETS.kitten_flipped;
+
+/* ---------------- §5: step-through worked example ---------------- */
+(function() {
+  const origCanvas = document.getElementById('step-orig-canvas');
+  const resultCanvas = document.getElementById('step-result-canvas');
+  const stepNum = document.getElementById('step-num');
+  const stepShape = document.getElementById('step-result-shape');
+  const stepCode = document.getElementById('step-code');
+  let currentStep = 0;
+
+  // Original image pixel data, lazy-loaded once SRC_192 is decoded
+  let origData = null;
+  function ensureOrigData() {
+    if (origData) return true;
+    if (!SRC_192.complete || SRC_192.naturalWidth === 0) return false;
+    const ctx = origCanvas.getContext('2d');
+    ctx.drawImage(SRC_192, 0, 0, 192, 192);
+    origData = ctx.getImageData(0, 0, 192, 192);
+    return true;
+  }
+
+  function step(n) {
+    currentStep = n;
+    stepNum.textContent = n;
+    // Update which button is active
+    document.querySelectorAll('#step-controls .step-btn').forEach(b => {
+      b.classList.toggle('active', +b.dataset.step === n);
+    });
+    if (!ensureOrigData()) {
+      SRC_192.addEventListener('load', () => step(n), { once: true });
+      return;
+    }
+
+    const ctx = resultCanvas.getContext('2d');
+    let img = origData;
+    let outW = 192, outH = 192;
+    let codeText = '';
+    let shapeText = 'shape = (192, 192, 3)';
+
+    // Apply operations cumulatively up to step n.
+    // We work with ImageData arrays directly so the math is transparent.
+
+    // Step 1: crop img[80:160, 30:130]  -> shape (80, 100, 3)
+    // (row 80..160 = y 80..160, col 30..130 = x 30..130)
+    if (n >= 1) {
+      const cropX = 30, cropY = 80, cropW = 100, cropH = 80;
+      const cropImg = ctx.createImageData(cropW, cropH);
+      for (let yy = 0; yy < cropH; yy++) {
+        for (let xx = 0; xx < cropW; xx++) {
+          const srcIdx = ((cropY + yy) * 192 + (cropX + xx)) * 4;
+          const dstIdx = (yy * cropW + xx) * 4;
+          cropImg.data[dstIdx]     = img.data[srcIdx];
+          cropImg.data[dstIdx + 1] = img.data[srcIdx + 1];
+          cropImg.data[dstIdx + 2] = img.data[srcIdx + 2];
+          cropImg.data[dstIdx + 3] = 255;
+        }
+      }
+      img = cropImg; outW = cropW; outH = cropH;
+      shapeText = `shape = (80, 100, 3)`;
+      codeText = `img = img[80:160, 30:130]   <span class="code-cmt"># crop a region: rows 80-160, cols 30-130</span>`;
+    }
+    // Step 2: img[:, ::-1]  -> horizontal flip
+    if (n >= 2) {
+      const flipped = ctx.createImageData(outW, outH);
+      for (let yy = 0; yy < outH; yy++) {
+        for (let xx = 0; xx < outW; xx++) {
+          const srcIdx = (yy * outW + (outW - 1 - xx)) * 4;
+          const dstIdx = (yy * outW + xx) * 4;
+          flipped.data[dstIdx]     = img.data[srcIdx];
+          flipped.data[dstIdx + 1] = img.data[srcIdx + 1];
+          flipped.data[dstIdx + 2] = img.data[srcIdx + 2];
+          flipped.data[dstIdx + 3] = 255;
+        }
+      }
+      img = flipped;
+      codeText += `\nimg = img[:, ::-1]          <span class="code-cmt"># flip horizontally</span>`;
+    }
+    // Step 3: brighten by 40 (clipped)
+    if (n >= 3) {
+      const bright = ctx.createImageData(outW, outH);
+      for (let i = 0; i < img.data.length; i += 4) {
+        bright.data[i]     = Math.min(img.data[i] + 40, 255);
+        bright.data[i + 1] = Math.min(img.data[i + 1] + 40, 255);
+        bright.data[i + 2] = Math.min(img.data[i + 2] + 40, 255);
+        bright.data[i + 3] = 255;
+      }
+      img = bright;
+      codeText += `\nimg = np.clip(img.astype(np.int16) + 40, 0, 255).astype(np.uint8)\n                            <span class="code-cmt"># brighten by 40, clipped</span>`;
+    }
+    // Step 4: swap R and B channels
+    if (n >= 4) {
+      const swapped = ctx.createImageData(outW, outH);
+      for (let i = 0; i < img.data.length; i += 4) {
+        swapped.data[i]     = img.data[i + 2];  // R = old B
+        swapped.data[i + 1] = img.data[i + 1];  // G stays
+        swapped.data[i + 2] = img.data[i];      // B = old R
+        swapped.data[i + 3] = 255;
+      }
+      img = swapped;
+      codeText += `\nimg = img[:, :, [2, 1, 0]]  <span class="code-cmt"># swap R and B channels</span>`;
+    }
+
+    if (n === 0) {
+      codeText = `img = ...   <span class="code-cmt"># the original 192x192 RGB image (uint8)</span>`;
+    }
+
+    // Draw result, scaled to fill the result canvas if cropped
+    resultCanvas.width = outW;
+    resultCanvas.height = outH;
+    ctx.putImageData(img, 0, 0);
+    stepShape.textContent = shapeText;
+    stepCode.innerHTML = codeText;
+
+    // Also draw the original
+    const oc = origCanvas.getContext('2d');
+    oc.clearRect(0, 0, 192, 192);
+    oc.putImageData(origData, 0, 0);
+  }
+
+  document.querySelectorAll('#step-controls .step-btn').forEach(b => {
+    b.addEventListener('click', () => step(+b.dataset.step));
+  });
+
+  // Initial render once image loads
+  function init() {
+    if (ensureOrigData()) step(0);
+    else SRC_192.addEventListener('load', () => step(0), { once: true });
+  }
+  init();
+})();
+
+/* ---------------- §6: wraparound slider ---------------- */
+(function() {
+  const slider = document.getElementById('wrap-slider');
+  const valSpan = document.getElementById('wrap-val');
+  const badCanvas = document.getElementById('wrap-bad-canvas');
+  const goodCanvas = document.getElementById('wrap-good-canvas');
+  let origData = null;
+
+  function ensureOrigData() {
+    if (origData) return true;
+    if (!SRC_192.complete || SRC_192.naturalWidth === 0) return false;
+    const ctx = badCanvas.getContext('2d');
+    ctx.drawImage(SRC_192, 0, 0, 192, 192);
+    origData = ctx.getImageData(0, 0, 192, 192);
+    // Draw initial state on both canvases
+    goodCanvas.getContext('2d').putImageData(origData, 0, 0);
+    return true;
+  }
+
+  function render() {
+    if (!ensureOrigData()) {
+      SRC_192.addEventListener('load', render, { once: true });
+      return;
+    }
+    const N = +slider.value;
+    valSpan.textContent = N;
+
+    const badCtx = badCanvas.getContext('2d');
+    const goodCtx = goodCanvas.getContext('2d');
+    const badImg = badCtx.createImageData(192, 192);
+    const goodImg = goodCtx.createImageData(192, 192);
+
+    for (let i = 0; i < origData.data.length; i += 4) {
+      // BAD: uint8 wraparound — JavaScript's % operator gives us this
+      badImg.data[i]     = (origData.data[i]     + N) % 256;
+      badImg.data[i + 1] = (origData.data[i + 1] + N) % 256;
+      badImg.data[i + 2] = (origData.data[i + 2] + N) % 256;
+      badImg.data[i + 3] = 255;
+      // GOOD: clip to 255
+      goodImg.data[i]     = Math.min(origData.data[i]     + N, 255);
+      goodImg.data[i + 1] = Math.min(origData.data[i + 1] + N, 255);
+      goodImg.data[i + 2] = Math.min(origData.data[i + 2] + N, 255);
+      goodImg.data[i + 3] = 255;
+    }
+    badCtx.putImageData(badImg, 0, 0);
+    goodCtx.putImageData(goodImg, 0, 0);
+  }
+
+  slider.addEventListener('input', render);
+  // Initial render once image loads
+  if (SRC_192.complete && SRC_192.naturalWidth > 0) render();
+  else SRC_192.addEventListener('load', render, { once: true });
+})();
+</script>
+</body>
+</html>
