@@ -105,12 +105,13 @@
     <div id="category-bars"></div>
   </div>
 
-  <!-- 1. Foundations: Neuron, Tensors, Activations, Embeddings -->
+  <!-- Category 1: Foundations of Deep Learning -->
   <div class="section">
     <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-info);color:var(--text-info)">Foundations</span>
-      <span class="section-title">Foundations</span>
+      <span class="section-tag" style="background:var(--bg-info);color:var(--text-info)">Foundations of Deep Learning</span>
+      <span class="section-title">Foundations of Deep Learning</span>
     </div>
+
     <div class="explainer-list">
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">1</div>
@@ -145,14 +146,16 @@
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
     </div>
+
   </div>
 
-  <!-- 2. Loss & probability outputs -->
+  <!-- Category 2: Loss Functions -->
   <div class="section">
     <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-warning);color:var(--text-warning)">Loss</span>
+      <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Loss Functions</span>
       <span class="section-title">Loss Functions</span>
     </div>
+
     <div class="explainer-list">
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">5</div>
@@ -179,12 +182,13 @@
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
     </div>
+
   </div>
 
-  <!-- 3. Optimization (Gradient Descent & Backprop) -->
+  <!-- Category 3: Optimization — Gradient Descent &amp; Backprop -->
   <div class="section">
     <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-warning);color:var(--text-warning)">Optimization</span>
+      <span class="section-tag" style="background:var(--bg-warning);color:var(--text-warning)">Optimization — Gradient Descent &amp; Backprop</span>
       <span class="section-title">Optimization — Gradient Descent &amp; Backprop</span>
     </div>
 
@@ -208,10 +212,38 @@
       </div>
     </div>
 
-    <div class="subcat-label"><span>Optimizers</span></div>
+    <div class="subcat-label"><span>Backpropagation</span></div>
     <div class="explainer-list">
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">10</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Chain-Rule-and-Computation-Graphs-Explainer.html" target="_blank" rel="noopener">Chain Rule &amp; Computation Graphs — Interactive Explainer ↗</a></div>
+          <div class="row-concept">The calculus that makes backprop possible, taught from zero. The chain rule from first principles with single-variable then multi-variable examples, a computation graph as a DAG of operations, forward pass annotating each node with its value, backward pass annotating each node with its local gradient, a click-a-node-to-see-gradient interactive graph for a simple expression like f = (a + b) · c, the multivariable chain rule with branching paths, and why this scales to networks with millions of parameters. No PyTorch yet — pure mechanism.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">11</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Backward-Pass-on-a-Single-Neuron-Explainer.html" target="_blank" rel="noopener">Backward Pass on a Single Neuron — Interactive Explainer ↗</a></div>
+          <div class="row-concept">Hand-worked numerical gradients for one neuron, end to end. Setup: a single neuron with two inputs, weights, bias, sigmoid activation, MSE loss against a target. Forward pass with every intermediate value computed. Backward pass with every gradient computed step by step — ∂L/∂ŷ, then ∂ŷ/∂z (the activation derivative from the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html" target="_blank" rel="noopener">Activation Functions — Interactive Explainer</a>), then ∂z/∂w, ∂z/∂b, ∂z/∂x — composed via the chain rule into ∂L/∂w, ∂L/∂b, ∂L/∂x. The delta rule emerges naturally. One weight-update step at a finite learning rate. Interactive: change inputs, weights, or target and watch every gradient recompute live. Sanity check using numerical (finite-difference) gradients.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">12</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Full-Network-Backpropagation-and-Autograd-Explainer.html" target="_blank" rel="noopener">Full-Network Backpropagation &amp; Autograd — Interactive Explainer ↗</a></div>
+          <div class="row-concept">Backprop across a real network plus the PyTorch machinery that automates it. A 2-layer MLP worked layer by layer — forward pass computing all activations, backward pass propagating gradients from loss back to input (δ at the output layer, δ pulled back through the weight matrix with the transpose, per-layer weight and bias gradients accumulated). Gradient accumulation across a mini-batch, a numerical-gradient check confirming the analytical gradients match. Then PyTorch autograd — requires_grad=True, the dynamic computation graph built during forward, .backward() triggering the reverse traversal, .grad attributes, torch.no_grad() for inference, and why optimizer.zero_grad() is necessary. Interactive visualisation of a tiny autograd graph.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>Optimizers</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">13</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Optimizers-From-SGD-to-AdamW-Explainer.html" target="_blank" rel="noopener">Optimizers — From SGD to AdamW — Interactive Explainer ↗</a></div>
           <div class="row-concept">Why plain SGD struggles and how each optimizer fixes a specific failure mode. SGD baseline, SGD with Momentum (ball-rolling-downhill analogy with velocity vector visualisation), Nesterov momentum (look-ahead), RMSProp (per-parameter adaptive LR using gradient-magnitude history), Adam (momentum + RMSProp + bias correction with the math derived), AdamW (the decoupled weight-decay fix), an interactive side-by-side race on a 2D loss landscape with pathological curvature, a decision guide for when to use each, and a consolidated PyTorch reference covering torch.optim.SGD, Adam, and AdamW with sensible default hyperparameters.</div>
@@ -220,42 +252,14 @@
       </div>
     </div>
 
-    <div class="subcat-label"><span>Backpropagation</span></div>
-    <div class="explainer-list">
-      <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">11</div>
-        <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Chain-Rule-and-Computation-Graphs-Explainer.html" target="_blank" rel="noopener">Chain Rule &amp; Computation Graphs — Interactive Explainer ↗</a></div>
-          <div class="row-concept">The calculus that makes backprop possible, taught from zero. The chain rule from first principles with single-variable then multi-variable examples, a computation graph as a DAG of operations, forward pass annotating each node with its value, backward pass annotating each node with its local gradient, a click-a-node-to-see-gradient interactive graph for a simple expression like f = (a + b) · c, the multivariable chain rule with branching paths, and why this scales to networks with millions of parameters. No PyTorch yet — pure mechanism.</div>
-        </div>
-        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
-      </div>
-      <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">12</div>
-        <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Backward-Pass-on-a-Single-Neuron-Explainer.html" target="_blank" rel="noopener">Backward Pass on a Single Neuron — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Hand-worked numerical gradients for one neuron, end to end. Setup: a single neuron with two inputs, weights, bias, sigmoid activation, MSE loss against a target. Forward pass with every intermediate value computed. Backward pass with every gradient computed step by step — ∂L/∂ŷ, then ∂ŷ/∂z (the activation derivative from Explainer #3), then ∂z/∂w, ∂z/∂b, ∂z/∂x — composed via the chain rule into ∂L/∂w, ∂L/∂b, ∂L/∂x. The delta rule emerges naturally. One weight-update step at a finite learning rate. Interactive: change inputs, weights, or target and watch every gradient recompute live. Sanity check using numerical (finite-difference) gradients.</div>
-        </div>
-        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
-      </div>
-      <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">13</div>
-        <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Full-Network-Backpropagation-and-Autograd-Explainer.html" target="_blank" rel="noopener">Full-Network Backpropagation &amp; Autograd — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Backprop across a real network plus the PyTorch machinery that automates it. A 2-layer MLP worked layer by layer — forward pass computing all activations, backward pass propagating gradients from loss back to input (δ at the output layer, δ pulled back through the weight matrix with the transpose, per-layer weight and bias gradients accumulated). Gradient accumulation across a mini-batch, a numerical-gradient check confirming the analytical gradients match. Then PyTorch autograd — requires_grad=True, the dynamic computation graph built during forward, .backward() triggering the reverse traversal, .grad attributes, torch.no_grad() for inference, and why optimizer.zero_grad() is necessary. Interactive visualisation of a tiny autograd graph.</div>
-        </div>
-        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
-      </div>
-    </div>
   </div>
 
-  <!-- 4. Deep Network Stability -->
+  <!-- Category 4: Deep Network Stability -->
   <div class="section">
     <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-danger);color:var(--text-danger)">Stability</span>
+      <span class="section-tag" style="background:var(--bg-danger);color:var(--text-danger)">Deep Network Stability</span>
       <span class="section-title">Deep Network Stability</span>
     </div>
-    <div class="section-note">These problems appear once networks get deep. We'll build those deep networks in the next category — but understanding what can go wrong first will inform every architectural choice you make.</div>
 
     <div class="subcat-label"><span>Gradient Flow</span></div>
     <div class="explainer-list">
@@ -263,7 +267,7 @@
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">14</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Vanishing-and-Exploding-Gradients-Explainer.html" target="_blank" rel="noopener">Vanishing &amp; Exploding Gradients — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Why deep networks fail to train and how to diagnose it. The compounding effect of multiplying many small (or large) numbers, sigmoid/tanh saturation regions producing tiny gradients (callback to Explainer #3), an interactive depth slider showing gradient-norm decay layer-by-layer for sigmoid vs ReLU networks, the exploding case with a live diverging loss curve, gradient clipping (torch.nn.utils.clip_grad_norm_) with before/after visualisation, why ReLU partly solves vanishing but not exploding, and a preview of the two structural fixes coming next — good initialisation and normalisation.</div>
+          <div class="row-concept">Why deep networks fail to train and how to diagnose it. The compounding effect of multiplying many small (or large) numbers, sigmoid/tanh saturation regions producing tiny gradients (callback to the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html" target="_blank" rel="noopener">Activation Functions — Interactive Explainer</a>), an interactive depth slider showing gradient-norm decay layer-by-layer for sigmoid vs ReLU networks, the exploding case with a live diverging loss curve, gradient clipping (torch.nn.utils.clip_grad_norm_) with before/after visualisation, why ReLU partly solves vanishing but not exploding, and a preview of the two structural fixes coming next — good initialisation and normalisation.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
@@ -275,12 +279,20 @@
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">16</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Residual-Connections-Explainer.html" target="_blank" rel="noopener">Residual Connections — How Gradients Flow Through Deep Networks — Interactive Explainer ↗</a></div>
+          <div class="row-concept">Why deep networks failed before 2015 and how a remarkably simple idea changed everything. The vanishing-gradient problem revisited from the angle of network depth: each layer multiplies its incoming gradient, and product of many small numbers vanishes. The residual connection — instead of having a layer compute H(x), have it compute F(x) = H(x) - x, then add x back: H(x) = F(x) + x. Why this helps: the gradient now has a guaranteed path back through the addition node, no matter how badly the F(x) branch is behaving. Visual demo: a deep network with and without residuals, gradient magnitudes plotted per layer during training; you can see the without-residual version's deep-layer gradients flatline. The general residual block design: two conv layers (or two fully-connected layers in our MLP context) wrapped with a skip connection. Pre-activation vs post-activation variants (PreActResNet vs ResNet v1). Why residual connections are now ubiquitous: every modern Transformer block contains them, every LSTM variant uses them, diffusion models use them, autoencoders use them. The conceptual takeaway: residuals are not a CNN trick, they are a deep-network technique that applies everywhere. Bridge from this conceptual treatment to the architecture-specific treatment in the ResNet — Residual Connections — Interactive Explainer in the Computer Vision Roadmap.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
     </div>
 
     <div class="subcat-label"><span>Normalization &amp; Regularization</span></div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">16</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">17</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Batch-Normalization-Explainer.html" target="_blank" rel="noopener">Batch Normalization — Interactive Explainer ↗</a></div>
           <div class="row-concept">Stabilising activations to make deep networks trainable. The internal-covariate-shift motivation (and the modern "smoother loss landscape" reinterpretation), the BN equation — normalise each feature across the mini-batch to mean 0 / variance 1, then scale by γ and shift by β (both learnable so the network can undo the normalisation if needed), interactive visualisation of activation distributions before vs after BN, the train/eval-mode difference with running statistics, BN's effect on gradient flow and LR tolerance demonstrated with a side-by-side loss curve, the BN-before-or-after-activation debate noted briefly, a preview of LayerNorm / GroupNorm and why they matter for the Transformers explainers to come, and a PyTorch reference using nn.BatchNorm1d and nn.BatchNorm2d.</div>
@@ -288,59 +300,157 @@
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">17</div>
-        <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Dropout-and-Weight-Decay-Explainer.html" target="_blank" rel="noopener">Dropout &amp; Weight Decay — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Two complementary regularisers that improve generalisation. Dropout — the stochastic masking mechanism, the inverted-dropout scaling trick, the "ensemble of subnetworks" interpretation, train-vs-eval mode behaviour, and an interactive demo on a small network showing the train/test gap shrink as dropout rate increases. Weight decay — L2 regularisation derived from a Bayesian prior, the gradient-update equation showing weight decay as shrinkage, why L2 and weight-decay-as-applied-in-Adam differ (the AdamW story from Explainer #10 revisited), and an interactive plot of weight magnitudes over training with vs without weight decay. PyTorch reference covering nn.Dropout, the weight_decay parameter in optimizers, and AdamW.</div>
-        </div>
-        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
-      </div>
-      <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">18</div>
         <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Overfitting-and-Generalization-Explainer.html" target="_blank" rel="noopener">Overfitting &amp; Generalization — Interactive Explainer ↗</a></div>
-          <div class="row-concept">What overfitting actually looks like and how to see it coming. Live training-vs-validation loss curves diverging in real time as a small network memorises a tiny dataset, the bias–variance trade-off with the classic U-curve, the capacity-vs-data axis (more data → less overfitting; more capacity → more overfitting), early stopping as a regulariser with the moment-of-divergence highlighted on the curve, a brief preview of data augmentation as another regulariser, and a consolidated diagnostic checklist — "your validation loss is going up, here's what to try in priority order" — pulling from Explainers #15, #16, and #17.</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Layer-Group-Instance-Normalization-Explainer.html" target="_blank" rel="noopener">Layer, Group &amp; Instance Normalization — Beyond BatchNorm — Interactive Explainer ↗</a></div>
+          <div class="row-concept">The family of normalization methods that don't depend on batch statistics — critical for Transformers, RNNs, small-batch training, and style transfer. Recap of what Batch Normalization (from the Batch Normalization — Interactive Explainer) actually normalizes — across the batch dimension, per-feature. The conceptual generalization — all normalization methods compute (x - μ) / σ, the difference is WHICH AXES μ and σ are computed over. Layer Normalization: normalize across all features for each sample independently. Why this matters: the result doesn't depend on batch composition, making it stable for small batches and ideal for RNNs and Transformers where each token is processed independently. Instance Normalization: normalize across spatial dimensions per sample per channel. Used heavily in style transfer (it removes per-image contrast/brightness, leaving only structural information). Group Normalization: split channels into groups, normalize within each group. The 'best of both worlds' compromise — independent of batch size like LayerNorm, but with per-group statistics for some of the channel-specific behavior of BatchNorm. The unified visualization: a 4D tensor (batch, channels, height, width) with overlay diagrams showing which slice each method averages over. Interactive: a slider for batch size showing how each method's behavior degrades or stays stable. The practical decision tree: when to use which normalization in 2026.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
-    </div>
-  </div>
-
-  <!-- 5. Building Networks -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-architecture);color:var(--text-architecture)">Architecture</span>
-      <span class="section-title">Building Networks</span>
-    </div>
-    <div class="explainer-list">
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">19</div>
         <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/From-Neuron-to-Network-Explainer.html" target="_blank" rel="noopener">From Neuron to Network — Interactive Explainer ↗</a></div>
-          <div class="row-concept">The conceptual leap from one neuron to a full network. One neuron (callback to Explainer #1) → a layer of parallel neurons sharing inputs → the layer as a single weight-matrix multiplication (callback to Explainer #2 — the batched matmul view), input vs hidden vs output layers, fully-connected (dense) layers, the depth-vs-width trade-off with intuition for each, a parameter-count calculator that shows total params as you adjust layer sizes, and an interactive network builder where you stack layers, see the shape transformations live, and run a forward pass through your custom architecture.</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Dropout-and-Weight-Decay-Explainer.html" target="_blank" rel="noopener">Dropout &amp; Weight Decay — Interactive Explainer ↗</a></div>
+          <div class="row-concept">Two complementary regularisers that improve generalisation. Dropout — the stochastic masking mechanism, the inverted-dropout scaling trick, the "ensemble of subnetworks" interpretation, train-vs-eval mode behaviour, and an interactive demo on a small network showing the train/test gap shrink as dropout rate increases. Weight decay — L2 regularisation derived from a Bayesian prior, the gradient-update equation showing weight decay as shrinkage, why L2 and weight-decay-as-applied-in-Adam differ (the AdamW story from the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Optimizers-From-SGD-to-AdamW-Explainer.html" target="_blank" rel="noopener">Optimizers — From SGD to AdamW — Interactive Explainer</a> revisited), and an interactive plot of weight magnitudes over training with vs without weight decay. PyTorch reference covering nn.Dropout, the weight_decay parameter in optimizers, and AdamW.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">20</div>
         <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Overfitting-and-Generalization-Explainer.html" target="_blank" rel="noopener">Overfitting &amp; Generalization — Interactive Explainer ↗</a></div>
+          <div class="row-concept">What overfitting actually looks like and how to see it coming. Live training-vs-validation loss curves diverging in real time as a small network memorises a tiny dataset, the bias–variance trade-off with the classic U-curve, the capacity-vs-data axis (more data → less overfitting; more capacity → more overfitting), early stopping as a regulariser with the moment-of-divergence highlighted on the curve, a brief preview of data augmentation as another regulariser, and a consolidated diagnostic checklist — "your validation loss is going up, here's what to try in priority order" — pulling from the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Weight-Initialization-Explainer.html" target="_blank" rel="noopener">Weight Initialization — Interactive Explainer</a>, <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Batch-Normalization-Explainer.html" target="_blank" rel="noopener">Batch Normalization — Interactive Explainer</a>, and <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Dropout-and-Weight-Decay-Explainer.html" target="_blank" rel="noopener">Dropout &amp; Weight Decay — Interactive Explainer</a>.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">21</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Early-Stopping-Explainer.html" target="_blank" rel="noopener">Early Stopping — When to Stop Training — Interactive Explainer ↗</a></div>
+          <div class="row-concept">One of the simplest and most effective regularization techniques — stop training before the model overfits. The motivation: the Overfitting &amp; Generalization — Interactive Explainer showed that training loss keeps decreasing even as validation loss rises. Early stopping says: when validation loss stops improving, halt. The algorithm: track validation loss every epoch (or every K steps); if it hasn't improved for P epochs (the 'patience' parameter), stop training and revert to the best checkpoint. Interactive demo: train a real model with a live patience slider; watch the early-stop point move as you change patience. The trade-offs: small patience (P=1-2) can stop too early on naturally noisy validation curves; large patience (P=20+) wastes compute on probably-doomed training. Practical recommendations for setting patience based on dataset size, validation set noise, and learning-rate schedule interactions. The connection to checkpoint management — early stopping requires keeping the best checkpoint, not the last (covered in detail in the Checkpointing &amp; Resuming Training — Interactive Explainer). Implementation in PyTorch: a simple class wrapping the validation-loss tracking and checkpoint revert logic. Common pitfalls: stopping based on training loss instead of validation; not separating early-stopping decision from learning-rate schedule decision; using too-noisy validation sets that produce false stops.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Category 5: Building Networks -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--bg-architecture);color:var(--text-architecture)">Building Networks</span>
+      <span class="section-title">Building Networks</span>
+    </div>
+
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">22</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/From-Neuron-to-Network-Explainer.html" target="_blank" rel="noopener">From Neuron to Network — Interactive Explainer ↗</a></div>
+          <div class="row-concept">The conceptual leap from one neuron to a full network. One neuron (callback to the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/neuron_forward_pass_explainer.html" target="_blank" rel="noopener">The Neuron &amp; Forward Pass — Interactive Explainer</a>) → a layer of parallel neurons sharing inputs → the layer as a single weight-matrix multiplication (callback to the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/tensors_explainer.html" target="_blank" rel="noopener">Tensors — The Language of Deep Learning — Interactive Explainer</a> — the batched matmul view), input vs hidden vs output layers, fully-connected (dense) layers, the depth-vs-width trade-off with intuition for each, a parameter-count calculator that shows total params as you adjust layer sizes, and an interactive network builder where you stack layers, see the shape transformations live, and run a forward pass through your custom architecture.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">23</div>
+        <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Universal-Approximation-Theorem-Explainer.html" target="_blank" rel="noopener">Universal Approximation Theorem — Interactive Explainer ↗</a></div>
           <div class="row-concept">What it really says, what it doesn't, and why depth wins anyway. The theorem stated plainly — a single-hidden-layer network with enough neurons can approximate any continuous function to arbitrary precision. The crucial caveats — this is an existence result, not a learnability result; "enough neurons" might mean exponentially many; nothing about how to find the weights. An interactive demo where the user picks a target function (sine, step, spiral boundary) and watches a 1-hidden-layer network with adjustable width fit it by combining sigmoid or ReLU "bumps." Then the punchline — why deep narrow networks generalise and optimise better than shallow wide ones in practice, with a side-by-side comparison.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">24</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Network-Depth-Width-and-Capacity-Explainer.html" target="_blank" rel="noopener">Network Depth, Width, and Capacity — Interactive Explainer ↗</a></div>
+          <div class="row-concept">The practical question every learner asks after building their first MLP: how many layers, how wide each, how does that scale? Parameter counting from first principles — a layer with 100 inputs and 50 outputs has 100×50 + 50 = 5050 parameters (weights plus bias). A 5-layer network with 256 neurons per layer has roughly 4 × 256² = 262K parameters. Interactive parameter calculator with sliders for depth and width. Capacity vs data: a 1M-parameter network trained on 100 examples will memorize; the same network on 1B examples will generalize. The classical bias-variance trade-off as a function of capacity. The modern surprise — Double Descent: as you keep increasing capacity past the interpolation threshold (where the model perfectly fits training data), test error first rises (the classical regime) and then falls again (the modern regime). Visual demo: plot test error vs model size on a fixed dataset, showing the iconic 'double descent' curve. Why this matters for modern DL — over-parameterized networks (millions of parameters trained on thousands of examples) generalize better than mildly-overparameterized ones, contradicting classical learning theory. Why does this happen — the lottery-ticket hypothesis and implicit regularization from SGD's choice of which solution to converge to. Practical recommendations for picking depth and width in 2026: start with a known-working backbone, scale width before depth, ensure your network is at least mildly overparameterized for your dataset size.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
     </div>
+
   </div>
 
-  <!-- 6. Training Networks -->
+  <!-- Category 6: Data Handling -->
   <div class="section">
     <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-info);color:var(--text-info)">Training</span>
-      <span class="section-title">Training Networks</span>
+      <span class="section-tag" style="background:var(--bg-info);color:var(--text-info)">Data Handling</span>
+      <span class="section-title">Data Handling</span>
     </div>
+
+    <div class="subcat-label"><span>Loading data</span></div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">21</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">25</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Datasets-and-DataLoaders-Explainer.html" target="_blank" rel="noopener">Datasets and DataLoaders — Feeding Networks the PyTorch Way — Interactive Explainer ↗</a></div>
+          <div class="row-concept">How data enters a neural network in PyTorch — the abstraction every DL practitioner uses daily. The Dataset class: a Python class implementing __len__ (how many items?) and __getitem__ (give me item N). The minimal viable Dataset for an in-memory tensor: a 10-line class. Why this two-method abstraction: it cleanly separates 'where the data lives' from 'how it's iterated.' The DataLoader class: wraps a Dataset and adds batching, shuffling, parallel loading, and pinned memory. Worked example: build a simple Dataset for paired (input, label) tensors, then wrap it in a DataLoader with batch_size=32, shuffle=True. Walk through one iteration showing what __getitem__ is called with and what the batch looks like at the model input. The collate_fn parameter: how variable-length items get batched together (the trick is to either pad to max length, or in NLP use a custom collate). Map-style vs iterable-style datasets — when to use each (map for indexable in-memory data, iterable for streaming from disk or generators). The PyTorch Dataset ecosystem — TorchVision, TorchText, HuggingFace Datasets — and when to use prebuilt datasets vs roll-your-own. Common pitfalls: storing tensors on GPU in the Dataset (don't), forgetting to convert numpy to tensors, expensive __getitem__ that bottlenecks training (preview of the DataLoader Performance — Interactive Explainer).</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">26</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Train-Validation-Test-Splits-Explainer.html" target="_blank" rel="noopener">Train / Validation / Test Splits and Why They Matter — Interactive Explainer ↗</a></div>
+          <div class="row-concept">The three-way split rule every DL learner must internalize. Why three not two: a single train/test split is dangerous because you'll be tempted to tune hyperparameters on test, contaminating it as an unbiased measure. The clean three-way split: train (for learning), validation (for hyperparameter tuning and early-stopping decisions), test (for final unbiased evaluation, used ONCE). Standard ratios: 60/20/20 for small datasets, 80/10/10 for medium, 98/1/1 for very large datasets. Interactive: a slider for split ratios showing how variance of metric estimates depends on validation/test set size. Stratified splitting — preserving class balance across splits; demonstrated on a class-imbalanced toy dataset. Time-series splits — never train on future data, only train on past. Demonstrated with a forecasting toy problem where naive random splitting gives misleadingly optimistic results. The K-fold cross-validation alternative when data is very limited: split into K folds, train K times with each fold as validation; average results for a less-variance estimate. The 'train+val' final-model trick: once hyperparameters are chosen, retrain on train+val combined for the final model. Test contamination — the most common mistake in beginner ML, with examples of how easily it happens (looking at test set 'just to verify,' having test-set distributions leak through preprocessing decisions, etc.).</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>Preparing data</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">27</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Input-Preprocessing-and-Normalization-Explainer.html" target="_blank" rel="noopener">Input Preprocessing &amp; Normalization — Interactive Explainer ↗</a></div>
+          <div class="row-concept">How raw inputs become network-ready tensors — the first step of any training pipeline. The fundamental problem: neural networks train poorly when input features have wildly different scales. A network seeing 'age' in 1-100 and 'income' in 10000-100000 will let the income gradient dominate everything until weights compensate, which takes a long time and may never converge cleanly. The two standard normalizations. Z-score (standardization): (x - mean) / std, gives output with mean 0 and std 1. Min-Max scaling: (x - min) / (max - min), gives output in [0, 1]. When to use which: z-score for inputs that are normally distributed and may have outliers; min-max for bounded inputs like pixel values (0-255 → 0-1). The crucial subtlety: compute statistics (mean, std, min, max) on the training set ONLY, then apply to validation and test. Computing them on the full dataset leaks information. Per-feature vs per-image normalization for images. The connection to Batch Normalization — Interactive Explainer: input normalization happens once before training (statistics fixed), BN happens dynamically inside the network (statistics recomputed per batch). The connection to Embeddings — Representing Discrete Data as Vectors — Interactive Explainer for categorical inputs. Practical recipes: tabular data (z-score continuous features, one-hot or embed categorical), images (divide by 255 or use ImageNet statistics for pretrained backbones), text (handled via tokenization + embedding, not classical normalization). Common pitfalls: applying normalization but storing un-normalized data; recomputing statistics on each batch by mistake; forgetting to apply test-time normalization with training statistics.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">28</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Data-Augmentation-Principles-Explainer.html" target="_blank" rel="noopener">Data Augmentation Principles — Why and When — Interactive Explainer ↗</a></div>
+          <div class="row-concept">Artificially expand your training data by applying label-preserving transformations. The core idea: if a cat is still a cat when rotated 5 degrees, training on both the original AND the rotated version teaches the model rotation-invariance. Why this works as regularization: the network sees more 'different' inputs sharing a label, which forces it to learn the underlying signal rather than memorize specific pixel patterns. The label-preserving constraint: augmentations must not change the meaning. Horizontal flip of a face = still a face; horizontal flip of a '6' = '6' is wrong (becomes a '9'). Domain-by-domain treatment with examples. Images (covered in deep detail in the Computer Vision Roadmap): geometric (rotate, flip, crop), photometric (brightness, contrast, color jitter), composition (cutout, mixup). Text: random word deletion, synonym replacement, back-translation (translate to French and back). Audio: pitch shift, time stretch, additive noise, time masking. Tabular: feature noise injection, SMOTE for class imbalance. Time series: time warping, magnitude warping. The 'test-time augmentation' trick — apply augmentations at inference and average predictions for free 1-3% accuracy gain on most tasks. When NOT to augment: medical imaging where left-right asymmetry matters; legal text where word changes alter meaning; any task where transformations may not preserve labels. The connection to inductive bias — augmentation tells the model 'I want you to be invariant to this transformation.' The compute trade-off: augmentation costs CPU time; for huge datasets it may not be needed. Practical recommendations on which augmentations to start with for common domains.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">29</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Class-Imbalance-Explainer.html" target="_blank" rel="noopener">Class Imbalance — When One Class Dominates — Interactive Explainer ↗</a></div>
+          <div class="row-concept">The reality of most real-world classification datasets and what to do about it. The problem: in fraud detection, only 1% of transactions are fraud; in medical diagnosis, only 5% are positive cases; in defect detection, only 0.1% are defects. A classifier trained naively achieves 99% accuracy by always predicting 'normal' — and is useless. Why default training fails: cross-entropy treats every example equally, so the rare class contributes 1% of the loss signal. The metric problem: accuracy is misleading on imbalanced data; you need precision, recall, F1, balanced accuracy, or AUC depending on the use case (deep dive in the Evaluation Metrics for Classification — Interactive Explainer). The fixes, in order of typical effectiveness. Class weighting in the loss: multiply each example's loss by a weight inversely proportional to its class frequency. PyTorch implementation: `torch.nn.CrossEntropyLoss(weight=class_weights)`. Oversampling the minority class: train multiple times on rare examples per epoch. PyTorch's WeightedRandomSampler. Undersampling the majority class: train on fewer common examples. Loses data, used less often. SMOTE (Synthetic Minority Over-sampling): generate synthetic minority examples by interpolating between real ones; works well for tabular, less so for high-dimensional image/text data. Focal loss (briefly): a modified cross-entropy that downweights easy examples and focuses on hard ones; used heavily in object detection. The 'cost-sensitive' framing — sometimes false positives and false negatives have different real-world costs, and the loss function should reflect that. Interactive demo: a 95/5 imbalanced classification problem trained with each technique, showing the precision-recall curves change.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+    <div class="subcat-label"><span>Optimizing pipelines</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">30</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/DataLoader-Performance-Explainer.html" target="_blank" rel="noopener">DataLoader Performance — Workers, Pinned Memory, GPU Idle Time — Interactive Explainer ↗</a></div>
+          <div class="row-concept">The most common training bottleneck and how to fix it. The fundamental problem: GPUs compute fast (modern GPUs at 100+ TFLOPS), but data loading from disk or preprocessing on CPU is slow. Result: GPU sits idle waiting for data; training time is dominated by data loading. Symptoms: nvidia-smi shows GPU utilization < 50%; profiler shows DataLoader as the bottleneck. The PyTorch profiler workflow for diagnosing data-loading bottlenecks. The fixes, in order. num_workers > 0 in DataLoader: spawn N worker processes that prefetch the next batches in parallel while the GPU computes the current one. Rule of thumb: start with num_workers = 4 × num_GPUs. pin_memory=True: pre-allocate CPU memory in 'pinned' mode that can be DMA-transferred to GPU without an intermediate copy. Free 1-2x speedup on most setups. prefetch_factor: how many batches each worker prepares ahead of time. Higher = smoother but more memory. persistent_workers=True: don't kill and restart workers between epochs; saves the startup cost. Caching expensive preprocessing: if your augmentation or feature extraction is slow, cache results to disk after the first epoch. Memory-mapped files (numpy.memmap, HDF5) for large datasets. When to graduate to faster data formats: WebDataset for streaming, FFCV for ImageNet-scale throughput, MosaicML StreamingDataset for cloud-based training. The diagnostic workflow: profile first, identify the bottleneck (CPU? disk I/O? GPU transfer?), apply the matching fix. Common pitfalls: too many workers (system thrashing), num_workers=0 in production (single-threaded), forgetting pin_memory when GPU transfer is bottleneck.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Category 7: Training Networks -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Training Networks</span>
+      <span class="section-title">Training Networks</span>
+    </div>
+
+    <div class="subcat-label"><span>Core training mechanics</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">31</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Training-Loop-and-Convergence-Explainer.html" target="_blank" rel="noopener">Training Loop &amp; Convergence — Interactive Explainer ↗</a></div>
           <div class="row-concept">The conceptual loop, language-agnostic, before any code. Epochs vs steps vs iterations defined precisely, the loop body (forward → loss → backward → update → repeat), train/validation/test split with the rationale for each, the loss curve as the primary diagnostic tool, recognising convergence vs divergence vs plateau vs overfitting from the curve shape (with a four-panel diagnostic gallery), when and why to stop training. Interactive: scrub through a recorded training run frame by frame, watching the decision boundary evolve alongside the loss curve.</div>
@@ -348,87 +458,204 @@
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">22</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">32</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/PyTorch-Training-Loop-Explainer.html" target="_blank" rel="noopener">PyTorch Training Loop in Practice — Interactive Explainer ↗</a></div>
-          <div class="row-concept">The conceptual loop translated into idiomatic PyTorch. The five-line loop body — optimizer.zero_grad(), outputs = model(x), loss = criterion(outputs, y), loss.backward(), optimizer.step() — with line-by-line explanation of what each call does to the autograd graph and the parameters (callback to Explainer #13). model.train() vs model.eval() and why it matters for Dropout and BN (callbacks to #16, #17). torch.no_grad() for evaluation. DataLoader with batch_size, shuffle, num_workers. The complete, runnable training scaffold the learner can copy and adapt. Common pitfalls — forgetting zero_grad, computing loss outside the graph, evaluating in train mode.</div>
+          <div class="row-concept">The conceptual loop translated into idiomatic PyTorch. The five-line loop body — optimizer.zero_grad(), outputs = model(x), loss = criterion(outputs, y), loss.backward(), optimizer.step() — with line-by-line explanation of what each call does to the autograd graph and the parameters (callback to the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Full-Network-Backpropagation-and-Autograd-Explainer.html" target="_blank" rel="noopener">Full-Network Backpropagation &amp; Autograd — Interactive Explainer</a>). model.train() vs model.eval() and why it matters for Dropout and BN (callbacks to the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Batch-Normalization-Explainer.html" target="_blank" rel="noopener">Batch Normalization — Interactive Explainer</a> and <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Dropout-and-Weight-Decay-Explainer.html" target="_blank" rel="noopener">Dropout &amp; Weight Decay — Interactive Explainer</a>). torch.no_grad() for evaluation. DataLoader with batch_size, shuffle, num_workers. The complete, runnable training scaffold the learner can copy and adapt. Common pitfalls — forgetting zero_grad, computing loss outside the graph, evaluating in train mode.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">33</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Monitoring-Training-Explainer.html" target="_blank" rel="noopener">Monitoring Training (Loss Curves &amp; Diagnostics) — Interactive Explainer ↗</a></div>
+          <div class="row-concept">How to read a training curve and diagnose what's going on. The four canonical curve shapes. Healthy convergence: training and validation loss both decrease, validation tracking training closely until it plateaus. Overfitting: training loss keeps decreasing while validation loss starts rising — the model is memorizing rather than generalizing. Underfitting: both losses plateau at a high value — the model lacks capacity or training time. Divergence: loss explodes (often to NaN) — usually exploding gradients, wrong learning rate, or numerical instability in mixed precision. Interactive: a four-panel gallery showing each shape with sliders to perturb the run. What to log beyond loss. Gradient norms: per-layer gradient magnitudes; vanishing or exploding gradients show up here before they cause final-loss disasters (callback to the Vanishing &amp; Exploding Gradients — Interactive Explainer). Learning rate (when using a schedule): visualize the actual LR over training, not the configured one. Per-parameter update ratios: the magnitude of update / magnitude of weight, should be around 1e-3 for healthy training. Throughput: samples per second; a sudden drop indicates an issue. The 'is my training actually working?' checklist for the first few epochs. Reading curves from the start: spike at step 0 (always; initial loss is high), rapid drop in first ~100 steps (good sign), plateau (concerning if early), then slow steady decrease (healthy training). Common pitfalls: looking only at the last epoch's loss; comparing models trained for different numbers of epochs; not logging validation loss frequently enough to catch overfitting; using log-scale when you should be using linear-scale (or vice versa) for the comparison you're trying to make.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
     </div>
+
+    <div class="subcat-label"><span>Practical training techniques</span></div>
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">34</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Mixed-Precision-Training-Explainer.html" target="_blank" rel="noopener">Mixed Precision Training — AMP, fp16, bf16, and Loss Scaling — Interactive Explainer ↗</a></div>
+          <div class="row-concept">Train faster and with less memory using 16-bit floats. The hardware story: modern NVIDIA GPUs (Volta and later) have Tensor Cores that compute 16-bit matrix multiplies 4-8x faster than 32-bit. AMD MI series and Apple silicon have similar paths. The opportunity: if we can train in fp16, training is dramatically faster and uses half the memory. The problem with pure fp16: it has a smaller dynamic range than fp32 (max ~65504, min ~6e-8 normal). Gradients during deep-network training often underflow to zero, breaking training. Two solutions. fp16 with loss scaling: multiply the loss by a large number (e.g., 65536) before backward; this rescales gradients up into fp16's representable range. After computing gradients, divide them back down before applying the optimizer step. PyTorch's torch.cuda.amp.GradScaler handles this automatically including the 'check for inf/nan and skip step' logic. bf16 (bfloat16): same number of bits as fp16 but distributed differently — same dynamic range as fp32 (8 exponent bits), fewer mantissa bits (7 vs 10). bf16 doesn't need loss scaling, but is only available on newer hardware (A100 and later, H100, MI250+). The PyTorch AMP recipe: wrap forward and loss computation in `with torch.cuda.amp.autocast():`, wrap the backward+optimizer step with the GradScaler. When mixed precision helps most: large models, small models can sometimes be slower in fp16 due to overhead. When to use bf16 vs fp16: bf16 if you have the hardware, fp16 with loss scaling otherwise. Common pitfalls: forgetting GradScaler, applying autocast to the wrong code block, accumulating loss in fp16 (use fp32 accumulator).</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">35</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Gradient-Accumulation-Explainer.html" target="_blank" rel="noopener">Gradient Accumulation — Simulating Larger Batches — Interactive Explainer ↗</a></div>
+          <div class="row-concept">Train with effective batch size much larger than fits in GPU memory. The motivation: many techniques work best with large batches (e.g., LayerNorm-based Transformers prefer batch 256+), but a 7B parameter model with batch 256 won't fit on a single GPU. The trick: forward + backward 8 times with batch 32, accumulate the gradients in PyTorch's autograd buffers, only then call optimizer.step(). Effectively trains as if batch=256. The math: gradients of mini-batches sum (equivalently, average) to the gradient of the full batch — so accumulating 8 batches and stepping once IS the same as one step on batch 256 (up to numerical precision). The PyTorch idiom: do NOT call optimizer.zero_grad() every step; only every N micro-batches. Pseudocode: for i, batch in enumerate(loader): forward, loss = ..., loss.backward(); if (i+1) % N == 0: optimizer.step(); optimizer.zero_grad(). The careful detail: should you divide loss by N (so the total gradient magnitude is correct)? Usually yes. The interaction with BatchNorm — Interactive Explainer: each micro-batch uses its own statistics, which is statistically different from a true large-batch run. Not always a problem but worth knowing. The interaction with learning rate: effective batch size matters for LR choice; if you scale batch from 32 to 256 via accumulation, you typically scale LR by sqrt(8) = 2.83. When gradient accumulation matters: large language models (always), large vision models (often), distillation training (often). When it doesn't: small models, or when batch 32 is already large enough for your loss. Combined with Mixed Precision Training — Interactive Explainer for maximum memory savings.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">36</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Checkpointing-and-Resuming-Training-Explainer.html" target="_blank" rel="noopener">Checkpointing &amp; Resuming Training (and Activation Checkpointing) — Interactive Explainer ↗</a></div>
+          <div class="row-concept">Two distinct but commonly-confused techniques. Part 1: Saving and resuming training. Why checkpoint: training crashes (preemption, hardware failure, OOM); you want to save the best model not just the last; you want to compare epoch 50 vs epoch 100. What to save: model state_dict, optimizer state_dict (Adam's running averages matter!), scheduler state_dict, the AMP GradScaler state, the current epoch number, the best-so-far metric, RNG state for reproducibility. The save/load idiom in PyTorch with a complete code snippet. The 'save-best vs save-last' decision: save both. Best is what you deploy; last is what you resume from. The reproducibility trap: even with all state saved, resumed training is not bitwise-identical to non-interrupted training (due to floating-point non-associativity and CUDA non-determinism). Practical impact is small. Part 2: Activation Checkpointing (the unrelated thing also called checkpointing). The memory problem: forward pass stores activations at each layer for backward; this can be the dominant memory cost for deep networks. The trick: don't store some activations; recompute them during backward. Tradeoff: less memory, more compute (about 30% slower training). PyTorch's torch.utils.checkpoint API. When activation checkpointing makes sense: when you're memory-bound, want a larger batch, training a very deep network. When it doesn't: when you're compute-bound or memory isn't the limiting factor. The combination: AMP + gradient accumulation + activation checkpointing together can let you train a model that nominally requires 4x your GPU memory on the actual hardware you have.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- 7. Hyperparameter Tuning -->
+  <!-- Category 8: Distributed Training -->
   <div class="section">
     <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-warning);color:var(--text-warning)">Hyperparameters</span>
+      <span class="section-tag" style="background:var(--bg-warning);color:var(--text-warning)">Distributed Training</span>
+      <span class="section-title">Distributed Training</span>
+    </div>
+
+    <div class="explainer-list">
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">37</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Data-Parallelism-Explainer.html" target="_blank" rel="noopener">Data Parallelism — Training One Model on Multiple GPUs — Interactive Explainer ↗</a></div>
+          <div class="row-concept">The most common form of distributed training. The mental model: replicate the model on each GPU, split the batch across GPUs, forward+backward independently, then synchronize gradients across GPUs before optimizer step. Worked example: 4 GPUs, batch_size_per_gpu=32, effective_batch=128. The synchronization step: an 'all-reduce' operation averages gradients across all GPUs so every GPU sees the same averaged gradient. NCCL (NVIDIA) and gloo (CPU) as the backend communication libraries. The all-reduce algorithm intuitively: ring-allreduce minimizes inter-GPU bandwidth by passing chunks around in a ring rather than sending everything to one place. Why this scales reasonably well: communication is overlapped with computation. While GPU is computing layer N's backward, layer N+1's gradient is being all-reduced in the background. Scaling efficiency: typically 90%+ for 2-8 GPUs on a single node, drops to 60-80% for multi-node setups due to slower interconnects. PyTorch DataParallel (legacy, single-process multi-GPU) vs DistributedDataParallel (modern, one process per GPU). Why DDP wins: avoids Python GIL contention, scales much better. Mentioned for completeness: PyTorch DataParallel exists but is essentially deprecated; never use it for new code. The learning-rate scaling rule: when going from 1 GPU at batch 32 to 8 GPUs at batch 256, you typically scale LR by 8 (linear scaling) for SGD or sqrt(8) for Adam. When data parallelism stops working: when the model itself doesn't fit on one GPU (then need model parallelism — see the Model Parallelism — Interactive Explainer).</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">38</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Model-Parallelism-Explainer.html" target="_blank" rel="noopener">Model Parallelism — When the Model Doesn't Fit on One GPU — Interactive Explainer ↗</a></div>
+          <div class="row-concept">The problem data parallelism can't solve: a 70B-parameter LLM has 140GB of fp16 weights, plus optimizer state, plus activations — total often 1TB+. No single GPU has that much memory. The solution: split the MODEL itself across GPUs, not the batch. Three flavors. Pipeline parallelism: split the model's LAYERS across GPUs. Layer 1-12 on GPU 0, 13-24 on GPU 1, etc. Data flows through them like a factory pipeline. The 'bubble' problem: when GPU 0 finishes layer 12 and sends to GPU 1, GPU 0 sits idle. Mitigation: micro-batches — split each batch into chunks so multiple chunks are in flight simultaneously, keeping all GPUs busy. GPipe (Google) and PipeDream (Microsoft) as landmark papers. Tensor parallelism: split individual operations across GPUs. A massive matmul Y = XW (where W is sharded across 8 GPUs in columns) becomes 8 smaller matmuls in parallel, with an all-gather to assemble the result. Megatron-LM (NVIDIA) pioneered this for Transformers. 3D parallelism: combine data + pipeline + tensor parallelism. This is how GPT-4-scale models are trained — 1000s of GPUs in a grid where each axis is one form of parallelism. Why model parallelism is harder than data parallelism: implementation complexity (must rewrite forward pass), communication patterns, debugging (failures appear in obscure places), interaction with other techniques. The practical takeaway: only use model parallelism when forced by model size; data parallelism is always preferred when possible. Brief mention of FSDP (Fully Sharded Data Parallel) and ZeRO — modern techniques that get many model-parallelism benefits with a data-parallelism-like programming model (deeper coverage in the Multi-GPU Training with PyTorch DDP — Practical Walkthrough — Interactive Explainer).</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">39</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Multi-GPU-Training-with-PyTorch-DDP-Explainer.html" target="_blank" rel="noopener">Multi-GPU Training with PyTorch DDP — Practical Walkthrough — Interactive Explainer ↗</a></div>
+          <div class="row-concept">End-to-end walkthrough of distributed training in PyTorch. The DDP mental model: one Python process per GPU; each process runs the same script with its own rank. The setup: torch.distributed.init_process_group() at script start, torch.nn.parallel.DistributedDataParallel(model) wraps your model. The DistributedSampler: ensures each GPU sees a different slice of the data so the union covers the whole dataset. Without it, all GPUs would see the same data and you'd be doing redundant work. The launcher: torchrun (modern) replaces torch.distributed.launch (legacy). Command: `torchrun --nproc_per_node=4 train.py`. Inside the script, accessing the rank via int(os.environ['LOCAL_RANK']). The 'rank-zero only' pattern: only rank 0 should print, save checkpoints, log to W&amp;B, etc. Otherwise you get 4 copies of every log line and 4 attempts to write the same file. The all-reduce synchronization: happens automatically inside DDP during backward. Debugging DDP: the dreaded 'NCCL timeout' (one process is stuck), 'mismatched output sizes' (you forgot DistributedSampler), 'deadlock on barrier' (one process is doing something the others aren't). Mixed precision + DDP: works seamlessly, GradScaler is rank-aware. Brief mention of FSDP (Fully Sharded Data Parallel) — a PyTorch native option for very large models that combines data parallelism with parameter sharding, similar to ZeRO. When to graduate to FSDP: when your model is too big for vanilla DDP. Common pitfalls: forgetting init_process_group, using a non-distributed sampler, all ranks trying to save checkpoints, mismatched code on different ranks (e.g., if rank 0 logs and others don't have the log directory).</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Category 9: Hyperparameter Tuning -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--bg-danger);color:var(--text-danger)">Hyperparameter Tuning</span>
       <span class="section-title">Hyperparameter Tuning</span>
     </div>
+
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">23</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">40</div>
         <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Learning-Rate-Schedules-Explainer.html" target="_blank" rel="noopener">Learning Rate Schedules — Interactive Explainer ↗</a></div>
-          <div class="row-concept">How LR should change during training. Constant LR (baseline), step decay, exponential decay, cosine annealing, linear warmup + cosine (the modern default — explained), cyclical LR, 1cycle policy, ReduceLROnPlateau — each visualised as a schedule curve with a side-by-side live loss simulation showing how the curve shape affects convergence. Why warmup helps with large batch sizes and Adam. A decision guide. PyTorch reference using torch.optim.lr_scheduler.CosineAnnealingLR, OneCycleLR, and the scheduler.step() placement in the training loop.</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Hyperparameters-Overview-Explainer.html" target="_blank" rel="noopener">Hyperparameters Overview — Interactive Explainer ↗</a></div>
+          <div class="row-concept">Mirrors the Loss Functions Overview — Interactive Explainer but for the tuning side. What hyperparameters are: parameters you set BEFORE training (vs parameters the model learns DURING training). The major DL hyperparameters surveyed. Learning rate (the single most important — typical range 1e-4 to 1e-1). Batch size (32 to 1024 typical; interacts with learning rate). Optimizer choice (AdamW for most things, SGD with momentum for some). Weight decay (typical 1e-5 to 1e-3). Momentum (~0.9 for SGD, betas for Adam). Network depth and width. Activation choice (ReLU/GELU/SiLU). Dropout rate (0.1 to 0.5 typical). Number of training epochs (sometimes called 'time budget'). The sensitivity hierarchy: not all hyperparameters matter equally. Learning rate dominates (changing LR by 10x ruins or saves a run); batch size and weight decay are second-tier; depth/width matter but the effect is gradual; most others are minor tweaks. Interactive visualization: a 'sensitivity bar chart' showing how much each hyperparameter affects a target metric, based on real ablation studies. A sensible-defaults table for getting a baseline running: 'use these values until you have time to tune.' The myth of universal best values — defaults depend on dataset size, model size, domain. Sets up the rest of the category: how to actually search hyperparameters (Tuning Strategies — Grid, Random, Bayesian Search — Interactive Explainer), the special case of learning rate schedules (Learning Rate Schedules — Warmup, Cosine, OneCycle, Reduce-on-Plateau — Interactive Explainer), and how to track all your experiments (Experiment Tracking — Weights &amp; Biases, MLflow, Reproducibility — Interactive Explainer).</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">24</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">41</div>
         <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Hyperparameter-Tuning-Explainer.html" target="_blank" rel="noopener">Hyperparameter Tuning — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Which hyperparameters matter, in what order, and how to search. The hyperparameter sensitivity hierarchy (LR ≫ batch size ≈ weight decay > network depth > everything else), a sensible-defaults table for getting a baseline running, grid search vs random search with a 2D visualisation showing why random wins when only some dimensions matter, Bayesian optimisation with intuitive explanation of the surrogate-model idea, the LR finder technique (Leslie Smith) with an interactive demo — train for a few steps while exponentially increasing LR, plot loss vs LR, pick the LR where loss decreases fastest. A practical tuning recipe.</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Hyperparameter-Tuning-Explainer.html" target="_blank" rel="noopener">Tuning Strategies — Grid, Random, Bayesian Search — Interactive Explainer ↗</a></div>
+          <div class="row-concept">How to actually search the hyperparameter space. Grid search: try all combinations of a small set of values for each hyperparameter. 4 LRs × 3 batch sizes × 3 weight decays = 36 runs. Pros: thorough. Cons: cost scales exponentially with number of hyperparameters; spends compute on dimensions that don't matter. Random search: sample each hyperparameter independently from its range. 36 random samples. Pros: same cost as grid but better. The Bergstra-Bengio 2012 result: random search dominates grid search in high dimensions because it spreads samples across the important dimensions. Visual demo: 2D hyperparameter space where dimension A is the only one that matters; grid wastes 5/6 of its budget on dimension B, random doesn't. Bayesian optimization: use observed results to fit a surrogate model (typically a Gaussian Process); pick the next hyperparameter to try that maximizes expected improvement. Pros: dramatically better sample efficiency. Cons: serial nature limits parallelism. Implementations: optuna, hyperopt, Ax/BoTorch. Population-based training (DeepMind): run many parallel trials, periodically copy weights+hyperparameters from good runs to bad runs and perturb. Effectively explores the hyperparameter space while training. Used for RLHF and LLM tuning at scale. The 'LR finder' technique (Leslie Smith): a clever shortcut for the most-important hyperparameter — train for ~100 steps with exponentially increasing LR, plot loss vs LR, pick the LR where loss decreases fastest. Practical recipe for tuning a typical project: LR finder for LR, then random search over (weight decay, dropout) with cosine schedule, log everything in W&amp;B.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">42</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Learning-Rate-Schedules-Explainer.html" target="_blank" rel="noopener">Learning Rate Schedules — Warmup, Cosine, OneCycle, Reduce-on-Plateau — Interactive Explainer ↗</a></div>
+          <div class="row-concept">The single most-tuned hyperparameter changes during training — here's how. Why decrease LR over training: early training needs a big LR to escape bad starting regions; late training needs small LR to converge precisely. Constant LR rarely works for serious training. The classic schedules. Step decay: multiply LR by 0.1 every K epochs. Simple, surprisingly effective. Used in older CNN training (e.g., ResNet on ImageNet). Cosine annealing: LR follows half a cosine curve, starting at peak and smoothly decreasing to zero. The modern default for most training. The math: lr(t) = lr_max * 0.5 * (1 + cos(π * t / T_max)). Plus warmup: for the first 1-10% of training, linearly ramp LR from 0 to lr_max, THEN apply the schedule. Critical for Transformers and large models where the initial untrained weights would diverge with full LR. Cosine with restarts (SGDR): periodically reset LR back to peak; can find better minima. OneCycle (Leslie Smith): a complete recipe — warmup to lr_max, then anneal to a much smaller value over the rest of training, plus momentum schedule going the opposite direction. Reduce on plateau: monitor validation loss; if it hasn't improved for K epochs, divide LR by 10. Adaptive but reactive. Compared to schedule-based which are predictive. Interactive: plot any schedule with sliders for max LR, warmup steps, total steps. PyTorch implementations: torch.optim.lr_scheduler offers all of these. The scheduler.step() placement gotcha: call it after optimizer.step(), not before. Per-batch vs per-epoch scheduling: cosine is usually per-batch (smoother), reduce-on-plateau is per-epoch (less noisy).</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">43</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Experiment-Tracking-Explainer.html" target="_blank" rel="noopener">Experiment Tracking — Weights &amp; Biases, MLflow, Reproducibility — Interactive Explainer ↗</a></div>
+          <div class="row-concept">How to keep track of 100 training runs without going insane. The problem: you try LR 1e-3, batch 32; then LR 1e-4, batch 64; then... 50 variations later, which one was best? What were its hyperparameters? Is the model still saved? Without tracking infrastructure, ML becomes 'cargo cult what kinda worked last time.' Modern tracking tools. Weights &amp; Biases (wandb): cloud-hosted, pretty dashboards, real-time plotting, model registry, sweeps for hyperparameter search. The de facto standard for academic and industry DL work. MLflow: open-source, self-hostable, less polished UI but better governance for enterprise use. TensorBoard: free, basic, runs locally; included with PyTorch. Aim, Comet, Neptune: alternatives with various trade-offs. What to log. Every hyperparameter (training config). Every metric (train/val loss, accuracy, F1, etc.) at each step. Sample inputs and outputs (e.g., predicted images, generated text). System metrics (GPU utilization, memory, throughput). Model architecture and parameter counts. Git commit SHA for code reproducibility. Random seeds. The reproducibility problem. Even with all this logged, exactly reproducing a run is hard: CUDA non-determinism, library version drift, hardware differences. Best practices: pin all library versions, set random seeds in torch/numpy/python, use torch.use_deterministic_algorithms() for full determinism (at compute cost). The recommended workflow: every training run logs to wandb, every code change is committed, every successful run gets tagged for easy retrieval, periodic 'what did I learn?' review of past sweeps.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
     </div>
+
   </div>
 
-  <!-- 8. Evaluation -->
+  <!-- Category 10: Evaluation -->
   <div class="section">
     <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-info);color:var(--text-info)">Evaluation</span>
+      <span class="section-tag" style="background:var(--bg-architecture);color:var(--text-architecture)">Evaluation</span>
       <span class="section-title">Evaluation</span>
     </div>
+
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">25</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">44</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Evaluation-Metrics-for-Classification-Explainer.html" target="_blank" rel="noopener">Evaluation Metrics for Classification — Interactive Explainer ↗</a></div>
           <div class="row-concept">Why accuracy alone misleads and what to use instead. The confusion matrix as the source of all metrics, an interactive confusion matrix where you drag the decision threshold and watch precision / recall / F1 update live, the precision–recall trade-off explained intuitively (spam filter vs cancer screening), F1 as the harmonic mean and when it's the right summary, the ROC curve traced out as threshold sweeps with AUC interpretation, the PR curve as the imbalance-aware alternative to ROC, class-imbalance failure modes (the 99%-accurate fraud detector that predicts "no fraud"), macro vs micro vs weighted averaging for multiclass, and a brief reference for regression metrics (MAE, RMSE, R²) since the capstone may use either. PyTorch and sklearn snippets for each metric.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">45</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Evaluation-Metrics-for-Regression-Explainer.html" target="_blank" rel="noopener">Evaluation Metrics for Regression — Interactive Explainer ↗</a></div>
+          <div class="row-concept">Parallel companion to Evaluation Metrics for Classification — Interactive Explainer, but for continuous outputs. The fundamental difference: classification is right-or-wrong; regression is a continuous error. Many ways to summarize that error. Mean Absolute Error (MAE): average of |y_pred - y_true|. Same units as target; robust to outliers. Mean Squared Error (MSE): average of (y_pred - y_true)². Larger penalty for big errors; differentiable everywhere; the loss most regression models are trained with. Root Mean Squared Error (RMSE): sqrt of MSE. Same units as target; still penalizes large errors more than MAE. Mean Absolute Percentage Error (MAPE): mean of |y_pred - y_true| / |y_true|. Scale-invariant; useful when target varies over orders of magnitude. Symmetric MAPE for the divide-by-zero problem when targets are near 0. R² (coefficient of determination): 1 - MSE / Var(y). Says 'what fraction of the variance in y does the model explain?' R² = 0 means 'no better than predicting the mean'; R² = 1 means 'perfect.' R² CAN BE NEGATIVE: if your model is worse than predicting the mean. This usually means a bug. The decomposition R² = Var(y_pred) / Var(y) for a perfect model. Adjusted R²: corrects for number of features in linear models. Less relevant for DL. The diagnostic: residual plots — plot (y_true - y_pred) vs y_true; should look like random noise. Patterns (curves, fans) indicate the model is missing structure. Quantile-quantile plots for normality assumption. Calibration plots for probabilistic regression (predicting mean + variance) — covered in the Model Calibration — Reliability Diagrams, ECE, Temperature Scaling — Interactive Explainer. Practical recipe: report MAE + RMSE + R² for any regression problem; use MAPE only if target is far from zero and you care about relative errors.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">46</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Bias-Variance-Explainer.html" target="_blank" rel="noopener">Bias-Variance — Diagnosing What's Wrong With Your Model — Interactive Explainer ↗</a></div>
+          <div class="row-concept">The classical theory that explains every 'my model isn't working' situation. The decomposition: expected MSE on test data = Bias² + Variance + Irreducible Noise. Bias: the systematic error from the model's structural choices. A linear model fit to clearly nonlinear data has high bias — no matter the dataset, the predictions are systematically wrong. Variance: how much the model changes when you re-sample the training data. An overfit complex model has high variance — different training sets give wildly different predictions on the same test point. Irreducible noise: error from inherent randomness in the data that no model can avoid. The visual intuition: dart-board diagram with four panels (low bias / high bias × low variance / high variance) showing what each combination looks like. High bias = darts cluster but far from center; high variance = darts scattered wildly; both = scattered far from center; neither = tight cluster on center. The bias-variance trade-off: simple models (few parameters) have high bias, low variance; complex models have low bias, high variance. The sweet spot minimizes both. The diagnostic recipe — what loss curves tell you. Both train and val loss high: high bias (underfitting). Get a bigger model or train longer. Train loss low, val loss much higher: high variance (overfitting). Get more data, add regularization, reduce capacity. Both train and val loss reasonable but val noisier than train: high variance but not catastrophic; standard regularization (Dropout &amp; Weight Decay) suffices. Both losses noisy and unstable: implementation bug, exploding gradients, or wrong learning rate. The modern twist: Double Descent (covered in the Network Depth, Width, and Capacity — Interactive Explainer) breaks the classical trade-off in the overparameterized regime — much-bigger models can have BOTH low bias AND low variance. Practical diagnosis: look at your loss curves, match them against the four canonical cases.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
+      <div class="explainer-row">
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">47</div>
+        <div class="row-body">
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Model-Calibration-Explainer.html" target="_blank" rel="noopener">Model Calibration — Reliability Diagrams, ECE, Temperature Scaling — Interactive Explainer ↗</a></div>
+          <div class="row-concept">When a model says '0.9 confidence,' is it actually right 90% of the time? Often: no. The concept: well-calibrated probabilities match observed frequencies. A weather forecaster saying '70% chance of rain' should be right 70% of the time across all such forecasts. Why DL models are typically over-confident: training with cross-entropy and modern regularization tends to push probabilities toward 1.0 for the predicted class, even when the model is wrong. Confidence and accuracy diverge. Measuring calibration. Reliability diagram: bin predictions by confidence (0.5-0.6, 0.6-0.7, etc.), plot bin's average confidence vs bin's actual accuracy. Perfect calibration = diagonal line. Common pattern: bins above 0.9 confidence have actual accuracy around 0.7 — over-confidence. Expected Calibration Error (ECE): a single number summary — weighted average of |bin confidence - bin accuracy| across all bins. Lower is better. Maximum Calibration Error (MCE): the worst bin's gap. The fix — Temperature Scaling. Add a single trainable parameter T; replace softmax(logits) with softmax(logits / T). Increasing T softens the distribution. Find the T that minimizes ECE on a held-out validation set (small enough that this isn't itself a meaningful hyperparameter tuning). The remarkable result: temperature scaling fixes calibration on most models with one number. Almost-free fix. Cross-references: when calibration matters most — medical (treatment decisions based on predicted probabilities), autonomous systems (action probability), financial (loss-sensitive predictions). When it matters less — pure ranking tasks where only relative order matters. The 'over-confidence + selective prediction' workflow: trust predictions above some threshold T, defer the rest to humans. Calibration is what makes this threshold meaningful. Beyond temperature scaling: Platt scaling, isotonic regression, Bayesian neural networks, deep ensembles — covered as briefer mentions for further reading.</div>
+        </div>
+        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+      </div>
     </div>
+
   </div>
 
-  <!-- 9. Capstone -->
+  <!-- Category 11: Deep Learning Capstone -->
   <div class="section">
     <div class="section-header">
-      <span class="section-tag" style="background:var(--bg-success);color:var(--text-success)">Capstone</span>
-      <span class="section-title">Deep Learning Capstone — MLP Worked Example</span>
+      <span class="section-tag" style="background:var(--bg-info);color:var(--text-info)">Deep Learning Capstone</span>
+      <span class="section-title">Deep Learning Capstone</span>
     </div>
+
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">26</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">48</div>
         <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/MLP-Worked-Example-Training-Explainer.html" target="_blank" rel="noopener">MLP Worked Example — End-to-End Training — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Everything from Categories 1–6 brought together on one real task. A small MLP solving the Iris classification problem (4 features, 3 classes — perfect for showing multi-class softmax + cross-entropy in action), built from scratch using nn.Sequential — input layer → hidden layer with ReLU → output layer → CrossEntropyLoss → Adam. Step-by-step — data loading and the train/val/test split, model architecture choice motivated by Explainer #19, loss and optimizer choice motivated by #7 and #10, the training loop from #22 running live in the browser (or showing a recorded run frame-by-frame), a 2D scatter of the two most discriminative features (petal length × petal width) with the decision boundary projected onto that plane plus a parallel-coordinates view of all 4 features, the validation loss tracked for early stopping, and the final trained model. Full runnable code at the bottom.</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/MLP-Capstone-Building-and-Training-Explainer.html" target="_blank" rel="noopener">MLP Capstone — Building and Training an MLP from Scratch — Interactive Explainer ↗</a></div>
+          <div class="row-concept">End-to-end worked example that ties together every concept from Foundations through Distributed Training. Choose dataset: Iris (classic, small, fast — good for teaching) or California Housing for regression (parallel coverage with Evaluation Metrics for Regression — Interactive Explainer). Walk through the full pipeline. Step 1: Build a Dataset subclass for the chosen data, with proper __len__ and __getitem__. Step 2: Apply Train/Val/Test splits (callback to Train / Validation / Test Splits and Why They Matter — Interactive Explainer). Step 3: Input preprocessing — z-score normalize the features using training-set statistics (callback to Input Preprocessing &amp; Normalization — Interactive Explainer). Step 4: Design the MLP — pick depth and width informed by the Network Depth, Width, and Capacity — Interactive Explainer. Use modules covered in earlier explainers: nn.Linear, nn.ReLU, nn.Dropout (with callback to Dropout &amp; Weight Decay — Interactive Explainer), residual connections (callback). Step 5: Pick a loss — cross-entropy for classification, MSE for regression. Step 6: Pick an optimizer — AdamW (callback to Optimizers — From SGD to AdamW — Interactive Explainer). Step 7: Write the training loop — the five-line PyTorch idiom from PyTorch Training Loop in Practice — Interactive Explainer. Step 8: Add training monitoring — log train/val loss curves, watch for the four canonical patterns from Monitoring Training — Interactive Explainer. Step 9: Add mixed precision (callback) if helpful. Step 10: Add early stopping (callback). The complete, runnable code snippet shown step by step. The interactive element: a slider to scrub through the recorded training run frame-by-frame, watching loss curves and decision boundaries evolve together. Common pitfalls when implementing — forgotten zero_grad, wrong loss target shape, normalization leak — all flagged.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">27</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">49</div>
         <div class="row-body">
-          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/MLP-Worked-Example-Hyperparameter-Tuning-Evaluation-Deployment-Explainer.html" target="_blank" rel="noopener">MLP Worked Example — Hyperparameter Tuning, Evaluation &amp; Deployment — Interactive Explainer ↗</a></div>
-          <div class="row-concept">Picking up from #26's trained Iris model — how to make it good and how to ship it. The LR finder (from #24) run on this specific problem with the chosen LR justified, a small hyperparameter sweep with results visualised (random search over LR, hidden size, weight decay), the cosine schedule from #23 added with the before/after improvement shown, full evaluation on the held-out test set using every metric from #25 (confusion matrix, precision / recall / F1, ROC), and error analysis on misclassified examples. Then deployment — torch.save and torch.load for the state dict, the difference between saving the state dict vs the whole model, TorchScript export with torch.jit.script and why you'd use it, a brief ONNX mention for cross-framework deployment, and a tiny inference demo with 4 sliders (sepal length, sepal width, petal length, petal width) where the user adjusts values and watches the predicted class and softmax probabilities update live.</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/MLP-Capstone-Tuning-Evaluation-Deployment-Explainer.html" target="_blank" rel="noopener">MLP Capstone — Hyperparameter Tuning, Evaluation &amp; Deployment — Interactive Explainer ↗</a></div>
+          <div class="row-concept">Picks up from the MLP Capstone — Building and Training an MLP from Scratch — Interactive Explainer with a trained baseline model. Now: make it good, then ship it. Hyperparameter tuning. Run an LR finder on this specific problem with the chosen LR justified (callback to Tuning Strategies — Interactive Explainer). Run a small random-search sweep over (LR, hidden_size, weight_decay) with results visualized in a parallel coordinates plot (callback to Experiment Tracking — Interactive Explainer). Add a cosine learning rate schedule (callback to Learning Rate Schedules — Interactive Explainer) — show the before/after improvement. Full evaluation. On classification: confusion matrix, precision/recall/F1, ROC curve (callbacks to Evaluation Metrics for Classification — Interactive Explainer). Error analysis: show 10 misclassified examples and try to explain why. Bias-variance analysis from the loss curves (callback to Bias-Variance — Interactive Explainer). Calibration check: reliability diagram for predicted probabilities; temperature scaling if mis-calibrated (callback to Model Calibration — Interactive Explainer). On regression: MAE/MSE/R², residual plots, calibration plots. Deployment. The state-dict-only save (recommended) vs whole-model pickle (don't). TorchScript export (torch.jit.script) and why you'd use it. ONNX export for cross-framework deployment. A tiny inference demo: 4 input sliders (for the 4 Iris features), live class prediction with softmax probabilities updating as you adjust. The bridge to the Deployment Roadmap: 'you've now seen the basic export path; the Deployment Roadmap covers quantization, mobile deployment, latency optimization, and serving at scale.' Common pitfalls in deployment: state-dict mismatch when loading on different model class, forgetting model.eval() at inference, not normalizing inputs the same way at inference as training.</div>
         </div>
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
     </div>
+
   </div>
-
-
   <!-- Design principles -->
   <div class="summary-card">
     <h2>Design principles</h2>
