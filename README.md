@@ -33,7 +33,7 @@ Detailed explainer roadmaps for each area:
 | :--- | :------ | :------- |
 | 🔴 Deep Learning | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Deep-Learning-Explainer-Roadmap.html) | 7 / 27 (26%) |
 | 🟢 Machine Learning | Coming soon | — |
-| 🔵 Computer Vision | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Computer-Vision-Explainer-Roadmap.html) | 3 / 90 (3%) |
+| 🔵 Computer Vision | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Computer-Vision-Explainer-Roadmap.html) | 4 / 90 (4%) |
 | 🟡 Natural Language Processing | Coming soon | — |
 | 🟣 Generative AI | Coming soon | — |
 | 🟠 Deployment | Coming soon | — |
@@ -71,6 +71,7 @@ Coming soon 🔜
 | [What Is an Image? — Pixels, Coordinates, and Resolution](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/What-is-an-Image-Pixels-Coordinates-Resolution-Explainer.html) | Interactive visual introduction to images as grids of numbers — pixels, coordinate systems, resolution, aspect ratio, and storage size | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Colour — RGB, BGR, HSV, and Grayscale](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Colour-RGB-BGR-HSV-Grayscale-Explainer.html) | Interactive introduction to how computer images carry colour — three numbers per pixel, the BGR-vs-RGB bug every beginner hits, HSV and grayscale as alternative colour spaces, with cross-library code references | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Images as NumPy Arrays](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Images-as-NumPy-Arrays-Explainer.html) | Interactive introduction to NumPy arrays as the data structure behind every Python image — shape conventions, slicing, vectorisation, the uint8 wraparound bug, and conversion to PyTorch tensors | ![Status](https://img.shields.io/badge/Live-brightgreen) |
+| [Loading, Displaying, and Saving Images](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Loading-Displaying-Saving-Images-Explainer.html) | Interactive guide to how image files become arrays and back again — the decode/encode pipeline, the PIL / OpenCV / torchvision / Matplotlib landscape, the BGR colour-swap trap, and an interactive look at lossy vs lossless compression | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 
 ![rainbow](assets/rainbow-divider.png)
 

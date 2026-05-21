@@ -140,12 +140,12 @@
     <div class="subcat-label"><span>How to handle images in code</span></div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">4</div>
+        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">4</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Loading-Displaying-Saving-Images-Explainer.html" target="_blank" rel="noopener">Loading, Displaying, and Saving Images — Interactive Explainer ↗</a></div>
-          <div class="row-concept">The Python image-library landscape, with practical recipes. PIL/Pillow as the general-purpose Python image library — Image.open() to load any format, .show() to display, .save() to write back; the PIL Image object is not a NumPy array, conversion is np.array(pil_img) and back is Image.fromarray(np_arr). OpenCV (cv2) as the CV-specific powerhouse — faster than PIL on large images, much more functionality, but BGR-by-default and its display functions (cv2.imshow + cv2.waitKey) only work in standalone Python scripts, not in Jupyter notebooks (a common beginner confusion). torchvision as the PyTorch ecosystem&apos;s image utilities — torchvision.io.read_image for loading directly into PyTorch tensors. Matplotlib&apos;s plt.imshow as the universal &quot;show me this image in my notebook&quot; tool, with the subtle gotcha that it interprets arrays as RGB so OpenCV-loaded images need conversion first. Side-by-side runnable examples loading the same image with all three libraries. Image formats explained — JPEG (lossy, 5–20× smaller than uncompressed, perfect for photos, slight artifacts on text/lines), PNG (lossless, larger files, perfect for screenshots/icons/anything with sharp edges), WebP (modern, both modes, ~25% smaller than JPEG at same quality). What &quot;JPEG quality 90&quot; means concretely — an interactive showing the same image saved at qualities 100 / 90 / 50 / 20 with file sizes and visible artifacts. A consolidated decision table — which library for which task.</div>
+          <div class="row-concept">Decoding files into arrays and encoding them back, the PIL / OpenCV / torchvision / Matplotlib landscape, PIL↔NumPy↔tensor conversions, the interactive BGR-vs-RGB colour-swap bug, displaying in notebooks vs scripts, saving across all four libraries, and an interactive quality slider showing real JPEG vs PNG file sizes and compression artifacts</div>
         </div>
-        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+        <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">5</div>
