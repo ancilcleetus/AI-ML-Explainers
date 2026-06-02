@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foundations of Language Modeling: N-gram Models — Interactive Explainer</title>
+<style>
+
+
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #ffffff; --bg-secondary: #f5f4f0; --bg-tertiary: #eeece6;
+      --bg-info: #e6f1fb; --bg-success: #e1f5ee; --bg-warning: #faeeda; --bg-danger: #fcebeb;
+      --text-primary: #1a1a18; --text-secondary: #5f5e5a; --text-tertiary: #888780;
+      --text-info: #185fa5; --text-success: #0f6e56; --text-warning: #854f0b; --text-danger: #a32d2d;
+      --border-tertiary: rgba(0,0,0,0.12); --border-secondary: rgba(0,0,0,0.22);
+      --border-info: #85b7eb; --border-success: #5dcaa5; --border-warning: #ef9f27; --border-danger: #e24b4a;
+      --radius-md: 8px; --radius-lg: 12px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1a; --bg-secondary: #252522; --bg-tertiary: #2c2c2a;
+        --bg-info: #042c53; --bg-success: #04342c; --bg-warning: #412402; --bg-danger: #501313;
+        --text-primary: #e8e6de; --text-secondary: #b4b2a9; --text-tertiary: #73726c;
+        --text-info: #85b7eb; --text-success: #5dcaa5; --text-warning: #ef9f27; --text-danger: #f09595;
+        --border-tertiary: rgba(255,255,255,0.10); --border-secondary: rgba(255,255,255,0.20);
+        --border-info: #185fa5; --border-success: #0f6e56; --border-warning: #854f0b; --border-danger: #a32d2d;
+      }
+    }
+    body { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary);
+           min-height: 100vh; padding: 2rem 1rem 3rem; line-height: 1.6; }
+    .page { max-width: 760px; margin: 0 auto; }
+    header { margin-bottom: 2rem; }
+    header h1 { font-size: 24px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+    header p { font-size: 14px; color: var(--text-secondary); max-width: 600px; line-height: 1.65; }
+    header a { color: var(--text-info); text-decoration: none; border-bottom: 0.5px solid var(--border-info); }
+    .card { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary);
+            border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+    h2 { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+    p.note { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 0.75rem; }
+    p.note a { color: var(--text-info); text-decoration: none; border-bottom: 0.5px solid var(--border-info); }
+    p.note a:hover { opacity: 0.75; }
+    p.note + p.note { margin-top: -0.25rem; }
+    p.note em { color: var(--text-primary); font-style: italic; }
+    code.inline { font-family: var(--font-mono); font-size: 11.5px; background: var(--bg-secondary);
+                  padding: 1px 5px; border-radius: 4px; color: var(--text-primary); }
+    .step-label { font-size: 11px; font-weight: 500; color: var(--text-tertiary); letter-spacing: .05em;
+                  text-transform: uppercase; margin: 1rem 0 6px; }
+    .eq-box { background: var(--bg-secondary); border: 0.5px solid var(--border-tertiary);
+              border-radius: var(--radius-md); padding: 0.875rem 1rem; margin: 0.5rem 0;
+              font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); line-height: 1.7;
+              white-space: pre; overflow-x: auto; }
+    .insight { border-left: 2px solid var(--border-info); padding: 7px 12px; font-size: 13px;
+               color: var(--text-secondary); background: var(--bg-info);
+               border-radius: 0 var(--radius-md) var(--radius-md) 0; margin: 0.75rem 0; line-height: 1.55; }
+    .insight.success { border-color: var(--border-success); background: var(--bg-success); color: var(--text-success); }
+    .insight.warning { border-color: var(--border-warning); background: var(--bg-warning); color: var(--text-warning); }
+    .insight.danger { border-color: var(--border-danger); background: var(--bg-danger); color: var(--text-danger); }
+    .insight strong { color: var(--text-primary); }
+    .insight.success strong { color: var(--text-success); }
+    .insight.warning strong { color: var(--text-warning); }
+    .insight.danger strong { color: var(--text-danger); }
+    .code-block { background: var(--bg-secondary); border: 0.5px solid var(--border-tertiary);
+                  border-radius: var(--radius-md); padding: 1rem 1.125rem; margin: 0.75rem 0;
+                  font-family: var(--font-mono); font-size: 12px; line-height: 1.7;
+                  color: var(--text-primary); overflow-x: auto; white-space: pre; }
+    .code-kw { color: var(--text-info); }
+    .code-cls { color: var(--text-success); }
+    .code-num { color: var(--text-danger); }
+    .code-cmt { color: var(--text-tertiary); font-style: italic; }
+    .code-str { color: var(--text-success); }
+    .code-fn { color: var(--text-warning); }
+    .toc-nav { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary);
+               border-radius: var(--radius-lg); padding: 0.875rem 1.25rem; margin-bottom: 1.5rem; }
+    .toc-title { font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+                 text-transform: uppercase; letter-spacing: .05em; margin-bottom: 0.5rem; }
+    .toc-item { display: flex; align-items: flex-start; gap: 10px; padding: 5px 6px;
+                margin: 2px -6px; border-radius: var(--radius-md); text-decoration: none; transition: background 0.15s; }
+    .toc-item:hover { background: var(--bg-secondary); }
+    .toc-num { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; background: var(--bg-info);
+               color: var(--text-info); font-size: 11px; font-weight: 600;
+               display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+    .toc-label { font-size: 13px; color: var(--text-info); font-weight: 500; line-height: 1.45; }
+    .toc-item:hover .toc-label { color: var(--text-primary); }
+    .toc-item:hover .toc-num { opacity: 0.7; }
+
+    /* shared demo chrome */
+    .demo { background:var(--bg-secondary); border:1px solid var(--border-tertiary); border-radius:var(--radius-lg); padding:18px; margin:18px 0; }
+    .demo-row { display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; }
+    .demo-col { flex:1; min-width:240px; }
+    .btn { background:var(--bg-info); color:var(--text-info); border:1px solid var(--border-info); border-radius:6px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; font-family:var(--font); margin:3px; }
+    .btn:hover { opacity:0.85; }
+    .btn.sel { background:var(--text-info); color:#fff; }
+    .readout { display:grid; grid-template-columns:auto 1fr; gap:6px 12px; font-size:13px; margin:10px 0; align-items:center; }
+    .readout .rl { color:var(--text-secondary); } .readout .rv { font-family:var(--font-mono); font-weight:600; color:var(--text-primary); }
+    .seg { display:inline-flex; border:1px solid var(--border-secondary); border-radius:8px; overflow:hidden; margin:4px 0; flex-wrap:wrap; }
+    .seg button { background:var(--bg-primary); border:0; padding:8px 14px; font-size:12.5px; font-family:var(--font); cursor:pointer; color:var(--text-secondary); border-right:1px solid var(--border-tertiary); }
+    .seg button:last-child { border-right:0; } .seg button.active { background:var(--bg-info); color:var(--text-info); font-weight:600; }
+
+    /* fill-in-the-blank */
+    .fitb { font-size:17px; line-height:2; margin:12px 0; }
+    .blank { display:inline-block; min-width:70px; border-bottom:2px dashed var(--border-info); text-align:center; color:var(--text-info); font-weight:700; padding:0 6px; }
+    .reveal-box { margin-top:10px; padding:12px 14px; border-radius:var(--radius-md); background:var(--bg-info); border:1px solid var(--border-info); font-size:13.5px; color:var(--text-primary); display:none; }
+    .reveal-box.show { display:block; }
+
+    /* three eras diagram */
+    .eras { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:18px 0; }
+    .era { flex:1; min-width:200px; border:1px solid var(--border-tertiary); border-radius:var(--radius-lg); padding:16px; text-align:center; position:relative; }
+    .era.count { background:var(--bg-info); border-color:var(--border-info); }
+    .era.learn { background:var(--bg-success); border-color:var(--border-success); }
+    .era.attend { background:var(--bg-warning); border-color:var(--border-warning); }
+    .era .verb { font-size:18px; font-weight:800; letter-spacing:-0.01em; }
+    .era.count .verb { color:var(--text-info); } .era.learn .verb { color:var(--text-success); } .era.attend .verb { color:var(--text-warning); }
+    .era .models { font-size:12.5px; color:var(--text-secondary); margin-top:4px; }
+    .era .yr { font-size:11px; color:var(--text-tertiary); margin-top:6px; font-family:var(--font-mono); }
+    .era .here { position:absolute; top:-10px; right:10px; font-size:10px; font-weight:700; background:var(--text-info); color:#fff; padding:2px 8px; border-radius:999px; }
+    .era-arrow { display:flex; align-items:center; color:var(--text-tertiary); font-size:20px; }
+    @media(max-width:680px){ .era-arrow{ transform:rotate(90deg); } }
+
+    /* equation block */
+    .eq { background:var(--bg-secondary); border:1px solid var(--border-tertiary); border-radius:var(--radius-md); padding:14px 16px; margin:14px 0; text-align:center; font-family:var(--font-mono); font-size:14px; overflow-x:auto; color:var(--text-primary); line-height:1.7; }
+    .eq .frac { display:inline-block; vertical-align:middle; text-align:center; }
+    .eq .frac .num { display:block; border-bottom:1px solid var(--text-secondary); padding:0 8px; }
+    .eq .frac .den { display:block; padding:0 8px; }
+
+    /* chain-rule product widget */
+    .chain-terms { display:flex; gap:8px; flex-wrap:wrap; align-items:stretch; margin:14px 0; }
+    .cterm { flex:1; min-width:120px; border:1px solid var(--border-tertiary); border-radius:var(--radius-md); padding:10px; text-align:center; background:var(--bg-primary); transition:all 0.3s; opacity:0.4; }
+    .cterm.on { opacity:1; border-color:var(--border-info); background:var(--bg-info); }
+    .cterm .ct-p { font-family:var(--font-mono); font-size:12px; color:var(--text-secondary); }
+    .cterm .ct-v { font-family:var(--font-mono); font-size:16px; font-weight:700; color:var(--text-info); margin-top:4px; }
+    .chain-result { text-align:center; font-size:15px; margin-top:12px; }
+    .chain-result .rv { font-family:var(--font-mono); font-weight:800; color:var(--text-danger); font-size:18px; }
+
+    /* sliding window */
+    .sw-sentence { display:flex; gap:6px; flex-wrap:wrap; margin:14px 0; justify-content:center; }
+    .sw-word { padding:9px 13px; border-radius:7px; font-family:var(--font-mono); font-size:14px; background:var(--bg-tertiary); border:2px solid transparent; transition:all 0.2s; }
+    .sw-word.win { background:var(--bg-info); border-color:var(--border-info); color:var(--text-info); font-weight:700; }
+    .sw-word.target { background:var(--bg-danger); border-color:var(--border-danger); color:var(--text-danger); font-weight:700; }
+
+    /* corpus counting widget */
+    .corpus { display:flex; flex-direction:column; gap:7px; margin:12px 0; }
+    .corpus-line { font-family:var(--font-mono); font-size:14px; padding:8px 12px; background:var(--bg-primary); border:1px solid var(--border-tertiary); border-radius:var(--radius-md); }
+    .corpus-line .w { padding:1px 3px; border-radius:3px; transition:background 0.2s; }
+    .corpus-line .w.hl-w1 { background:var(--bg-info); color:var(--text-info); font-weight:700; }
+    .corpus-line .w.hl-pair { background:var(--bg-danger); color:var(--text-danger); font-weight:700; }
+    .word-pick { display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin:12px 0; }
+    .word-pick .wp-group { font-size:12.5px; }
+    .word-pick select { font-family:var(--font-mono); font-size:13px; padding:6px 8px; border-radius:6px; border:1px solid var(--border-secondary); background:var(--bg-primary); color:var(--text-primary); }
+
+    /* sparsity explosion widget */
+    .sparse-out { display:grid; grid-template-columns:auto 1fr; gap:8px 16px; font-size:14px; margin:12px 0; align-items:center; }
+    .sparse-out .sl { color:var(--text-secondary); } .sparse-out .sv { font-family:var(--font-mono); font-weight:700; color:var(--text-primary); }
+
+    /* generic table */
+    .gtable { width:100%; border-collapse:collapse; margin:14px 0; font-size:12.5px; }
+    .gtable th,.gtable td { border:1px solid var(--border-tertiary); padding:9px 11px; text-align:left; vertical-align:top; }
+    .gtable th { background:var(--bg-tertiary); font-weight:600; }
+    .step-box { border-left:3px solid var(--border-info); background:var(--bg-secondary); padding:12px 14px; border-radius:0 var(--radius-md) var(--radius-md) 0; margin:10px 0; font-size:13.5px; }
+    .step-box .sn { font-weight:700; color:var(--text-info); }
+
+    footer { text-align:center; font-size:12px; color:var(--text-tertiary); margin-top:2rem; }
+
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>Foundations of Language Modeling: N-gram Models — Interactive Explainer</h1>
+    <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener">Ancil Cleetus</a></p>
+    <p>How did machines learn to predict the next word? The story unfolds in three eras &mdash; <strong>counting</strong>, then <strong>learning</strong>, then <strong>attending</strong> &mdash; and this explainer is the first of three that trace that journey. Here we start at the beginning: language modeling by pure counting, the elegantly simple <strong>N-gram</strong> model, and the two deep problems that eventually forced the field to invent something better.</p>
+  </header>
+
+  <nav class="toc-nav" aria-label="Table of contents">
+    <div class="toc-title">Contents</div>
+    <a href="#sec-already" class="toc-item"><div class="toc-num">1</div><span class="toc-label">You Are Already a Language Model</span></a>
+    <a href="#sec-eras" class="toc-item"><div class="toc-num">2</div><span class="toc-label">Three Eras of Language Modeling</span></a>
+    <a href="#sec-counting" class="toc-item"><div class="toc-num">3</div><span class="toc-label">Predict by Counting: The Core Idea</span></a>
+    <a href="#sec-markov" class="toc-item"><div class="toc-num">4</div><span class="toc-label">The Markov Assumption: Short Memory</span></a>
+    <a href="#sec-sparsity" class="toc-item"><div class="toc-num">5</div><span class="toc-label">Where N-grams Break: The Sparsity Problem</span></a>
+    <a href="#sec-similarity" class="toc-item"><div class="toc-num">6</div><span class="toc-label">The Deeper Problem: No Notion of Similarity</span></a>
+  </nav>
+
+  <!-- §1 -->
+  <div class="card">
+    <h2 id="sec-already">You Are Already a Language Model</h2>
+    <p class="note">Let&apos;s start with a simple game. I&apos;ll give you the beginning of a sentence, and your job is to guess the next word. Click the word you think comes next:</p>
+
+    <div class="demo">
+      <div class="fitb">&ldquo;The cat sat on the <span class="blank" id="b1">?</span>&rdquo;</div>
+      <div><button class="btn" onclick="fitb(1,'mat',true)">mat</button><button class="btn" onclick="fitb(1,'airplane',false)">airplane</button><button class="btn" onclick="fitb(1,'seven',false)">seven</button></div>
+      <div class="reveal-box" id="r1">Most people say <strong>mat</strong> &mdash; and so did you. Notice you didn&apos;t calculate anything; you just <em>knew</em> &ldquo;mat&rdquo; was far more likely than &ldquo;airplane&rdquo; after those words.</div>
+
+      <div class="fitb" style="margin-top:16px">&ldquo;I went to the grocery <span class="blank" id="b2">?</span>&rdquo;</div>
+      <div><button class="btn" onclick="fitb(2,'store',true)">store</button><button class="btn" onclick="fitb(2,'mountain',false)">mountain</button><button class="btn" onclick="fitb(2,'idea',false)">idea</button></div>
+      <div class="reveal-box" id="r2">&ldquo;<strong>store</strong>&rdquo;, almost certainly. The earlier words shifted the odds heavily toward one answer.</div>
+
+      <div class="fitb" style="margin-top:16px">&ldquo;The president of the United <span class="blank" id="b3">?</span>&rdquo;</div>
+      <div><button class="btn" onclick="fitb(3,'States',true)">States</button><button class="btn" onclick="fitb(3,'breakfast',false)">breakfast</button><button class="btn" onclick="fitb(3,'green',false)">green</button></div>
+      <div class="reveal-box" id="r3">&ldquo;<strong>States</strong>&rdquo;, of course.</div>
+    </div>
+
+    <div class="insight">Here is the key insight: <strong>you are already a language model.</strong> Your brain, trained on decades of reading and conversation, assigns <em>probabilities</em> to the next word based on the words that came before. The central question of this explainer is simply: <strong>how do we teach a machine to do the same thing?</strong></div>
+  </div>
+
+  <!-- §2 -->
+  <div class="card">
+    <h2 id="sec-eras">Three Eras of Language Modeling</h2>
+    <p class="note">It turns out this question has been asked and answered three different times over the past three decades &mdash; each time with a more powerful idea. Each era solved the fundamental limitation of the one before it.</p>
+
+    <div class="eras">
+      <div class="era count">
+        <div class="here">YOU ARE HERE</div>
+        <div class="verb">Counting</div>
+        <div class="models">N-gram models</div>
+        <div class="yr">1990s</div>
+      </div>
+      <div class="era-arrow">&rarr;</div>
+      <div class="era learn">
+        <div class="verb">Learning</div>
+        <div class="models">Neural language models</div>
+        <div class="yr">2003+</div>
+      </div>
+      <div class="era-arrow">&rarr;</div>
+      <div class="era attend">
+        <div class="verb">Attending</div>
+        <div class="models">Transformers</div>
+        <div class="yr">2017+</div>
+      </div>
+    </div>
+
+    <p class="note">First, researchers tried <strong>counting</strong> (N-grams). Then they tried <strong>learning</strong> (neural language models). Finally, they tried <strong>attending</strong> (Transformers). Together these form the foundation on which GPT, BERT, LLaMA, and every modern large language model is built.</p>
+
+    <div class="insight">This explainer covers the <strong>first era &mdash; counting</strong>. It&apos;s the natural place to begin, because understanding exactly <em>why</em> counting eventually fails is what motivates everything that follows. The next two explainers in this series pick up with learning and attending.</div>
+  </div>
+
+  <!-- §3 -->
+  <div class="card">
+    <h2 id="sec-counting">Predict by Counting: The Core Idea</h2>
+    <p class="note">Think about it intuitively. Suppose you have a friend who always talks about food. You&apos;ve heard them say &ldquo;I want pizza&rdquo; about 50 times, &ldquo;I want pasta&rdquo; about 30 times, and &ldquo;I want sushi&rdquo; about 20 times. If they begin with &ldquo;I want&rdquo;, what comes next? Probably <strong>pizza</strong> &mdash; because you&apos;ve <em>counted</em> how often each word follows &ldquo;I want&rdquo; in your experience.</p>
+    <p class="note">That&apos;s the whole idea behind <strong>N-gram language models</strong>: count how often words appear together, and use those counts to estimate probabilities. Formally, a language model assigns a probability to a sequence of words. Given a sentence w<sub>1</sub>, w<sub>2</sub>, &hellip;, w<sub>n</sub>, we want P(w<sub>1</sub>, w<sub>2</sub>, &hellip;, w<sub>n</sub>). Using the <strong>chain rule of probability</strong>, we decompose this joint probability into a product of conditional probabilities:</p>
+
+    <div class="eq">P(w<sub>1</sub>, &hellip;, w<sub>n</sub>) = P(w<sub>1</sub>) &middot; P(w<sub>2</sub>|w<sub>1</sub>) &middot; P(w<sub>3</sub>|w<sub>1</sub>,w<sub>2</sub>) &middot; &hellip; &middot; P(w<sub>n</sub>|w<sub>1</sub>,&hellip;,w<sub>n-1</sub>)</div>
+
+    <p class="note">Let&apos;s see it on a real sentence: <strong>&ldquo;I want pizza now&rdquo;</strong>. Suppose a large corpus gives us these probabilities. Click <strong>Multiply next term</strong> to build up the product one factor at a time &mdash; the running result is computed for you:</p>
+
+    <div class="demo">
+      <div class="chain-terms" id="chainTerms"></div>
+      <div class="chain-result">Running product: <span class="rv" id="chainResult">&mdash;</span></div>
+      <div style="margin-top:12px">
+        <button class="btn" id="chainNext">Multiply next term &rarr;</button>
+        <button class="btn" id="chainReset">Reset</button>
+      </div>
+      <p class="note" id="chainNote" style="margin-bottom:0;display:none">The sentence &ldquo;I want pizza now&rdquo; gets a probability of <strong>0.012%</strong> &mdash; small, but positive. A nonsensical sentence like &ldquo;I want pizza elephant&rdquo; would score even lower. That&apos;s exactly what we want: the model assigns higher probability to sentences that make sense.</p>
+    </div>
+  </div>
+
+  <!-- §4 -->
+  <div class="card">
+    <h2 id="sec-markov">The Markov Assumption: Short Memory</h2>
+    <p class="note">There&apos;s a problem with that last term. To estimate P(&ldquo;now&rdquo; | &ldquo;I want pizza&rdquo;), we&apos;d count how often the exact sequence &ldquo;I want pizza&rdquo; appeared, then how often &ldquo;now&rdquo; followed it. Manageable for short sentences &mdash; but for a 20-word sentence we&apos;d condition on a 19-word history we&apos;ve almost certainly <em>never</em> seen.</p>
+    <p class="note">The fix is the <strong>Markov assumption</strong>: instead of the entire history, look only at the last (n&minus;1) words. This gives the N-gram model. A <strong>bigram</strong> (n=2) looks back one word; a <strong>trigram</strong> (n=3) looks back two:</p>
+
+    <div class="eq">bigram: &nbsp; P(w<sub>i</sub> | w<sub>1</sub>,&hellip;,w<sub>i-1</sub>) &approx; P(w<sub>i</sub> | w<sub>i-1</sub>)<br>trigram: &nbsp; P(w<sub>i</sub> | w<sub>1</sub>,&hellip;,w<sub>i-1</sub>) &approx; P(w<sub>i</sub> | w<sub>i-2</sub>, w<sub>i-1</sub>)</div>
+
+    <p class="note">Here&apos;s what the &ldquo;sliding window&rdquo; of context looks like. Switch between unigram, bigram, and trigram, and step the window across the sentence &mdash; the <span style="color:var(--text-info);font-weight:600">blue</span> words are the context the model is allowed to use, the <span style="color:var(--text-danger);font-weight:600">red</span> word is the one being predicted:</p>
+
+    <div class="demo">
+      <div class="seg" id="swSeg">
+        <button data-n="1" class="active">Unigram (n=1)</button>
+        <button data-n="2">Bigram (n=2)</button>
+        <button data-n="3">Trigram (n=3)</button>
+      </div>
+      <div class="sw-sentence" id="swSentence"></div>
+      <div style="margin-top:6px"><button class="btn" id="swStep">Slide window &rarr;</button></div>
+      <p class="note" id="swNote" style="margin-bottom:0;font-size:12.5px"></p>
+    </div>
+
+    <p class="note">And the bigram probability is just counting: <strong>P(w<sub>2</sub> | w<sub>1</sub>) = Count(w<sub>1</sub>, w<sub>2</sub>) &divide; Count(w<sub>1</sub>)</strong>. Let&apos;s work a concrete example. Our entire training corpus is these three sentences. <strong>Pick a word pair</strong> and watch the model count occurrences and compute the probability live:</p>
+
+    <div class="demo">
+      <div class="word-pick">
+        <span class="wp-group">P( <select id="wpW2"></select> &nbsp;|&nbsp; <select id="wpW1"></select> )</span>
+        <span style="font-size:13px;color:var(--text-secondary)">&larr; pick the previous word (right) and the next word (left)</span>
+      </div>
+      <div class="corpus" id="corpusBox"></div>
+      <div class="readout">
+        <span class="rl">Count(<span id="lblPair">cat, sat</span>)</span><span class="rv" id="cntPair">&mdash;</span>
+        <span class="rl">Count(<span id="lblW1">cat</span>)</span><span class="rv" id="cntW1">&mdash;</span>
+        <span class="rl">Probability</span><span class="rv" id="cntProb">&mdash;</span>
+      </div>
+      <p class="note" id="cntExplain" style="margin-bottom:0"></p>
+    </div>
+
+    <p class="note">Here&apos;s the same bigram counting in Python &mdash; nothing more than dictionaries of counts:</p>
+    <div class="code-block"><span class="code-kw">from</span> collections <span class="code-kw">import</span> defaultdict
+
+<span class="code-cmt"># Our tiny corpus</span>
+corpus = [
+    <span class="code-num">"the cat sat on the mat"</span>,
+    <span class="code-num">"the cat ate the fish"</span>,
+    <span class="code-num">"the dog sat on the mat"</span>
+]
+
+<span class="code-cmt"># Count bigrams and unigrams</span>
+bigram_counts = <span class="code-fn">defaultdict</span>(<span class="code-kw">int</span>)
+unigram_counts = <span class="code-fn">defaultdict</span>(<span class="code-kw">int</span>)
+
+<span class="code-kw">for</span> sentence <span class="code-kw">in</span> corpus:
+    words = sentence.<span class="code-fn">split</span>()
+    <span class="code-kw">for</span> i <span class="code-kw">in</span> <span class="code-fn">range</span>(<span class="code-fn">len</span>(words)):
+        unigram_counts[words[i]] += <span class="code-num">1</span>
+        <span class="code-kw">if</span> i &lt; <span class="code-fn">len</span>(words) - <span class="code-num">1</span>:
+            bigram_counts[(words[i], words[i+<span class="code-num">1</span>])] += <span class="code-num">1</span>
+
+<span class="code-cmt"># Compute bigram probability</span>
+<span class="code-kw">def</span> <span class="code-fn">bigram_prob</span>(w1, w2):
+    <span class="code-kw">return</span> bigram_counts[(w1, w2)] / unigram_counts[w1]
+
+<span class="code-fn">print</span>(<span class="code-num">f"P('sat' | 'cat') = {bigram_prob('cat', 'sat')}"</span>)  <span class="code-cmt"># 0.5</span>
+<span class="code-fn">print</span>(<span class="code-num">f"P('ate' | 'cat') = {bigram_prob('cat', 'ate')}"</span>)  <span class="code-cmt"># 0.5</span>
+<span class="code-fn">print</span>(<span class="code-num">f"P('sat' | 'dog') = {bigram_prob('dog', 'sat')}"</span>)  <span class="code-cmt"># 1.0</span></div>
+  </div>
+
+  <!-- §5 -->
+  <div class="card">
+    <h2 id="sec-sparsity">Where N-grams Break: The Sparsity Problem</h2>
+    <p class="note">N-gram models are elegant &mdash; but they have a fundamental flaw. What happens with a word pair we&apos;ve <em>never seen</em>? Ask for P(&ldquo;ran&rdquo; | &ldquo;cat&rdquo;) in our corpus: &ldquo;cat&rdquo; was never followed by &ldquo;ran&rdquo;, so Count(&ldquo;cat&rdquo;, &ldquo;ran&rdquo;) = 0, and the probability is <strong>zero</strong>. But &ldquo;the cat ran&rdquo; is a perfectly valid sentence! A zero means the model thinks it&apos;s <em>impossible</em> &mdash; clearly wrong.</p>
+
+    <p class="note">It gets dramatically worse as n grows. Pick a vocabulary size and watch the number of possible combinations explode:</p>
+    <div class="demo">
+      <div class="ctl" style="margin:0 0 10px">
+        <label for="vocabSlider">Vocabulary size: <span id="vocabVal" style="font-family:var(--font-mono);font-weight:700">50,000</span> words</label>
+        <input type="range" id="vocabSlider" min="1000" max="50000" step="1000" value="50000" style="width:100%">
+      </div>
+      <div class="sparse-out">
+        <span class="sl">Possible bigrams (V&sup2;)</span><span class="sv" id="spBi">&mdash;</span>
+        <span class="sl">Possible trigrams (V&sup3;)</span><span class="sv" id="spTri">&mdash;</span>
+        <span class="sl">Words in all of English Wikipedia</span><span class="sv">~4 billion</span>
+        <span class="sl">Trigram coverage</span><span class="sv" id="spCov">&mdash;</span>
+      </div>
+      <p class="note" id="spNote" style="margin-bottom:0;font-size:12.5px"></p>
+    </div>
+
+    <p class="note">Researchers patched this with <strong>smoothing</strong> &mdash; redistributing some probability to unseen N-grams. The simplest is <strong>Laplace (add-one) smoothing</strong>: add 1 to every count. With vocabulary size V:</p>
+    <div class="eq"><span class="frac"><span class="num">Count(w<sub>1</sub>, w<sub>2</sub>) + 1</span><span class="den">Count(w<sub>1</sub>) + V</span></span></div>
+
+    <p class="note">Toggle smoothing on the &ldquo;ran | cat&rdquo; case (our corpus has V=6: the, cat, dog, sat, ate, ran). Watch the impossible zero become a real probability &mdash; and watch the cost:</p>
+    <div class="demo">
+      <div class="seg" id="smSeg">
+        <button data-s="off" class="active">Raw counts</button>
+        <button data-s="on">Laplace smoothing</button>
+      </div>
+      <div style="margin-top:12px">
+        <div class="step-box" id="smRan"></div>
+        <div class="step-box" id="smSat"></div>
+      </div>
+      <p class="note" id="smNote" style="margin-bottom:0"></p>
+    </div>
+
+    <div class="insight">Smoothing helps, but it&apos;s a patch, not a cure. The scale of the problem is staggering: a trigram model with a 50,000-word vocabulary has <strong>125 trillion</strong> possible trigrams, while all of English Wikipedia offers only ~4 billion words to fill them &mdash; one observation per ~31,250 slots. Most of the table is zeros, not because those sequences are impossible, but because we simply haven&apos;t seen them. No amount of smoothing conjures genuine understanding from absence.</div>
+  </div>
+
+  <!-- §6 -->
+  <div class="card">
+    <h2 id="sec-similarity">The Deeper Problem: No Notion of Similarity</h2>
+    <p class="note">Sparsity is bad &mdash; but the most fundamental limitation of N-grams runs deeper: <strong>they have no notion of similarity.</strong> To an N-gram model, &ldquo;cat&rdquo; and &ldquo;dog&rdquo; are completely unrelated symbols &mdash; just different row indices in a table. Learning that &ldquo;the cat sat on the mat&rdquo; tells the model <em>absolutely nothing</em> about &ldquo;the dog sat on the rug.&rdquo; There&apos;s no understanding that cats and dogs are both animals, or that mats and rugs are both things you sit on.</p>
+
+    <div class="demo">
+      <div class="demo-row">
+        <div class="demo-col" style="text-align:center">
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px">What the model learned</div>
+          <div class="corpus-line" style="font-family:var(--font)">&ldquo;the cat sat on the mat&rdquo; &nbsp;<span style="color:var(--text-success)">&#10003; seen</span></div>
+        </div>
+        <div class="demo-col" style="text-align:center">
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px">What it knows about this</div>
+          <div class="corpus-line" style="font-family:var(--font)">&ldquo;the dog sat on the rug&rdquo; &nbsp;<span style="color:var(--text-danger)">&#10007; nothing</span></div>
+        </div>
+      </div>
+      <p class="note" style="margin-bottom:0;text-align:center">Every word is an arbitrary index. <strong>No knowledge transfers between similar words.</strong></p>
+    </div>
+
+    <p class="note">Think of learning a foreign language. Someone teaches you &ldquo;le chat dort&rdquo; means &ldquo;the cat sleeps.&rdquo; An N-gram model is like memorizing that exact phrase while gaining <em>zero</em> insight about &ldquo;le chien dort&rdquo; (&ldquo;the dog sleeps&rdquo;) &mdash; because it treats &ldquo;chat&rdquo; and &ldquo;chien&rdquo; as unrelated symbols. A human reasons: &ldquo;chat and chien are both animals, so the sentence probably works the same way.&rdquo; N-gram models cannot. Every word combination must be observed independently.</p>
+
+    <div class="insight">So we&apos;re left with two deep problems: <strong>sparsity</strong> (most word combinations are never seen) and <strong>no similarity</strong> (words are arbitrary symbols with no shared meaning). Both point to the same missing ingredient &mdash; a way to represent what words actually <em>mean</em>, so that similar words behave similarly. That single idea &mdash; learning <strong>representations</strong> instead of counting symbols &mdash; launches the second era of language modeling, and it&apos;s where the next explainer in this series begins.</div>
+  </div>
+
+  <footer>
+    Built with <span style="color:var(--text-danger);font-size:18px;vertical-align:middle">&hearts;</span> by
+    <a href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">Ancil Cleetus</a>
+    &nbsp;&nbsp;&middot;&nbsp;&nbsp;
+    <a href="https://ancilcleetus.github.io/AI-ML-Explainers/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">AI ML Explainers</a>
+    &nbsp;&nbsp;&middot;&nbsp;&nbsp; No external dependencies &nbsp;&nbsp;&middot;&nbsp;&nbsp; MIT License
+  </footer>
+
+</div>
+
+<script>
+/* ===== §1 fill-in-the-blank ===== */
+function fitb(n, word, correct){
+  const b=document.getElementById('b'+n);
+  b.textContent=word;
+  b.style.color = correct?'var(--text-success)':'var(--text-danger)';
+  b.style.borderColor = correct?'var(--border-success)':'var(--border-danger)';
+  if(correct){ const r=document.getElementById('r'+n); if(r) r.classList.add('show'); }
+}
+
+/* ===== §3 chain-rule product builder ===== */
+(function(){
+  const terms=[
+    {p:'P("I")', v:0.05},
+    {p:'P("want" | "I")', v:0.08},
+    {p:'P("pizza" | "I want")', v:0.12},
+    {p:'P("now" | "I want pizza")', v:0.25},
+  ];
+  const host=document.getElementById('chainTerms'); if(!host) return;
+  terms.forEach((t,i)=>{
+    const d=document.createElement('div'); d.className='cterm'; d.id='cterm'+i;
+    d.innerHTML=`<div class="ct-p">${t.p}</div><div class="ct-v">${t.v}</div>`;
+    host.appendChild(d);
+  });
+  let step=0;
+  const resEl=document.getElementById('chainResult');
+  function render(){
+    let prod=1;
+    for(let i=0;i<step;i++){ prod*=terms[i].v; document.getElementById('cterm'+i).classList.add('on'); }
+    for(let i=step;i<terms.length;i++){ document.getElementById('cterm'+i).classList.remove('on'); }
+    if(step===0){ resEl.textContent='—'; }
+    else {
+      const parts=terms.slice(0,step).map(t=>t.v).join(' × ');
+      resEl.textContent = `${parts} = ${prod.toPrecision(2)}`;
+    }
+    document.getElementById('chainNote').style.display = (step===terms.length)?'block':'none';
+    document.getElementById('chainNext').disabled = (step===terms.length);
+  }
+  document.getElementById('chainNext').onclick=()=>{ if(step<terms.length){step++;render();} };
+  document.getElementById('chainReset').onclick=()=>{ step=0;render(); };
+  render();
+})();
+
+/* ===== §4 sliding window ===== */
+(function(){
+  const words=['the','cat','sat','on','the','mat'];
+  const host=document.getElementById('swSentence'); if(!host) return;
+  let n=1, pos=0;
+  function render(){
+    host.innerHTML='';
+    // target index = pos (the word being predicted); context = previous (n-1) words
+    words.forEach((w,i)=>{
+      const s=document.createElement('span'); s.className='sw-word'; s.textContent=w;
+      if(i===pos){ s.classList.add('target'); }
+      else if(i<pos && i>=pos-(n-1)){ s.classList.add('win'); }
+      host.appendChild(s);
+    });
+    const note=document.getElementById('swNote');
+    if(n===1){ note.textContent='Unigram: no context at all — every word predicted on its own base rate.'; }
+    else {
+      const ctx = words.slice(Math.max(0,pos-(n-1)), pos);
+      note.textContent = ctx.length ? `Predicting "${words[pos]}" using context: "${ctx.join(' ')}"` : `Predicting "${words[pos]}" (no prior context yet)`;
+    }
+  }
+  document.querySelectorAll('#swSeg button').forEach(b=>{
+    b.onclick=()=>{ document.querySelectorAll('#swSeg button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); n=+b.dataset.n; pos=Math.max(pos, n-1); render(); };
+  });
+  document.getElementById('swStep').onclick=()=>{ pos++; if(pos>=words.length) pos=(n-1); render(); };
+  pos=0; render();
+})();
+
+/* ===== §4 corpus counting widget ===== */
+(function(){
+  const corpus=[['the','cat','sat','on','the','mat'],['the','cat','ate','the','fish'],['the','dog','sat','on','the','mat']];
+  const vocab=['the','cat','dog','sat','ate','fish','on','mat','ran'];
+  const box=document.getElementById('corpusBox'); if(!box) return;
+  const selW1=document.getElementById('wpW1'), selW2=document.getElementById('wpW2');
+  vocab.forEach(w=>{ selW1.add(new Option(w,w)); selW2.add(new Option(w,w)); });
+  selW1.value='cat'; selW2.value='sat';
+
+  function render(){
+    const w1=selW1.value, w2=selW2.value;
+    box.innerHTML='';
+    let cntPair=0, cntW1=0;
+    corpus.forEach(sent=>{
+      const line=document.createElement('div'); line.className='corpus-line';
+      sent.forEach((w,i)=>{
+        const sp=document.createElement('span'); sp.className='w'; sp.textContent=w+' ';
+        if(w===w1){
+          cntW1++;
+          // is this w1 followed by w2?
+          if(i<sent.length-1 && sent[i+1]===w2){ sp.classList.add('hl-pair'); cntPair++; }
+          else { sp.classList.add('hl-w1'); }
+        }
+        line.appendChild(sp);
+      });
+      box.appendChild(line);
+    });
+    document.getElementById('lblPair').textContent=`"${w1}", "${w2}"`;
+    document.getElementById('lblW1').textContent=`"${w1}"`;
+    document.getElementById('cntPair').textContent=cntPair;
+    document.getElementById('cntW1').textContent=cntW1;
+    const prob = cntW1>0 ? (cntPair/cntW1) : 0;
+    document.getElementById('cntProb').textContent = `${cntPair} / ${cntW1} = ${cntW1>0?prob.toFixed(3):'undefined'}`;
+    const ex=document.getElementById('cntExplain');
+    if(cntW1===0){ ex.innerHTML=`The word <strong>"${w1}"</strong> never appears in the corpus, so we can&apos;t condition on it.`; }
+    else if(cntPair===0){ ex.innerHTML=`<strong>"${w1}"</strong> appears ${cntW1} time(s) (<span style="color:var(--text-info)">blue</span>), but is <em>never</em> followed by <strong>"${w2}"</strong> — so P = 0. This is the sparsity problem we&apos;ll meet next.`; }
+    else { ex.innerHTML=`<strong>"${w1}"</strong> appears ${cntW1} time(s); in ${cntPair} of those it&apos;s followed by <strong>"${w2}"</strong> (<span style="color:var(--text-danger)">red</span>). So P("${w2}" | "${w1}") = ${cntPair}/${cntW1} = <strong>${prob.toFixed(3)}</strong>.`; }
+  }
+  selW1.onchange=render; selW2.onchange=render;
+  render();
+})();
+
+/* ===== §5 sparsity explosion ===== */
+(function(){
+  const sl=document.getElementById('vocabSlider'); if(!sl) return;
+  function fmt(n){
+    if(n>=1e12) return (n/1e12).toFixed(1)+' trillion';
+    if(n>=1e9) return (n/1e9).toFixed(1)+' billion';
+    if(n>=1e6) return (n/1e6).toFixed(1)+' million';
+    return n.toLocaleString();
+  }
+  function render(){
+    const V=+sl.value;
+    document.getElementById('vocabVal').textContent=V.toLocaleString();
+    const bi=V*V, tri=V*V*V;
+    document.getElementById('spBi').textContent=fmt(bi);
+    document.getElementById('spTri').textContent=fmt(tri);
+    const wiki=4e9;
+    const ratio = tri/wiki;
+    document.getElementById('spCov').textContent = `1 observation per ${Math.round(ratio).toLocaleString()} trigrams`;
+    document.getElementById('spNote').innerHTML = `Even with ${V.toLocaleString()} words, the trigram table has <strong>${fmt(tri)}</strong> slots — far more than any corpus could ever fill. The table is overwhelmingly zeros.`;
+  }
+  sl.oninput=render; render();
+})();
+
+/* ===== §5 smoothing toggle ===== */
+(function(){
+  const segBtns=document.querySelectorAll('#smSeg button'); if(!segBtns.length) return;
+  const ran=document.getElementById('smRan'), sat=document.getElementById('smSat'), note=document.getElementById('smNote');
+  function render(mode){
+    if(mode==='off'){
+      ran.innerHTML=`<span class="sn">P("ran" | "cat") — raw.</span> Count("cat","ran")=0, Count("cat")=2 → 0 / 2 = <strong>0</strong> &nbsp;<span style="color:var(--text-danger)">(impossible!)</span>`;
+      sat.innerHTML=`<span class="sn">P("sat" | "cat") — raw.</span> Count("cat","sat")=1, Count("cat")=2 → 1 / 2 = <strong>0.5</strong>`;
+      note.innerHTML='With raw counts, any unseen pair gets probability 0 — the model calls valid sentences impossible.';
+    } else {
+      ran.innerHTML=`<span class="sn">P("ran" | "cat") — smoothed.</span> (0 + 1) / (2 + 6) = 1/8 = <strong>0.125</strong> &nbsp;<span style="color:var(--text-success)">(no longer zero!)</span>`;
+      sat.innerHTML=`<span class="sn">P("sat" | "cat") — smoothed.</span> (1 + 1) / (2 + 6) = 2/8 = <strong>0.25</strong> &nbsp;<span style="color:var(--text-warning)">(dropped from 0.5)</span>`;
+      note.innerHTML='Add-one smoothing gives unseen pairs a non-zero probability — but it <em>steals</em> probability mass from things we did observe ("sat" fell from 0.5 to 0.25). A patch, not a cure.';
+    }
+  }
+  segBtns.forEach(b=> b.onclick=()=>{ segBtns.forEach(x=>x.classList.remove('active')); b.classList.add('active'); render(b.dataset.s); });
+  render('off');
+})();
+</script>
+</body>
+</html>
