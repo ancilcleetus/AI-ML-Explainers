@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foundations of Language Modeling: Neural Language Models — Interactive Explainer</title>
+<style>
+
+
+
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #ffffff; --bg-secondary: #f5f4f0; --bg-tertiary: #eeece6;
+      --bg-info: #e6f1fb; --bg-success: #e1f5ee; --bg-warning: #faeeda; --bg-danger: #fcebeb;
+      --text-primary: #1a1a18; --text-secondary: #5f5e5a; --text-tertiary: #888780;
+      --text-info: #185fa5; --text-success: #0f6e56; --text-warning: #854f0b; --text-danger: #a32d2d;
+      --border-tertiary: rgba(0,0,0,0.12); --border-secondary: rgba(0,0,0,0.22);
+      --border-info: #85b7eb; --border-success: #5dcaa5; --border-warning: #ef9f27; --border-danger: #e24b4a;
+      --radius-md: 8px; --radius-lg: 12px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1a; --bg-secondary: #252522; --bg-tertiary: #2c2c2a;
+        --bg-info: #042c53; --bg-success: #04342c; --bg-warning: #412402; --bg-danger: #501313;
+        --text-primary: #e8e6de; --text-secondary: #b4b2a9; --text-tertiary: #73726c;
+        --text-info: #85b7eb; --text-success: #5dcaa5; --text-warning: #ef9f27; --text-danger: #f09595;
+        --border-tertiary: rgba(255,255,255,0.10); --border-secondary: rgba(255,255,255,0.20);
+        --border-info: #185fa5; --border-success: #0f6e56; --border-warning: #854f0b; --border-danger: #a32d2d;
+      }
+    }
+    body { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary);
+           min-height: 100vh; padding: 2rem 1rem 3rem; line-height: 1.6; }
+    .page { max-width: 760px; margin: 0 auto; }
+    header { margin-bottom: 2rem; }
+    header h1 { font-size: 24px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+    header p { font-size: 14px; color: var(--text-secondary); max-width: 600px; line-height: 1.65; }
+    header a { color: var(--text-info); text-decoration: none; border-bottom: 0.5px solid var(--border-info); }
+    .card { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary);
+            border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+    h2 { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+    p.note { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 0.75rem; }
+    p.note a { color: var(--text-info); text-decoration: none; border-bottom: 0.5px solid var(--border-info); }
+    p.note a:hover { opacity: 0.75; }
+    p.note + p.note { margin-top: -0.25rem; }
+    p.note em { color: var(--text-primary); font-style: italic; }
+    code.inline { font-family: var(--font-mono); font-size: 11.5px; background: var(--bg-secondary);
+                  padding: 1px 5px; border-radius: 4px; color: var(--text-primary); }
+    .step-label { font-size: 11px; font-weight: 500; color: var(--text-tertiary); letter-spacing: .05em;
+                  text-transform: uppercase; margin: 1rem 0 6px; }
+    .eq-box { background: var(--bg-secondary); border: 0.5px solid var(--border-tertiary);
+              border-radius: var(--radius-md); padding: 0.875rem 1rem; margin: 0.5rem 0;
+              font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); line-height: 1.7;
+              white-space: pre; overflow-x: auto; }
+    .insight { border-left: 2px solid var(--border-info); padding: 7px 12px; font-size: 13px;
+               color: var(--text-secondary); background: var(--bg-info);
+               border-radius: 0 var(--radius-md) var(--radius-md) 0; margin: 0.75rem 0; line-height: 1.55; }
+    .insight.success { border-color: var(--border-success); background: var(--bg-success); color: var(--text-success); }
+    .insight.warning { border-color: var(--border-warning); background: var(--bg-warning); color: var(--text-warning); }
+    .insight.danger { border-color: var(--border-danger); background: var(--bg-danger); color: var(--text-danger); }
+    .insight strong { color: var(--text-primary); }
+    .insight.success strong { color: var(--text-success); }
+    .insight.warning strong { color: var(--text-warning); }
+    .insight.danger strong { color: var(--text-danger); }
+    .code-block { background: var(--bg-secondary); border: 0.5px solid var(--border-tertiary);
+                  border-radius: var(--radius-md); padding: 1rem 1.125rem; margin: 0.75rem 0;
+                  font-family: var(--font-mono); font-size: 12px; line-height: 1.7;
+                  color: var(--text-primary); overflow-x: auto; white-space: pre; }
+    .code-kw { color: var(--text-info); }
+    .code-cls { color: var(--text-success); }
+    .code-num { color: var(--text-danger); }
+    .code-cmt { color: var(--text-tertiary); font-style: italic; }
+    .code-str { color: var(--text-success); }
+    .code-fn { color: var(--text-warning); }
+    .toc-nav { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary);
+               border-radius: var(--radius-lg); padding: 0.875rem 1.25rem; margin-bottom: 1.5rem; }
+    .toc-title { font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+                 text-transform: uppercase; letter-spacing: .05em; margin-bottom: 0.5rem; }
+    .toc-item { display: flex; align-items: flex-start; gap: 10px; padding: 5px 6px;
+                margin: 2px -6px; border-radius: var(--radius-md); text-decoration: none; transition: background 0.15s; }
+    .toc-item:hover { background: var(--bg-secondary); }
+    .toc-num { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; background: var(--bg-info);
+               color: var(--text-info); font-size: 11px; font-weight: 600;
+               display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+    .toc-label { font-size: 13px; color: var(--text-info); font-weight: 500; line-height: 1.45; }
+    .toc-item:hover .toc-label { color: var(--text-primary); }
+    .toc-item:hover .toc-num { opacity: 0.7; }
+/* three eras diagram */
+    .eras { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:18px 0; }
+    .era { flex:1; min-width:200px; border:1px solid var(--border-tertiary); border-radius:var(--radius-lg); padding:16px; text-align:center; position:relative; }
+    .era.count { background:var(--bg-info); border-color:var(--border-info); }
+    .era.learn { background:var(--bg-success); border-color:var(--border-success); }
+    .era.attend { background:var(--bg-warning); border-color:var(--border-warning); }
+    .era .verb { font-size:18px; font-weight:800; letter-spacing:-0.01em; }
+    .era.count .verb { color:var(--text-info); } .era.learn .verb { color:var(--text-success); } .era.attend .verb { color:var(--text-warning); }
+    .era .models { font-size:12.5px; color:var(--text-secondary); margin-top:4px; }
+    .era .yr { font-size:11px; color:var(--text-tertiary); margin-top:6px; font-family:var(--font-mono); }
+    .era .here { position:absolute; top:-10px; right:10px; font-size:10px; font-weight:700; background:var(--text-info); color:#fff; padding:2px 8px; border-radius:999px; }
+    .era-arrow { display:flex; align-items:center; color:var(--text-tertiary); font-size:20px; }
+    @media(max-width:680px){ .era-arrow{ transform:rotate(90deg); } }
+
+    /* shared demo chrome */
+    .demo { background:var(--bg-secondary); border:1px solid var(--border-tertiary); border-radius:var(--radius-lg); padding:18px; margin:18px 0; }
+    .demo-row { display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; }
+    .demo-col { flex:1; min-width:240px; }
+    .btn { background:var(--bg-info); color:var(--text-info); border:1px solid var(--border-info); border-radius:6px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; font-family:var(--font); margin:3px; }
+    .btn:hover { opacity:0.85; } .btn.sel { background:var(--text-info); color:#fff; }
+    .readout { display:grid; grid-template-columns:auto 1fr; gap:6px 12px; font-size:13px; margin:10px 0; align-items:center; }
+    .readout .rl { color:var(--text-secondary); } .readout .rv { font-family:var(--font-mono); font-weight:600; color:var(--text-primary); }
+    .seg { display:inline-flex; border:1px solid var(--border-secondary); border-radius:8px; overflow:hidden; margin:4px 0; flex-wrap:wrap; }
+    .seg button { background:var(--bg-primary); border:0; padding:8px 14px; font-size:12.5px; font-family:var(--font); cursor:pointer; color:var(--text-secondary); border-right:1px solid var(--border-tertiary); }
+    .seg button:last-child { border-right:0; } .seg button.active { background:var(--bg-info); color:var(--text-info); font-weight:600; }
+    .step-box { border-left:3px solid var(--border-info); background:var(--bg-secondary); padding:12px 14px; border-radius:0 var(--radius-md) var(--radius-md) 0; margin:10px 0; font-size:13.5px; }
+    .step-box .sn { font-weight:700; color:var(--text-info); }
+
+    /* equation block */
+    .eq { background:var(--bg-secondary); border:1px solid var(--border-tertiary); border-radius:var(--radius-md); padding:14px 16px; margin:14px 0; text-align:center; font-family:var(--font-mono); font-size:14px; overflow-x:auto; color:var(--text-primary); line-height:1.7; }
+    .eq .frac { display:inline-block; vertical-align:middle; text-align:center; }
+    .eq .frac .num { display:block; border-bottom:1px solid var(--text-secondary); padding:0 8px; }
+    .eq .frac .den { display:block; padding:0 8px; }
+
+    /* matrices */
+    .mtx-wrap { display:flex; gap:14px; flex-wrap:wrap; align-items:center; justify-content:center; margin:14px 0; }
+    .mtx { display:inline-block; text-align:center; }
+    .mtx table { border-collapse:collapse; margin:4px auto; }
+    .mtx td { font-family:var(--font-mono); font-size:13px; padding:5px 10px; text-align:center; color:var(--text-primary); }
+    .mtx.bracket { border-left:2px solid var(--text-secondary); border-right:2px solid var(--text-secondary); border-radius:3px; }
+    .mtx-label { font-size:12.5px; color:var(--text-secondary); margin-top:2px; }
+
+    /* bengio architecture diagram */
+    .arch-flow { display:flex; flex-direction:column; gap:5px; align-items:stretch; max-width:360px; margin:14px auto; }
+    .arch-layer { padding:9px 14px; border-radius:var(--radius-md); text-align:center; font-size:12.5px; font-weight:600; border:1px solid var(--border-tertiary); }
+    .arch-layer.in { background:var(--bg-tertiary); color:var(--text-secondary); }
+    .arch-layer.emb { background:var(--bg-info); color:var(--text-info); border-color:var(--border-info); }
+    .arch-layer.hid { background:var(--bg-warning); color:var(--text-warning); border-color:var(--border-warning); }
+    .arch-layer.out { background:var(--bg-success); color:var(--text-success); border-color:var(--border-success); }
+    .arch-arrow { text-align:center; color:var(--text-tertiary); font-size:13px; }
+
+    /* forward-pass widget */
+    .fp-dist { display:flex; gap:6px; align-items:flex-end; height:90px; margin:10px 0; }
+    .fp-bar { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:4px; }
+    .fp-bar .bar { width:100%; background:var(--text-info); border-radius:4px 4px 0 0; transition:height 0.4s ease; }
+    .fp-bar .bw { font-family:var(--font-mono); font-size:11px; color:var(--text-secondary); }
+    .fp-bar .blbl { font-family:var(--font-mono); font-size:12px; color:var(--text-primary); font-weight:600; }
+
+    /* embedding distance widget */
+    .embspace { position:relative; width:100%; max-width:420px; height:260px; margin:10px auto; border:1px solid var(--border-tertiary); border-radius:var(--radius-md); background:var(--bg-primary); }
+    .embpt { position:absolute; width:14px; height:14px; border-radius:50%; transform:translate(-50%,-50%); }
+    .emblabel { position:absolute; font-size:12px; font-weight:600; transform:translate(-50%,-50%); white-space:nowrap; }
+
+    /* king-queen analogy widget */
+    .analogy-eq { display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:center; font-size:16px; margin:14px 0; }
+    .word-chip { padding:8px 14px; border-radius:8px; font-weight:700; font-family:var(--font); border:1px solid var(--border-tertiary); }
+    .word-chip.a { background:var(--bg-info); color:var(--text-info); border-color:var(--border-info); }
+    .word-chip.b { background:var(--bg-danger); color:var(--text-danger); border-color:var(--border-danger); }
+    .word-chip.c { background:var(--bg-success); color:var(--text-success); border-color:var(--border-success); }
+    .word-chip.r { background:var(--bg-warning); color:var(--text-warning); border-color:var(--border-warning); }
+    .analogy-op { font-size:20px; font-weight:700; color:var(--text-secondary); }
+
+    /* generic table */
+    .gtable { width:100%; border-collapse:collapse; margin:14px 0; font-size:12.5px; }
+    .gtable th,.gtable td { border:1px solid var(--border-tertiary); padding:9px 11px; text-align:left; vertical-align:top; }
+    .gtable th { background:var(--bg-tertiary); font-weight:600; }
+
+    footer { text-align:center; font-size:12px; color:var(--text-tertiary); margin-top:2rem; }
+
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>Foundations of Language Modeling: Neural Language Models — Interactive Explainer</h1>
+    <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener">Ancil Cleetus</a></p>
+    <p>N-gram models could only <em>count</em> &mdash; and that left them with two fatal flaws. This explainer covers the second era of language modeling: <strong>learning</strong>. We&apos;ll see how representing words as learned vectors solves both problems at once, walk through Bengio&apos;s pioneering neural model, watch word meanings arrange themselves in space, and meet the recurrent networks that tried to give models unlimited memory.</p>
+  </header>
+
+  <nav class="toc-nav" aria-label="Table of contents">
+    <div class="toc-title">Contents</div>
+    <a href="#sec-counting-to-learning" class="toc-item"><div class="toc-num">1</div><span class="toc-label">From Counting to Learning</span></a>
+    <a href="#sec-bengio" class="toc-item"><div class="toc-num">2</div><span class="toc-label">Bengio&apos;s Breakthrough: Words as Vectors</span></a>
+    <a href="#sec-shared" class="toc-item"><div class="toc-num">3</div><span class="toc-label">The Power of Shared Representations</span></a>
+    <a href="#sec-rnn" class="toc-item"><div class="toc-num">4</div><span class="toc-label">Recurrent Neural Networks: Unlimited Context?</span></a>
+  </nav>
+
+  <!-- §1 -->
+  <div class="card">
+    <h2 id="sec-counting-to-learning">From Counting to Learning</h2>
+    <p class="note">In the previous explainer we built N-gram models &mdash; language models that work by pure <strong>counting</strong>. They were elegant, but we found two flaws that no amount of patching could fix:</p>
+    <ul class="note" style="line-height:1.7">
+      <li><strong>Sparsity</strong> &mdash; most word combinations are never seen, so they get probability zero. A trigram model with a 50,000-word vocabulary has 125 trillion possible triples; no corpus can ever fill that table.</li>
+      <li><strong>No notion of similarity</strong> &mdash; to an N-gram model, &ldquo;cat&rdquo; and &ldquo;dog&rdquo; are unrelated symbols. Nothing learned about one transfers to the other.</li>
+    </ul>
+    <p class="note">Both flaws share a single root cause: N-grams <em>memorize</em> rather than <em>understand</em>. The fix is the central idea of this explainer &mdash; instead of counting symbols, we <strong>learn representations</strong> that capture what words actually mean. This launches the second era of language modeling.</p>
+
+    <div class="eras">
+      <div class="era count">
+        <div class="verb">Counting</div>
+        <div class="models">N-gram models</div>
+        <div class="yr">1990s</div>
+      </div>
+      <div class="era-arrow">&rarr;</div>
+      <div class="era learn">
+        <div class="here">YOU ARE HERE</div>
+        <div class="verb">Learning</div>
+        <div class="models">Neural language models</div>
+        <div class="yr">2003+</div>
+      </div>
+      <div class="era-arrow">&rarr;</div>
+      <div class="era attend">
+        <div class="verb">Attending</div>
+        <div class="models">Transformers</div>
+        <div class="yr">2017+</div>
+      </div>
+    </div>
+
+    <div class="insight">The leap from counting to learning rests entirely on one idea from the Deep Learning roadmap: the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/embeddings_explainer.html" target="_blank" rel="noopener">Embeddings &mdash; Representing Discrete Data as Vectors &mdash; Interactive Explainer</a>. There, you saw how discrete things (words, IDs, categories) become dense vectors of numbers whose <em>positions</em> encode meaning. Here, we&apos;ll see what those embeddings <em>do</em> for language &mdash; and how they dissolve both of the N-gram problems at once.</div>
+  </div>
+
+  <!-- §2 -->
+  <div class="card">
+    <h2 id="sec-bengio">Bengio&apos;s Breakthrough: Words as Vectors</h2>
+    <p class="note">In 2003, Yoshua Bengio and colleagues published <em>&ldquo;A Neural Probabilistic Language Model&rdquo;</em> with a deceptively simple core idea: represent each word as a dense vector of real numbers (an <strong>embedding</strong>), and use a neural network to predict the next word from those embeddings.</p>
+
+    <div class="note" style="background:var(--bg-info);border:1px solid var(--border-info);padding:12px 14px;border-radius:var(--radius-md)"><strong>The phone book vs. the map.</strong> An N-gram model is like a giant phone book &mdash; you look up an exact entry, and if it&apos;s missing, you&apos;re stuck. A neural model is like a <em>map</em>: even if a particular restaurant isn&apos;t marked, you can see it sits in a cluster of restaurants in one neighborhood and walk there. That &ldquo;map&rdquo; is the embedding space &mdash; and similar words live in the same neighborhood.</div>
+
+    <p class="note">Bengio&apos;s model works in four steps. Given the previous (n&minus;1) words, we look up each word&apos;s embedding, concatenate them into one vector x, pass x through a hidden layer with a <code class="inline">tanh</code> activation (from the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html" target="_blank" rel="noopener">Activation Functions &mdash; Interactive Explainer</a>), and produce a probability distribution over the whole vocabulary with softmax (from the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/softmax_explainer.html" target="_blank" rel="noopener">Softmax &amp; Probability Outputs &mdash; Interactive Explainer</a>):</p>
+
+    <div class="arch-flow">
+      <div class="arch-layer in">Previous words (indices)</div>
+      <div class="arch-arrow">&darr; &nbsp;look up in embedding matrix C</div>
+      <div class="arch-layer emb">Embedding vectors &rarr; concatenate into x</div>
+      <div class="arch-arrow">&darr; &nbsp;hidden layer + tanh</div>
+      <div class="arch-layer hid">Hidden representation h</div>
+      <div class="arch-arrow">&darr; &nbsp;output layer + softmax</div>
+      <div class="arch-layer out">Probability over the whole vocabulary</div>
+    </div>
+
+    <p class="note" style="margin-bottom:4px">As a single formula, the probability of the next word is:</p>
+    <div class="eq">P(w<sub>t</sub> | w<sub>t-n+1</sub>, &hellip;, w<sub>t-1</sub>) = softmax(W&middot;h + b)<br>
+      where &nbsp; h = tanh(H&middot;x + d) &nbsp; and &nbsp; x = [ C(w<sub>t-n+1</sub>) ; &hellip; ; C(w<sub>t-1</sub>) ]</div>
+    <p class="note">So the pre-softmax score is simply <strong>y = W&middot;h + b</strong> &mdash; the hidden vector h passed through one more linear layer. Here C is the embedding matrix, H and d are the hidden layer&apos;s weights and bias, and W and b are the output layer&apos;s.</p>
+
+    <div style="text-align:center;margin:6px 0 2px"><svg viewBox="0 0 460 250" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:440px;display:block;margin:10px auto" role="img" aria-label="Bengio neural language model architecture">
+  <style>
+    .bx{rx:6;} .lb{font:600 11px var(--font);fill:var(--text-primary);} .sm{font:10px var(--font-mono);fill:var(--text-secondary);}
+    .ar{stroke:var(--text-tertiary);stroke-width:1.4;marker-end:url(#ah);fill:none;}
+  </style>
+  <defs><marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="var(--text-tertiary)"/></marker></defs>
+  <!-- input words -->
+  <rect class="bx" x="14" y="20" width="74" height="26" fill="var(--bg-tertiary)" stroke="var(--border-tertiary)"/>
+  <text class="lb" x="51" y="37" text-anchor="middle">w(t-2)</text>
+  <rect class="bx" x="14" y="112" width="74" height="26" fill="var(--bg-tertiary)" stroke="var(--border-tertiary)"/>
+  <text class="lb" x="51" y="129" text-anchor="middle">w(t-1)</text>
+  <text class="sm" x="51" y="170" text-anchor="middle">context words</text>
+  <!-- embeddings -->
+  <rect class="bx" x="130" y="20" width="80" height="26" fill="var(--bg-info)" stroke="var(--border-info)"/>
+  <text class="lb" x="170" y="37" text-anchor="middle">C(w(t-2))</text>
+  <rect class="bx" x="130" y="112" width="80" height="26" fill="var(--bg-info)" stroke="var(--border-info)"/>
+  <text class="lb" x="170" y="129" text-anchor="middle">C(w(t-1))</text>
+  <text class="sm" x="170" y="170" text-anchor="middle">embeddings</text>
+  <!-- concat -->
+  <rect class="bx" x="248" y="62" width="58" height="54" fill="var(--bg-tertiary)" stroke="var(--border-tertiary)"/>
+  <text class="lb" x="277" y="93" text-anchor="middle">x</text>
+  <text class="sm" x="277" y="135" text-anchor="middle">concat</text>
+  <!-- hidden -->
+  <rect class="bx" x="330" y="62" width="58" height="54" fill="var(--bg-warning)" stroke="var(--border-warning)"/>
+  <text class="lb" x="359" y="86" text-anchor="middle">h</text>
+  <text class="sm" x="359" y="102" text-anchor="middle">tanh</text>
+  <text class="sm" x="359" y="135" text-anchor="middle">hidden</text>
+  <!-- output -->
+  <rect class="bx" x="408" y="62" width="44" height="54" fill="var(--bg-success)" stroke="var(--border-success)"/>
+  <text class="lb" x="430" y="86" text-anchor="middle">y</text>
+  <text class="sm" x="430" y="102" text-anchor="middle">softmax</text>
+  <text class="sm" x="430" y="135" text-anchor="middle">P(next)</text>
+  <!-- arrows -->
+  <path class="ar" d="M88,33 L128,33"/><path class="ar" d="M88,125 L128,125"/>
+  <path class="ar" d="M210,33 L246,70"/><path class="ar" d="M210,125 L246,108"/>
+  <path class="ar" d="M306,89 L328,89"/><path class="ar" d="M388,89 L406,89"/>
+</svg></div>
+    <div class="mtx-label" style="text-align:center;margin-bottom:10px">Bengio&apos;s neural language model: embeddings &rarr; concatenate &rarr; tanh hidden layer &rarr; softmax output</div>
+
+    <p class="note">Let&apos;s plug in real numbers on a tiny 5-word vocabulary &mdash; {&ldquo;cat&rdquo;=0, &ldquo;sat&rdquo;=1, &ldquo;on&rdquo;=2, &ldquo;the&rdquo;=3, &ldquo;mat&rdquo;=4} &mdash; using bigrams (n=2) and embedding dimension 2. The embedding matrix C (one row per word):</p>
+    <div class="mtx-wrap">
+      <div class="mtx"><div class="mtx bracket"><table><tr><td>0.2</td><td>0.8</td></tr><tr><td>3.0</td><td>-2.5</td></tr><tr><td>-3.0</td><td>1.5</td></tr><tr><td>1.0</td><td>3.0</td></tr><tr><td>-2.0</td><td>-3.0</td></tr></table></div><div class="mtx-label">C &mdash; rows: cat, sat, on, the, mat</div></div>
+      <div class="mtx"><div class="mtx bracket"><table><tr><td>0.3</td><td>&minus;0.1</td></tr><tr><td>0.4</td><td>0.2</td></tr></table></div><div class="mtx-label">H &mdash; hidden weights</div></div>
+      <div class="mtx"><div class="mtx bracket"><table><tr><td>0</td></tr><tr><td>0</td></tr></table></div><div class="mtx-label">d &mdash; hidden bias</div></div>
+    </div>
+    <div class="mtx-wrap">
+      <div class="mtx"><div class="mtx bracket"><table><tr><td>&minus;0.0</td><td>&minus;0.0</td></tr><tr><td>&minus;0.1</td><td>&minus;0.7</td></tr><tr><td>3.4</td><td>0.5</td></tr><tr><td>&minus;2.1</td><td>&minus;2.7</td></tr><tr><td>&minus;1.2</td><td>2.9</td></tr></table></div><div class="mtx-label">W &mdash; output weights (rows: cat&hellip;mat)</div></div>
+      <div class="mtx"><div class="mtx bracket"><table><tr><td>&minus;5.0</td></tr><tr><td>2.4</td></tr><tr><td>0.6</td></tr><tr><td>1.3</td></tr><tr><td>0.7</td></tr></table></div><div class="mtx-label">b &mdash; output bias</div></div>
+    </div>
+    <p class="note">These weights were trained so the model predicts the word that actually follows in &ldquo;cat sat on the mat&rdquo;. Pick the context word and watch the full forward pass &mdash; embedding lookup, hidden layer, tanh, then the softmax distribution. Every number is computed for you:</p>
+
+    <div class="demo">
+      <div class="seg" id="fpSeg">
+        <button data-w="cat" class="active">Context = &ldquo;cat&rdquo;</button>
+        <button data-w="sat">&ldquo;sat&rdquo;</button>
+        <button data-w="on">&ldquo;on&rdquo;</button>
+        <button data-w="the">&ldquo;the&rdquo;</button>
+      </div>
+      <div id="fpSteps" style="margin-top:12px"></div>
+      <div style="margin-top:10px">
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:4px">Predicted probability of the next word:</div>
+        <div class="fp-dist" id="fpDist"></div>
+      </div>
+    </div>
+
+    <div class="insight">The crucial difference from N-grams: <strong>every parameter is learned</strong> &mdash; the embeddings C, the hidden weights H, and the output weights W are all trained jointly by showing the network millions of sentences. An N-gram model is a phone book (find the exact entry or fail); a neural model understands the <em>structure</em> &mdash; like knowing that numbers sharing an area code are probably the same city, even for a number you&apos;ve never seen. It generalizes because it learned patterns, not entries.</div>
+  </div>
+  <!-- §3 -->
+  <div class="card">
+    <h2 id="sec-shared">The Power of Shared Representations</h2>
+    <p class="note">Here is why Bengio&apos;s idea is a game-changer. During training, the model sees &ldquo;the cat sat&rdquo;, &ldquo;the dog sat&rdquo;, &ldquo;the cat ran&rdquo;, &ldquo;the dog ran&rdquo; &mdash; so &ldquo;cat&rdquo; and &ldquo;dog&rdquo; appear in similar contexts, and their embedding vectors end up close together in space. Anything the model learns about &ldquo;cat&rdquo; automatically transfers to &ldquo;dog&rdquo;.</p>
+
+    <p class="note">Let&apos;s measure it. Suppose after training we have these 3-dimensional embeddings. Pick two words and watch the <strong>Euclidean distance</strong> computed step by step &mdash; and see all the words placed in a 2-D sketch of the embedding space, where related words form neighborhoods:</p>
+
+    <div class="demo">
+      <div class="demo-row">
+        <div class="demo-col">
+          <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:6px">A sketch of the embedding space (closer = more similar):</div>
+          <div class="embspace" id="embSpace"></div>
+          <div class="mtx-label" style="text-align:center">Animals cluster together (top-left); food clusters apart (bottom-right).</div>
+        </div>
+        <div class="demo-col">
+          <div class="seg" id="distSeg">
+            <button data-pair="catdog" class="active">cat &harr; dog</button>
+            <button data-pair="catpizza">cat &harr; pizza</button>
+          </div>
+          <div id="distCalc" style="margin-top:10px"></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="note">The numbers tell the story: <strong>cat&ndash;dog &approx; 0.05</strong> (almost the same point) while <strong>cat&ndash;pizza &approx; 1.28</strong> (far apart). The network sees cat and dog as nearly interchangeable, but cat and pizza as completely different &mdash; exactly what we want.</p>
+
+    <p class="note"><strong>This solves the sparsity problem.</strong> If the model has seen &ldquo;the cat sat on the mat&rdquo; many times but <em>never</em> &ldquo;the dog sat on the rug&rdquo;, it can still assign that sentence a reasonable probability &mdash; because &ldquo;dog&rdquo; is near &ldquo;cat&rdquo; and &ldquo;rug&rdquo; is near &ldquo;mat&rdquo;. An N-gram model would call it impossible (probability zero); the neural model recognizes the same underlying pattern &mdash; an animal sitting on a surface.</p>
+
+    <h3 style="font-size:16px;margin:18px 0 8px">Word2Vec and the Geometry of Meaning</h3>
+    <p class="note">In 2013, Tomas Mikolov and colleagues at Google introduced <strong>Word2Vec</strong> &mdash; a very efficient way to train word embeddings on massive corpora. It came in two flavors: <strong>Skip-gram</strong> (predict the surrounding context words from a center word) and <strong>CBOW &mdash; Continuous Bag of Words</strong> (predict the center word from its context). It could process billions of words in hours.</p>
+    <p class="note">The astonishing result: the embedding space captures <em>meaningful directions</em>. The most famous example is vector arithmetic. Pick an analogy and watch the vectors combine in the space &mdash; the <strong>direction</strong> you add is the meaning being applied:</p>
+
+    <div class="demo">
+      <div class="seg" id="anSeg">
+        <button data-a="kmwq" class="active">king &minus; man + woman</button>
+        <button data-a="pfir">Paris &minus; France + Italy</button>
+        <button data-a="wwss">walking &minus; walk + swim</button>
+      </div>
+      <div class="demo-row" style="margin-top:12px">
+        <div class="demo-col" style="flex:0 0 auto">
+          <div class="embspace" id="anSpace" style="width:300px;height:230px"></div>
+        </div>
+        <div class="demo-col">
+          <div class="analogy-eq" id="anEq" style="justify-content:flex-start"></div>
+          <div style="margin:8px 0;font-size:13px"><span class="rl" style="color:var(--text-secondary)">Direction added:</span> <strong id="anDir" style="color:var(--text-warning)"></strong></div>
+          <p class="note" id="anNote" style="margin-bottom:0"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">This isn&apos;t a trick &mdash; it&apos;s a natural consequence of learning from context. Words used in similar ways land in similar places, and the <em>directions</em> between them encode relationships like gender, geography, and tense. The embedding space learned grammar, semantics, and even geography &mdash; purely from predicting words in context. The two N-gram flaws are now both gone.</div>
+  </div>
+  <!-- §4 -->
+  <div class="card">
+    <h2 id="sec-rnn">Recurrent Neural Networks: Unlimited Context?</h2>
+    <p class="note">Bengio&apos;s model was a leap forward, but it still uses a <strong>fixed context window</strong> &mdash; like N-grams, it only looks at the last (n&minus;1) words. Set n=5, and it can&apos;t use anything from 6 words ago. Can we do better?</p>
+    <p class="note"><strong>Recurrent Neural Networks (RNNs)</strong> offer a beautiful answer: process one word at a time, carrying a <strong>hidden state</strong> h<sub>t</sub> forward that summarizes everything seen so far. At each step, the hidden state is updated from the current word and the previous hidden state:</p>
+    <div class="eq">h<sub>t</sub> = tanh( W<sub>hh</sub>&middot;h<sub>t-1</sub> + W<sub>xh</sub>&middot;x<sub>t</sub> + b )</div>
+
+    <p class="note">Let&apos;s run it on the full sentence <strong>&ldquo;cat sat on the mat&rdquo;</strong> with a 2-dimensional hidden state, starting at h<sub>0</sub> = [0, 0]. We&apos;ll use these weights (the word embeddings x<sub>t</sub> are the same C matrix from Bengio&apos;s model above):</p>
+    <div class="mtx-wrap">
+      <div class="mtx"><div class="mtx bracket"><table><tr><td>0.5</td><td>0.0</td></tr><tr><td>0.0</td><td>0.5</td></tr></table></div><div class="mtx-label">W<sub>hh</sub> &mdash; hidden-to-hidden</div></div>
+      <div class="mtx"><div class="mtx bracket"><table><tr><td>1.0</td><td>0.0</td></tr><tr><td>0.0</td><td>1.0</td></tr></table></div><div class="mtx-label">W<sub>xh</sub> &mdash; input-to-hidden</div></div>
+      <div class="mtx"><div class="mtx bracket"><table><tr><td>0</td></tr><tr><td>0</td></tr></table></div><div class="mtx-label">b &mdash; bias</div></div>
+    </div>
+    <p class="note">Step through one word at a time and watch the hidden state carry the memory forward &mdash; the full calculation is shown for each state, every number computed for you:</p>
+
+    <div class="demo">
+      <div id="rnnSteps"></div>
+      <div style="margin-top:10px">
+        <button class="btn" id="rnnPrev">&larr; Previous</button>
+        <button class="btn" id="rnnNext">Next word &rarr;</button>
+        <span style="font-size:12.5px;color:var(--text-tertiary);margin-left:8px" id="rnnLabel">Start</span>
+      </div>
+    </div>
+    <p class="note">Notice how each hidden state encodes information about <em>all</em> the words seen so far &mdash; the memory accumulates. In theory, the RNN has access to the entire history, no matter how long the sentence.</p>
+
+    <h3 style="font-size:16px;margin:18px 0 8px">The Catch: Vanishing Gradients</h3>
+    <p class="note">In theory, unlimited memory. In practice, a serious problem. Training uses <strong>backpropagation through time</strong>, and the gradient flowing back to early words involves multiplying many weight matrices together. If those weights are less than 1, the gradient shrinks <em>exponentially</em> &mdash; the <strong>vanishing gradient problem</strong> (the same effect you saw with saturating activations in the <a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html" target="_blank" rel="noopener">Activation Functions &mdash; Interactive Explainer</a>). In practice, RNNs struggle to remember beyond about 10&ndash;20 steps.</p>
+
+    <div style="text-align:center;margin:8px 0 2px"><svg viewBox="0 0 466 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:460px;display:block;margin:10px auto" role="img" aria-label="RNN unrolled through time with timesteps, inputs, hidden states, outputs, and vanishing gradient">
+  <style>
+    .yb{fill:var(--bg-success);stroke:var(--border-success);} .hb{fill:var(--bg-warning);stroke:var(--border-warning);} .xb{fill:var(--bg-info);stroke:var(--border-info);}
+    .yl{font:600 12px var(--font-mono);fill:var(--text-success);} .hl{font:600 12px var(--font-mono);fill:var(--text-warning);} .xl{font:600 12px var(--font-mono);fill:var(--text-info);}
+    .wl{font:10px var(--font);fill:var(--text-secondary);} .ts{font:600 10px var(--font);fill:var(--text-primary);}
+    .fwd{stroke:var(--text-warning);stroke-width:1.8;fill:none;marker-end:url(#fw);}
+    .up{stroke:var(--text-warning);stroke-width:1.6;fill:none;marker-end:url(#fw);}
+    .bwd{stroke:var(--text-info);stroke-width:1.6;fill:none;stroke-dasharray:5 3;marker-end:url(#bw);}
+  </style>
+  <defs>
+    <marker id="fw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="var(--text-warning)"/></marker>
+    <marker id="bw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="var(--text-info)"/></marker>
+  </defs>
+<text class="ts" x="68.0" y="14" text-anchor="middle">Time Step t=1</text><rect class="yb" x="30" y="24" width="76" height="30" rx="6"/><text class="yl" x="68.0" y="44" text-anchor="middle">y_1</text><rect class="hb" x="30" y="118" width="76" height="34" rx="6"/><text class="hl" x="68.0" y="140" text-anchor="middle">h_1</text><rect class="xb" x="30" y="214" width="76" height="44" rx="6"/><text class="xl" x="68.0" y="234" text-anchor="middle">x_1</text><text class="wl" x="68.0" y="250" text-anchor="middle">cat</text><line class="up" x1="68.0" y1="214" x2="68.0" y2="154"/><line class="up" x1="68.0" y1="118" x2="68.0" y2="56"/><line class="fwd" x1="106" y1="131" x2="140" y2="131"/><line class="bwd" x1="138" y1="145" x2="108" y2="145" opacity="0.22"/><text class="ts" x="178.0" y="14" text-anchor="middle">Time Step t=2</text><rect class="yb" x="140" y="24" width="76" height="30" rx="6"/><text class="yl" x="178.0" y="44" text-anchor="middle">y_2</text><rect class="hb" x="140" y="118" width="76" height="34" rx="6"/><text class="hl" x="178.0" y="140" text-anchor="middle">h_2</text><rect class="xb" x="140" y="214" width="76" height="44" rx="6"/><text class="xl" x="178.0" y="234" text-anchor="middle">x_2</text><text class="wl" x="178.0" y="250" text-anchor="middle">sat</text><line class="up" x1="178.0" y1="214" x2="178.0" y2="154"/><line class="up" x1="178.0" y1="118" x2="178.0" y2="56"/><line class="fwd" x1="216" y1="131" x2="250" y2="131"/><line class="bwd" x1="248" y1="145" x2="218" y2="145" opacity="0.45"/><text class="ts" x="288.0" y="14" text-anchor="middle">Time Step t=3</text><rect class="yb" x="250" y="24" width="76" height="30" rx="6"/><text class="yl" x="288.0" y="44" text-anchor="middle">y_3</text><rect class="hb" x="250" y="118" width="76" height="34" rx="6"/><text class="hl" x="288.0" y="140" text-anchor="middle">h_3</text><rect class="xb" x="250" y="214" width="76" height="44" rx="6"/><text class="xl" x="288.0" y="234" text-anchor="middle">x_3</text><text class="wl" x="288.0" y="250" text-anchor="middle">on</text><line class="up" x1="288.0" y1="214" x2="288.0" y2="154"/><line class="up" x1="288.0" y1="118" x2="288.0" y2="56"/><line class="fwd" x1="326" y1="131" x2="360" y2="131"/><line class="bwd" x1="358" y1="145" x2="328" y2="145" opacity="0.8"/><text class="ts" x="398.0" y="14" text-anchor="middle">Time Step t=4</text><rect class="yb" x="360" y="24" width="76" height="30" rx="6"/><text class="yl" x="398.0" y="44" text-anchor="middle">y_4</text><rect class="hb" x="360" y="118" width="76" height="34" rx="6"/><text class="hl" x="398.0" y="140" text-anchor="middle">h_4</text><rect class="xb" x="360" y="214" width="76" height="44" rx="6"/><text class="xl" x="398.0" y="234" text-anchor="middle">x_4</text><text class="wl" x="398.0" y="250" text-anchor="middle">the</text><line class="up" x1="398.0" y1="214" x2="398.0" y2="154"/><line class="up" x1="398.0" y1="118" x2="398.0" y2="56"/></svg></div>
+    <div class="mtx-label" style="text-align:center;margin-bottom:10px">An RNN unrolled through time. At each timestep, an input x<sub>t</sub> feeds the hidden state h<sub>t</sub>, which produces an output y<sub>t</sub> and passes its memory forward (orange arrows). Backward (blue, dashed) the gradient signal fades with each step &mdash; the vanishing gradient.</div>
+
+    <p class="note">Consider: <em>&ldquo;The author who wrote the bestselling series of fantasy novels that were adapted into blockbuster films <strong>was</strong> born in England.&rdquo;</em> The subject &ldquo;author&rdquo; and verb &ldquo;was&rdquo; are 15 words apart. To choose &ldquo;was&rdquo; over &ldquo;were&rdquo;, the model must remember the subject is singular &mdash; but the intervening words keep overwriting the hidden state. It&apos;s a game of telephone: the original signal is diluted by the end.</p>
+    <p class="note"><strong>LSTMs</strong> and <strong>GRUs</strong> added learned gates to control what to remember and forget, extending effective memory to roughly 100&ndash;200 tokens &mdash; much better, but still limited.</p>
+
+    <div class="note" style="background:var(--bg-danger);border:1px solid var(--border-danger);padding:12px 14px;border-radius:var(--radius-md)"><strong>The deeper problem: no parallelism.</strong> RNNs process words <em>sequentially</em> &mdash; you can&apos;t compute word 5 until words 1&ndash;4 are done. This means they can&apos;t exploit modern parallel hardware (GPUs), making them painfully slow: training a large RNN on a billion-word corpus could take weeks, since each word waits for the previous one. This sequential bottleneck is the key obstacle to scaling up.</div>
+
+    <div class="insight">Neural language models solved the N-gram problems by <em>learning representations</em>: embeddings put similar words close together, so knowledge transfers and unseen sentences get sensible probabilities. RNNs extended context but hit two walls &mdash; vanishing gradients limit memory, and sequential processing prevents parallelism. What we need is a model that can look at <em>all</em> words simultaneously and decide which ones matter most. That idea &mdash; attention &mdash; is the third and final era, and the subject of the next explainer in this series.</div>
+  </div>
+
+<script>window.__RNN_STEPS__ = ["<div class=\"step-box\"><span class=\"sn\">h<sub>0</sub> &mdash; initial state.</span> h<sub>0</sub> = [0, 0] &mdash; the model has seen nothing yet.</div>", "<div class=\"step-box\"><span class=\"sn\">h<sub>1</sub> &mdash; process &ldquo;cat&rdquo; (x<sub>1</sub> = [0.2, 0.8]).</span><br>h<sub>1</sub> = tanh( W<sub>hh</sub>&middot;h<sub>0</sub> + W<sub>xh</sub>&middot;x<sub>1</sub> + b )<br>= tanh( [0.5&times;0.0 + 1.0&times;0.2, &nbsp; 0.5&times;0.0 + 1.0&times;0.8] )<br>= tanh( [0.2, 0.8] ) = <strong>[0.197, 0.664]</strong></div>", "<div class=\"step-box\"><span class=\"sn\">h<sub>2</sub> &mdash; process &ldquo;sat&rdquo; (x<sub>2</sub> = [3.0, -2.5]).</span><br>h<sub>2</sub> = tanh( W<sub>hh</sub>&middot;h<sub>1</sub> + W<sub>xh</sub>&middot;x<sub>2</sub> + b )<br>= tanh( [0.5&times;0.197 + 1.0&times;3.0, &nbsp; 0.5&times;0.664 + 1.0&times;-2.5] )<br>= tanh( [3.099, -2.168] ) = <strong>[0.996, -0.974]</strong></div><p class=\"note\" style=\"margin:0\">h<sub>2</sub> now carries memory of <em>both</em> &ldquo;cat&rdquo; and &ldquo;sat&rdquo;.</p>", "<div class=\"step-box\"><span class=\"sn\">h<sub>3</sub> &mdash; process &ldquo;on&rdquo; (x<sub>3</sub> = [-3.0, 1.5]).</span><br>h<sub>3</sub> = tanh( W<sub>hh</sub>&middot;h<sub>2</sub> + W<sub>xh</sub>&middot;x<sub>3</sub> + b )<br>= tanh( [0.5&times;0.996 + 1.0&times;-3.0, &nbsp; 0.5&times;-0.974 + 1.0&times;1.5] )<br>= tanh( [-2.502, 1.013] ) = <strong>[-0.987, 0.767]</strong></div>", "<div class=\"step-box\"><span class=\"sn\">h<sub>4</sub> &mdash; process &ldquo;the&rdquo; (x<sub>4</sub> = [1.0, 3.0]).</span><br>h<sub>4</sub> = tanh( W<sub>hh</sub>&middot;h<sub>3</sub> + W<sub>xh</sub>&middot;x<sub>4</sub> + b )<br>= tanh( [0.5&times;-0.987 + 1.0&times;1.0, &nbsp; 0.5&times;0.767 + 1.0&times;3.0] )<br>= tanh( [0.506, 3.384] ) = <strong>[0.467, 0.998]</strong></div>"];</script>
+
+  <footer>
+    Built with <span style="color:var(--text-danger);font-size:18px;vertical-align:middle">&hearts;</span> by
+    <a href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">Ancil Cleetus</a>
+    &nbsp;&nbsp;&middot;&nbsp;&nbsp;
+    <a href="https://ancilcleetus.github.io/AI-ML-Explainers/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">AI ML Explainers</a>
+    &nbsp;&nbsp;&middot;&nbsp;&nbsp; No external dependencies &nbsp;&nbsp;&middot;&nbsp;&nbsp; MIT License
+  </footer>
+
+</div>
+
+<script>
+const C = {"cat": [0.2, 0.8], "sat": [3.0, -2.5], "on": [-3.0, 1.5], "the": [1.0, 3.0], "mat": [-2.0, -3.0]};
+const BENGIO = {"cat": {"x": [0.2, 0.8], "z": [-0.02, 0.24], "h": [-0.02, 0.235], "probs": [0.0, 0.538, 0.11, 0.116, 0.235], "pred": "sat", "logits": [-5.0, 2.24, 0.65, 0.71, 1.41], "W": [[-0.0, -0.0], [-0.1, -0.7], [3.4, 0.5], [-2.1, -2.7], [-1.2, 2.9]], "b": [-5.0, 2.4, 0.6, 1.3, 0.7]}, "sat": {"x": [3.0, -2.5], "z": [1.15, 0.7], "h": [0.818, 0.604], "probs": [0.0, 0.131, 0.781, 0.003, 0.086], "pred": "on", "logits": [-5.0, 1.9, 3.68, -2.05, 1.47], "W": [[-0.0, -0.0], [-0.1, -0.7], [3.4, 0.5], [-2.1, -2.7], [-1.2, 2.9]], "b": [-5.0, 2.4, 0.6, 1.3, 0.7]}, "on": {"x": [-3.0, 1.5], "z": [-1.05, -0.9], "h": [-0.782, -0.716], "probs": [0.0, 0.13, 0.001, 0.865, 0.004], "pred": "the", "logits": [-5.0, 2.98, -2.42, 4.88, -0.44], "W": [[-0.0, -0.0], [-0.1, -0.7], [3.4, 0.5], [-2.1, -2.7], [-1.2, 2.9]], "b": [-5.0, 2.4, 0.6, 1.3, 0.7]}, "the": {"x": [1.0, 3.0], "z": [-0.0, 1.0], "h": [-0.0, 0.762], "probs": [0.0, 0.231, 0.095, 0.017, 0.656], "pred": "mat", "logits": [-5.0, 1.87, 0.98, -0.76, 2.91], "W": [[-0.0, -0.0], [-0.1, -0.7], [3.4, 0.5], [-2.1, -2.7], [-1.2, 2.9]], "b": [-5.0, 2.4, 0.6, 1.3, 0.7]}};
+const WORDS = ['cat','sat','on','the','mat'];
+
+/* ===== §2 Bengio forward pass (5-word vocab) ===== */
+(function(){
+  const stepsEl=document.getElementById('fpSteps'), distEl=document.getElementById('fpDist');
+  if(!stepsEl) return;
+  function render(w){
+    const o=BENGIO[w];
+    stepsEl.innerHTML =
+      `<div class="step-box"><span class="sn">1. Embedding lookup.</span> x = C("${w}") = [${o.x[0]}, ${o.x[1]}]</div>`+
+      `<div class="step-box"><span class="sn">2. Hidden layer (z = H\u00b7x + d).</span> z = [0.3\u00d7${o.x[0]} + (\u22120.1)\u00d7${o.x[1]}, &nbsp; 0.4\u00d7${o.x[0]} + 0.2\u00d7${o.x[1]}] = [${o.z[0]}, ${o.z[1]}]</div>`+
+      `<div class="step-box"><span class="sn">3. tanh activation.</span> h = tanh(z) = [${o.h[0]}, ${o.h[1]}]</div>`+
+      `<div class="step-box"><span class="sn">4. Output layer (y = W\u00b7h + b).</span> Each of the 5 vocabulary words gets a score:<br>`+
+        WORDS.map((wd,i)=>`y<sub>${wd}</sub> = ${o.W[i][0]}\u00d7${o.h[0]} + ${o.W[i][1]}\u00d7${o.h[1]} + ${o.b[i]} = <strong>${o.logits[i]}</strong>`).join('<br>')+
+      `</div>`+
+      `<div class="step-box"><span class="sn">5. Softmax.</span> exponentiate each score and normalize so they sum to 1:<br>`+
+        `softmax([${o.logits.join(', ')}]) = [${o.probs.map(p=>p.toFixed(2)).join(', ')}]<br>`+
+        `&rarr; highest is <strong>"${o.pred}"</strong> (shown below).</div>`;
+    distEl.innerHTML='';
+    o.probs.forEach((p,i)=>{
+      const bar=document.createElement('div'); bar.className='fp-bar';
+      const best=(p===Math.max(...o.probs));
+      bar.innerHTML=`<div class="bw">${p.toFixed(2)}</div><div class="bar" style="height:${p*80}px;${best?'background:var(--text-success)':''}"></div><div class="blbl">${WORDS[i]}</div>`;
+      distEl.appendChild(bar);
+    });
+  }
+  document.querySelectorAll('#fpSeg button').forEach(b=>{
+    b.onclick=()=>{ document.querySelectorAll('#fpSeg button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); render(b.dataset.w); };
+  });
+  render('cat');
+})();
+
+/* ===== §3 embedding distance + expanded space ===== */
+(function(){
+  const emb = { cat:[0.82,0.15,0.91], dog:[0.79,0.18,0.88], pizza:[0.10,0.95,0.22] };
+  const space=document.getElementById('embSpace'); const calc=document.getElementById('distCalc');
+  if(!space) return;
+  // expanded set of words placed in 2D: animal cluster (top-left), food cluster (bottom-right)
+  const pos = { cat:[16,26], dog:[24,20], kitten:[10,38], puppy:[30,32], wolf:[20,46],
+                pizza:[80,82], burger:[88,72], pasta:[72,90], sushi:[90,88] };
+  const animalSet=['cat','dog','kitten','puppy','wolf'];
+  function color(w){ return animalSet.includes(w)?'var(--text-info)':'var(--text-danger)'; }
+  function drawSpace(active){
+    space.innerHTML='';
+    Object.keys(pos).forEach(w=>{
+      const [px,py]=pos[w];
+      const dot=document.createElement('div'); dot.className='embpt';
+      dot.style.left=px+'%'; dot.style.top=py+'%'; dot.style.background=color(w);
+      dot.style.opacity = active.includes(w)?'1':'0.55';
+      if(active.includes(w)) dot.style.boxShadow='0 0 0 4px rgba(120,120,120,0.18)';
+      space.appendChild(dot);
+      const lbl=document.createElement('div'); lbl.className='emblabel';
+      lbl.style.left=px+'%'; lbl.style.top=(py-8)+'%'; lbl.style.color=color(w);
+      lbl.style.opacity = active.includes(w)?'1':'0.6';
+      lbl.textContent=w; space.appendChild(lbl);
+    });
+  }
+  function dist(a,b){ const va=emb[a],vb=emb[b]; const terms=va.map((v,i)=>`(${va[i]} \u2212 ${vb[i]})\u00b2`); const sq=va.reduce((s,_,i)=>s+(va[i]-vb[i])**2,0); return {d:Math.sqrt(sq),sq,terms}; }
+  function render(pair){
+    const [a,b]= pair==='catdog'?['cat','dog']:['cat','pizza'];
+    const r=dist(a,b);
+    calc.innerHTML =
+      `<div class="step-box"><span class="sn">${a} = [${emb[a].join(', ')}]</span><br><span class="sn">${b} = [${emb[b].join(', ')}]</span></div>`+
+      `<div class="step-box">distance = \u221a( ${r.terms.join(' + ')} )<br>= \u221a(${r.sq.toFixed(4)}) = <strong style="color:${pair==='catdog'?'var(--text-success)':'var(--text-danger)'}">${r.d.toFixed(3)}</strong></div>`+
+      `<p class="note" style="margin-bottom:0">${pair==='catdog'?'Tiny distance &mdash; cat and dog are nearly the same point.':'Large distance &mdash; cat and pizza are far apart in meaning.'}</p>`;
+    drawSpace([a,b]);
+  }
+  document.querySelectorAll('#distSeg button').forEach(btn=>{
+    btn.onclick=()=>{ document.querySelectorAll('#distSeg button').forEach(x=>x.classList.remove('active')); btn.classList.add('active'); render(btn.dataset.pair); };
+  });
+  render('catdog');
+})();
+
+/* ===== §3 analogy widget WITH embedding-space vectors ===== */
+(function(){
+  const eqEl=document.getElementById('anEq'), noteEl=document.getElementById('anNote'),
+        dirEl=document.getElementById('anDir'), space=document.getElementById('anSpace');
+  if(!eqEl) return;
+  // each analogy: 4 points positioned so (a - b + c) lands on r, plus the named direction
+  const A={
+    kmwq:{a:'king',b:'man',c:'woman',r:'queen',dir:'"royalty"',
+      pos:{man:[22,82],king:[43,46],woman:[58,66],queen:[79,30]},
+      note:'The arrow from &ldquo;man&rdquo; to &ldquo;king&rdquo; is the &ldquo;royalty&rdquo; direction. The very same arrow, applied to &ldquo;woman&rdquo;, lands on &ldquo;queen&rdquo; &mdash; the two vectors are parallel.'},
+    pfir:{a:'Paris',b:'France',c:'Italy',r:'Rome',dir:'"capital-of"',
+      pos:{France:[22,82],Paris:[43,46],Italy:[58,66],Rome:[79,30]},
+      note:'&ldquo;Paris &minus; France&rdquo; isolates a &ldquo;capital-of&rdquo; direction (upward); adding &ldquo;Italy&rdquo; gives its capital, &ldquo;Rome&rdquo;. The space learned geography.'},
+    wwss:{a:'walking',b:'walk',c:'swim',r:'swimming',dir:'"-ing" (present participle)',
+      pos:{walk:[22,82],walking:[43,46],swim:[58,66],swimming:[79,30]},
+      note:'&ldquo;walking &minus; walk&rdquo; isolates the &ldquo;-ing&rdquo; (present-participle) direction (upward); adding &ldquo;swim&rdquo; gives &ldquo;swimming&rdquo;. The space learned grammar.'}
+  };
+  function draw(x){
+    const p=x.pos; space.innerHTML='';
+    const cols={[x.a]:'var(--text-info)',[x.b]:'var(--text-danger)',[x.c]:'var(--text-success)',[x.r]:'var(--text-warning)'};
+    // draw the two parallel "direction" arrows (b->a and c->r) as SVG
+    const svg=`<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+      <defs><marker id="aa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6 z" fill="var(--text-warning)"/></marker></defs>
+      <line x1="${p[x.b][0]}" y1="${p[x.b][1]}" x2="${p[x.a][0]}" y2="${p[x.a][1]}" stroke="var(--text-warning)" stroke-width="1.2" marker-end="url(#aa)" opacity="0.8"/>
+      <line x1="${p[x.c][0]}" y1="${p[x.c][1]}" x2="${p[x.r][0]}" y2="${p[x.r][1]}" stroke="var(--text-warning)" stroke-width="1.2" marker-end="url(#aa)" stroke-dasharray="3 2" opacity="0.8"/>
+    </svg>`;
+    space.insertAdjacentHTML('beforeend', svg);
+    Object.keys(p).forEach(w=>{
+      const dot=document.createElement('div'); dot.className='embpt';
+      dot.style.left=p[w][0]+'%'; dot.style.top=p[w][1]+'%'; dot.style.background=cols[w]||'var(--text-tertiary)';
+      space.appendChild(dot);
+      const lbl=document.createElement('div'); lbl.className='emblabel';
+      lbl.style.left=p[w][0]+'%'; lbl.style.top=(p[w][1]-9)+'%'; lbl.style.color=cols[w]||'var(--text-secondary)';
+      lbl.textContent=w; space.appendChild(lbl);
+    });
+  }
+  function render(k){
+    const x=A[k];
+    eqEl.innerHTML=`<span class="word-chip a">${x.a}</span><span class="analogy-op">&minus;</span><span class="word-chip b">${x.b}</span><span class="analogy-op">+</span><span class="word-chip c">${x.c}</span><span class="analogy-op">&approx;</span><span class="word-chip r">${x.r}</span>`;
+    dirEl.textContent=x.dir; noteEl.innerHTML=x.note; draw(x);
+  }
+  document.querySelectorAll('#anSeg button').forEach(b=>{
+    b.onclick=()=>{ document.querySelectorAll('#anSeg button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); render(b.dataset.a); };
+  });
+  render('kmwq');
+})();
+
+/* ===== §4 RNN step-through (h0..h5, full calculation) ===== */
+(function(){
+  const stepsEl=document.getElementById('rnnSteps'), label=document.getElementById('rnnLabel');
+  if(!stepsEl || !window.__RNN_STEPS__) return;
+  const steps=window.__RNN_STEPS__;     // array of HTML strings: [h0, h1, ..., h5]
+  const labels=['Start (h\u2080)','After word 1: "cat"','After word 2: "sat"','After word 3: "on"','After word 4: "the"'];
+  let i=0;
+  function render(){
+    stepsEl.innerHTML=steps[i];
+    label.textContent=labels[i];
+    document.getElementById('rnnPrev').disabled=(i===0);
+    document.getElementById('rnnNext').disabled=(i===steps.length-1);
+  }
+  document.getElementById('rnnNext').onclick=()=>{ if(i<steps.length-1){i++;render();} };
+  document.getElementById('rnnPrev').onclick=()=>{ if(i>0){i--;render();} };
+  render();
+})();
+</script>
+</body>
+</html>
