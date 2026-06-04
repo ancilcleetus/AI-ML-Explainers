@@ -162,6 +162,27 @@
     .step-box { border-left:3px solid var(--border-info); background:var(--bg-secondary); padding:12px 14px; border-radius:0 var(--radius-md) var(--radius-md) 0; margin:10px 0; font-size:13.5px; }
     .step-box .sn { font-weight:700; color:var(--text-info); }
 
+    /* optional / advanced markers */
+    .toc-label .opt-pill { display:inline-block; margin-left:7px; font-size:9.5px; font-weight:700;
+                 letter-spacing:.05em; text-transform:uppercase; color:var(--text-warning);
+                 background:var(--bg-warning); border:0.5px solid var(--border-warning);
+                 border-radius:999px; padding:1px 7px; vertical-align:middle; }
+
+    /* notebook link buttons */
+    .nb-links { display:flex; gap:12px; flex-wrap:wrap; margin:16px 0 4px; }
+    .nb-btn { display:inline-flex; align-items:center; gap:9px; text-decoration:none;
+              border-radius:var(--radius-md); padding:10px 16px; font-size:13px; font-weight:600;
+              font-family:var(--font); border:1px solid var(--border-secondary);
+              background:var(--bg-primary); color:var(--text-primary); transition:opacity 0.15s, transform 0.15s; }
+    .nb-btn:hover { opacity:0.85; transform:translateY(-1px); }
+    .nb-btn svg { flex-shrink:0; }
+    .nb-btn.github svg { fill:var(--text-primary); }
+    .nb-btn.colab { border-color:var(--border-warning); background:var(--bg-warning); color:var(--text-warning); }
+    ul.note-list { font-size:13px; color:var(--text-secondary); line-height:1.65; margin:0 0 0.75rem 1.15rem; padding:0; }
+    ul.note-list li { margin-bottom:6px; }
+    ul.note-list li::marker { color:var(--text-tertiary); }
+    ul.note-list strong { color:var(--text-primary); }
+
     footer { text-align:center; font-size:12px; color:var(--text-tertiary); margin-top:2rem; }
 
 </style>
@@ -182,6 +203,7 @@
     <a href="#sec-markov" class="toc-item"><div class="toc-num">4</div><span class="toc-label">The Markov Assumption: Short Memory</span></a>
     <a href="#sec-sparsity" class="toc-item"><div class="toc-num">5</div><span class="toc-label">Where N-grams Break: The Sparsity Problem</span></a>
     <a href="#sec-similarity" class="toc-item"><div class="toc-num">6</div><span class="toc-label">The Deeper Problem: No Notion of Similarity</span></a>
+    <a href="#sec-notebook" class="toc-item"><div class="toc-num">7</div><span class="toc-label">Build an N-gram Model from Scratch<span class="opt-pill">Optional</span></span></a>
   </nav>
 
   <!-- §1 -->
@@ -386,6 +408,37 @@ unigram_counts = <span class="code-fn">defaultdict</span>(<span class="code-kw">
     <p class="note">Think of learning a foreign language. Someone teaches you &ldquo;le chat dort&rdquo; means &ldquo;the cat sleeps.&rdquo; An N-gram model is like memorizing that exact phrase while gaining <em>zero</em> insight about &ldquo;le chien dort&rdquo; (&ldquo;the dog sleeps&rdquo;) &mdash; because it treats &ldquo;chat&rdquo; and &ldquo;chien&rdquo; as unrelated symbols. A human reasons: &ldquo;chat and chien are both animals, so the sentence probably works the same way.&rdquo; N-gram models cannot. Every word combination must be observed independently.</p>
 
     <div class="insight">So we&apos;re left with two deep problems: <strong>sparsity</strong> (most word combinations are never seen) and <strong>no similarity</strong> (words are arbitrary symbols with no shared meaning). Both point to the same missing ingredient &mdash; a way to represent what words actually <em>mean</em>, so that similar words behave similarly. That single idea &mdash; learning <strong>representations</strong> instead of counting symbols &mdash; launches the second era of language modeling, and it&apos;s where the next explainer in this series begins.</div>
+  </div>
+
+  <!-- §7 -->
+  <div class="card">
+    <h2 id="sec-notebook">Build an N-gram Model from Scratch</h2>
+
+    <div class="insight warning"><strong>Optional &mdash; for readers who want to put in extra effort.</strong> Everything above stands on its own. This final section is for those who want to go all the way: build a working N-gram model, run experiments, and watch its limitations appear in real code rather than just reading about them.</div>
+
+    <p class="note">To turn these ideas into something you can run, there&apos;s a companion Jupyter Notebook that builds an N-gram language model <strong>completely from scratch</strong> &mdash; pure Python, counting, and probability, with no deep-learning libraries doing the heavy lifting. It re-walks every concept from this explainer, then pushes further into territory we only hinted at here.</p>
+
+    <p class="note">Inside the notebook you&apos;ll:</p>
+    <ul class="note-list">
+      <li>Build the counting machinery by hand and <strong>visualize the transition matrix</strong> &mdash; the table of which word tends to follow which.</li>
+      <li>Extend from bigrams to a <strong>trigram model</strong> and add <strong>Laplace smoothing</strong>, watching the impossible zeros turn into real probabilities.</li>
+      <li><strong>Generate text</strong> by sampling word by word, and turn a <strong>temperature</strong> knob to move between safe, predictable output and wilder, more surprising output.</li>
+      <li>Measure model quality with <strong>perplexity</strong>, the standard yardstick for language models.</li>
+      <li>Reproduce the two breaking points firsthand &mdash; <strong>sparsity</strong> and <strong>no notion of similarity</strong> &mdash; so you feel exactly why counting eventually gives way to learning.</li>
+    </ul>
+
+    <p class="note">Open it whichever way suits you &mdash; read through it on GitHub, or run it live in Google Colab with no local setup:</p>
+
+    <div class="nb-links">
+      <a class="nb-btn github" href="https://github.com/ancilcleetus/AI-ML-Explainers/blob/main/Generative-AI/Build-LLM-from-Scratch/Foundations-of-Language-Modeling/01_ngram_language_models.ipynb" target="_blank" rel="noopener">
+        <svg width="19" height="19" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        View on GitHub
+      </a>
+      <a class="nb-btn colab" href="https://colab.research.google.com/github/ancilcleetus/AI-ML-Explainers/blob/main/Generative-AI/Build-LLM-from-Scratch/Foundations-of-Language-Modeling/01_ngram_language_models.ipynb" target="_blank" rel="noopener">
+        <svg width="21" height="21" viewBox="0 0 48 48" aria-hidden="true"><circle cx="17" cy="24" r="8" fill="none" stroke="#F9AB00" stroke-width="5.5"/><circle cx="31" cy="24" r="8" fill="none" stroke="#E8710A" stroke-width="5.5"/></svg>
+        Open in Colab
+      </a>
+    </div>
   </div>
 
   <footer>
