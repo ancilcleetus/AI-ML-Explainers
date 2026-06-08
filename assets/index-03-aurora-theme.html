@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurora theme · AI/ML Explainers</title>
+<meta name="description" content="A visual-first, interactive learning platform for AI and machine learning. Self-contained explainers you can click, drag, and play with — built from first principles with zero dependencies.">
+<script>
+  // Resolve theme before paint to avoid a flash. Falls back to system preference.
+  (function () {
+    try {
+      var t = localStorage.getItem('aiml-theme');
+      if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme',
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
+    }
+  })();
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-primary: #ffffff; --bg-secondary: #f5f4f0; --bg-tertiary: #eeece6;
+    --bg-info: #e6f1fb; --bg-success: #e1f5ee; --bg-warning: #faeeda; --bg-danger: #fcebeb;
+    --text-primary: #1a1a18; --text-secondary: #5f5e5a; --text-tertiary: #888780;
+    --text-info: #185fa5; --text-success: #0f6e56; --text-warning: #854f0b; --text-danger: #a32d2d;
+    --border-tertiary: rgba(0,0,0,0.12); --border-secondary: rgba(0,0,0,0.22);
+    --border-info: #85b7eb; --border-success: #5dcaa5; --border-warning: #ef9f27; --border-danger: #e24b4a;
+    --radius-md: 8px; --radius-lg: 12px; --radius-xl: 18px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    /* Display face — swap to var(--font) to preview the large-sans variant */
+    --font-display: Georgia, 'Times New Roman', 'Iowan Old Style', serif;
+    /* ===== ACCENT THEME (light) — edit these three to change the theme ===== */
+    --g1: #4f46e5; --g2: #7c3aed; --g3: #c026d3;
+    --grad: linear-gradient(100deg, var(--g1) 0%, var(--g2) 52%, var(--g3) 100%);
+    --shadow-sm: 0 1px 2px rgba(20,20,16,0.05);
+    --shadow-md: 0 1px 2px rgba(20,20,16,0.05), 0 10px 28px rgba(20,20,16,0.07);
+    --blob-info: rgba(31,111,178,0.22); --blob-success: rgba(19,138,104,0.20); --blob-warning: rgba(194,116,15,0.20);
+    --grid-line: rgba(0,0,0,0.045);
+  }
+  :root[data-theme="dark"] {
+    --bg-primary: #1c1c1a; --bg-secondary: #252522; --bg-tertiary: #161614;
+    --bg-info: #042c53; --bg-success: #04342c; --bg-warning: #412402; --bg-danger: #501313;
+    --text-primary: #e8e6de; --text-secondary: #b4b2a9; --text-tertiary: #73726c;
+    --text-info: #85b7eb; --text-success: #5dcaa5; --text-warning: #ef9f27; --text-danger: #f09595;
+    --border-tertiary: rgba(255,255,255,0.10); --border-secondary: rgba(255,255,255,0.20);
+    --border-info: #185fa5; --border-success: #0f6e56; --border-warning: #854f0b; --border-danger: #a32d2d;
+    /* ===== ACCENT THEME (dark) — edit these three ===== */
+    --g1: #818cf8; --g2: #a78bfa; --g3: #e879f9;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+    --shadow-md: 0 1px 2px rgba(0,0,0,0.4), 0 12px 32px rgba(0,0,0,0.45);
+    --blob-info: rgba(133,183,235,0.16); --blob-success: rgba(93,202,165,0.14); --blob-warning: rgba(239,159,39,0.14);
+    --grid-line: rgba(255,255,255,0.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      --bg-primary: #1c1c1a; --bg-secondary: #252522; --bg-tertiary: #161614;
+      --bg-info: #042c53; --bg-success: #04342c; --bg-warning: #412402; --bg-danger: #501313;
+      --text-primary: #e8e6de; --text-secondary: #b4b2a9; --text-tertiary: #73726c;
+      --text-info: #85b7eb; --text-success: #5dcaa5; --text-warning: #ef9f27; --text-danger: #f09595;
+      --border-tertiary: rgba(255,255,255,0.10); --border-secondary: rgba(255,255,255,0.20);
+      --border-info: #185fa5; --border-success: #0f6e56; --border-warning: #854f0b; --border-danger: #a32d2d;
+      /* ===== ACCENT THEME (dark, no-JS fallback — keep in sync with above) ===== */
+      --g1: #818cf8; --g2: #a78bfa; --g3: #e879f9;
+      --blob-info: rgba(133,183,235,0.16); --blob-success: rgba(93,202,165,0.14); --blob-warning: rgba(239,159,39,0.14);
+      --grid-line: rgba(255,255,255,0.04);
+    }
+  }
+
+  /* violet accent (Generative AI) */
+  :root { --bg-violet: #f0eafb; --text-violet: #6d3bbf; --border-violet: #b69ae6; }
+  :root[data-theme="dark"] { --bg-violet: #2c1a52; --text-violet: #bba3f2; --border-violet: #6d3bbf; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme]) { --bg-violet: #2c1a52; --text-violet: #bba3f2; --border-violet: #6d3bbf; } }
+
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary);
+         line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 1.25rem; }
+  a { color: inherit; }
+  .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text;
+          -webkit-text-fill-color: transparent; color: var(--text-info); }
+
+  .skip { position: absolute; left: -9999px; top: 0; background: var(--bg-primary); color: var(--text-primary);
+          padding: 8px 14px; border-radius: var(--radius-md); z-index: 200; }
+  .skip:focus { left: 12px; top: 12px; }
+
+  /* ---------- top bar ---------- */
+  .topbar { position: sticky; top: 0; z-index: 100; backdrop-filter: saturate(140%) blur(10px);
+            background: color-mix(in srgb, var(--bg-tertiary) 82%, transparent);
+            border-bottom: 0.5px solid var(--border-tertiary); }
+  .bar-inner { max-width: 980px; margin: 0 auto; padding: 0.7rem 1.25rem;
+               display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600;
+           font-size: 14px; color: var(--text-primary); letter-spacing: -0.01em; }
+  .brand .mark { width: 26px; height: 26px; flex-shrink: 0; }
+  .bar-actions { display: inline-flex; align-items: center; gap: 6px; }
+  .icon-btn { width: 34px; height: 34px; border-radius: var(--radius-md); border: 0.5px solid var(--border-tertiary);
+              background: var(--bg-primary); color: var(--text-secondary); cursor: pointer;
+              display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
+              transition: color 0.15s, border-color 0.15s, transform 0.15s; }
+  .icon-btn:hover { color: var(--text-primary); border-color: var(--border-secondary); transform: translateY(-1px); }
+  .icon-btn svg { width: 17px; height: 17px; }
+  .theme-toggle .sun { display: none; } .theme-toggle .moon { display: block; }
+  :root[data-theme="dark"] .theme-toggle .sun { display: block; }
+  :root[data-theme="dark"] .theme-toggle .moon { display: none; }
+
+  /* ---------- hero ---------- */
+  .hero { position: relative; overflow: hidden; padding: clamp(3.5rem, 9vw, 7rem) 0 clamp(3rem, 7vw, 5.5rem); }
+  .hero-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+  .hero-bg .blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.9; }
+  .hero-bg .b1 { width: 460px; height: 460px; background: var(--blob-info); top: -140px; left: -120px; animation: drift1 22s ease-in-out infinite; }
+  .hero-bg .b2 { width: 420px; height: 420px; background: var(--blob-warning); top: -80px; right: -120px; animation: drift2 26s ease-in-out infinite; }
+  .hero-bg .b3 { width: 380px; height: 380px; background: var(--blob-success); bottom: -180px; left: 30%; animation: drift3 30s ease-in-out infinite; }
+  .hero-bg .grid { position: absolute; inset: 0;
+      background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+      background-size: 46px 46px; mask-image: radial-gradient(circle at 50% 30%, #000 0%, transparent 72%);
+      -webkit-mask-image: radial-gradient(circle at 50% 30%, #000 0%, transparent 72%); }
+  @keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(40px,30px) scale(1.08); } }
+  @keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-36px,42px) scale(1.1); } }
+  @keyframes drift3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-30px) scale(1.06); } }
+  .hero-inner { position: relative; z-index: 1; max-width: 760px; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 600;
+             letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary);
+             background: var(--bg-primary); border: 0.5px solid var(--border-tertiary);
+             padding: 6px 13px; border-radius: 999px; box-shadow: var(--shadow-sm); }
+  .eyebrow .dotg { width: 7px; height: 7px; border-radius: 50%; background: var(--grad); }
+  h1 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.015em; line-height: 1.08;
+       font-size: clamp(33px, 6.2vw, 58px); margin: 1.1rem 0 0; }
+  h1 .h1-lead { color: var(--text-primary); display: block; }
+  .lede { font-size: clamp(15px, 2.1vw, 18px); color: var(--text-secondary); line-height: 1.6;
+          max-width: 600px; margin-top: 1.25rem; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 1.9rem; }
+  .btn-primary, .btn-ghost { display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+       font-size: 14px; font-weight: 600; padding: 11px 20px; border-radius: var(--radius-md);
+       transition: transform 0.15s, opacity 0.15s, border-color 0.15s; cursor: pointer; font-family: var(--font); }
+  .btn-primary { color: #fff; background: var(--grad); border: 0; box-shadow: var(--shadow-md); }
+  .btn-primary:hover { transform: translateY(-2px); opacity: 0.94; }
+  .btn-ghost { color: var(--text-primary); background: var(--bg-primary); border: 0.5px solid var(--border-secondary); }
+  .btn-ghost:hover { transform: translateY(-2px); border-color: var(--text-secondary); }
+
+  .stats { display: flex; flex-wrap: wrap; gap: clamp(1.6rem, 5vw, 3rem); margin-top: 2.6rem; }
+  .stat .num { font-family: var(--font-display); font-size: clamp(26px, 4vw, 36px); font-weight: 600;
+               color: var(--text-primary); letter-spacing: -0.01em; line-height: 1; }
+  .stat .lbl { display: block; font-size: 12.5px; color: var(--text-tertiary); margin-top: 6px; }
+
+  /* ---------- section heads ---------- */
+  section.block { padding: clamp(2.5rem, 6vw, 4.5rem) 0; }
+  .kicker { font-size: 11.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--text-info); }
+  .section-head { margin-bottom: 2rem; }
+  .section-head h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em;
+                     font-size: clamp(24px, 4vw, 34px); margin: 0.5rem 0 0; }
+  .section-head p { font-size: 14.5px; color: var(--text-secondary); margin-top: 0.6rem; max-width: 560px; }
+
+  /* ---------- value blocks ---------- */
+  .values { display: grid; gap: 16px; }
+  .value { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-xl);
+           padding: clamp(1.4rem, 3vw, 2.1rem); box-shadow: var(--shadow-sm);
+           position: relative; overflow: hidden; }
+  .value::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); }
+  .value .pill { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.07em;
+                 text-transform: uppercase; color: var(--accent-text); background: var(--accent-bg);
+                 border: 0.5px solid var(--accent-bd); padding: 5px 13px; border-radius: 999px; }
+  .value .stmt { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; line-height: 1.22;
+                 font-size: clamp(20px, 3.1vw, 30px); color: var(--text-primary); margin-top: 1rem; }
+  .value .sub { font-size: 14px; color: var(--text-secondary); margin-top: 0.8rem; max-width: 640px; }
+  .value.v-info    { --accent: var(--text-info);    --accent-text: var(--text-info);    --accent-bg: var(--bg-info);    --accent-bd: var(--border-info); }
+  .value.v-success { --accent: var(--text-success); --accent-text: var(--text-success); --accent-bg: var(--bg-success); --accent-bd: var(--border-success); }
+  .value.v-warning { --accent: var(--text-warning); --accent-text: var(--text-warning); --accent-bg: var(--bg-warning); --accent-bd: var(--border-warning); }
+  .value.v-violet  { --accent: var(--text-violet);  --accent-text: var(--text-violet);  --accent-bg: var(--bg-violet);  --accent-bd: var(--border-violet); }
+  .values-note { display: flex; align-items: flex-start; gap: 13px; margin-top: 16px;
+                 background: var(--bg-primary); border: 0.5px solid var(--border-tertiary);
+                 border-radius: var(--radius-xl); padding: 15px 18px; box-shadow: var(--shadow-sm);
+                 font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; }
+  .values-note .opt-pill { flex-shrink: 0; font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+                 text-transform: uppercase; color: var(--text-warning); background: var(--bg-warning);
+                 border: 0.5px solid var(--border-warning); padding: 4px 10px; border-radius: 999px; margin-top: 1px; }
+  .values-note strong { color: var(--text-primary); }
+
+  /* ---------- domains ---------- */
+  #domain-list { display: grid; gap: 14px; }
+  .domain { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm); overflow: hidden; transition: border-color 0.18s, box-shadow 0.18s; }
+  .domain:hover { border-color: var(--accent-bd); box-shadow: var(--shadow-md); }
+  .domain.accent-info    { --accent-text: var(--text-info);    --accent-bg: var(--bg-info);    --accent-bd: var(--border-info); }
+  .domain.accent-success { --accent-text: var(--text-success); --accent-bg: var(--bg-success); --accent-bd: var(--border-success); }
+  .domain.accent-warning { --accent-text: var(--text-warning); --accent-bg: var(--bg-warning); --accent-bd: var(--border-warning); }
+  .domain.accent-danger  { --accent-text: var(--text-danger);  --accent-bg: var(--bg-danger);  --accent-bd: var(--border-danger); }
+  .domain.accent-violet  { --accent-text: var(--text-violet);  --accent-bg: var(--bg-violet);  --accent-bd: var(--border-violet); }
+  .domain-head { width: 100%; text-align: left; background: transparent; border: 0; cursor: pointer;
+                 padding: clamp(1.1rem, 2.4vw, 1.5rem) clamp(1.2rem, 2.6vw, 1.7rem); font-family: var(--font);
+                 display: flex; flex-direction: column; gap: 14px; }
+  .domain-headline { display: flex; align-items: center; gap: 14px; }
+  .domain-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--accent-text); flex-shrink: 0; }
+  .domain-text { flex: 1; min-width: 0; }
+  .domain-text h3 { font-size: 17px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; }
+  .domain-text p { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
+  .chev { width: 18px; height: 18px; color: var(--text-tertiary); flex-shrink: 0; transition: transform 0.3s ease; }
+  .domain-head[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .progress { display: flex; align-items: center; gap: 12px; }
+  .progress-bar { flex: 1; height: 7px; border-radius: 999px; background: var(--bg-tertiary); overflow: hidden; }
+  .progress-bar span { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--accent-text);
+                       transition: width 0.9s cubic-bezier(.2,.7,.2,1); }
+  .progress-txt { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-tertiary); white-space: nowrap; }
+  .count-chip { align-self: flex-start; font-family: var(--font-mono); font-size: 11.5px; font-weight: 600;
+                color: var(--accent-text); background: var(--accent-bg); border: 0.5px solid var(--accent-bd);
+                padding: 4px 11px; border-radius: 999px; }
+
+  .domain-panel { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .domain-panel-inner { padding: 0 clamp(1.2rem, 2.6vw, 1.7rem) clamp(1.2rem, 2.6vw, 1.6rem); }
+  .roadmap-link { display: flex; align-items: center; gap: 9px; text-decoration: none; font-size: 13px;
+                  font-weight: 600; color: var(--accent-text); background: var(--accent-bg);
+                  border: 0.5px solid var(--accent-bd); border-radius: var(--radius-md);
+                  padding: 11px 14px; margin-bottom: 12px; transition: transform 0.15s, opacity 0.15s; }
+  .roadmap-link:hover { transform: translateY(-1px); opacity: 0.9; }
+  .roadmap-link .map-ico { width: 15px; height: 15px; flex-shrink: 0; }
+  .roadmap-link .ext { margin-left: auto; font-size: 13px; }
+  .ex-list { display: grid; gap: 2px; }
+  .ex-link { display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 9px 10px;
+             margin: 0 -10px; border-radius: var(--radius-md); transition: background 0.15s; }
+  .ex-link:hover { background: var(--bg-secondary); }
+  .ex-num { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; font-size: 11px; font-weight: 600;
+            color: var(--accent-text); background: var(--accent-bg);
+            display: flex; align-items: center; justify-content: center; }
+  .ex-title { flex: 1; font-size: 13.5px; color: var(--text-primary); line-height: 1.4; }
+  .ex-link:hover .ex-title { color: var(--accent-text); }
+  .ex-go { color: var(--text-tertiary); font-size: 14px; opacity: 0; transform: translateX(-4px); transition: opacity 0.15s, transform 0.15s; }
+  .ex-link:hover .ex-go { opacity: 1; transform: translateX(0); }
+
+  /* ---------- footer ---------- */
+  footer { border-top: 0.5px solid var(--border-tertiary); padding: 2.4rem 0 3rem; margin-top: 1rem;
+           text-align: center; font-size: 12px; color: var(--text-tertiary); line-height: 2; }
+  footer .heart { color: var(--text-danger); font-size: 18px; vertical-align: middle; }
+  .foot-link { color: var(--text-info); text-decoration: none; border-bottom: 0.5px solid var(--border-info); }
+  .foot-link:hover { opacity: 0.75; }
+
+  /* ---------- reveal ---------- */
+  .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 560px) {
+    .stats { gap: 1.4rem; } .progress-txt { font-size: 10.5px; }
+    .domain-headline { gap: 11px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .hero-bg .blob { animation: none !important; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .progress-bar span { transition: none; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <div class="bar-inner">
+    <a class="brand" href="#top" aria-label="AI/ML Explainers home">
+      <svg class="mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+            <stop style="stop-color:var(--g1)"/><stop offset="0.52" style="stop-color:var(--g2)"/><stop offset="1" style="stop-color:var(--g3)"/>
+          </linearGradient>
+        </defs>
+        <rect x="1" y="1" width="30" height="30" rx="8" stroke="url(#bg)" stroke-width="2"/>
+        <circle cx="10" cy="11" r="2.4" fill="url(#bg)"/>
+        <circle cx="22" cy="9" r="2.4" fill="url(#bg)"/>
+        <circle cx="16" cy="22" r="2.4" fill="url(#bg)"/>
+        <path d="M10 11 L22 9 M22 9 L16 22 M16 22 L10 11" stroke="url(#bg)" stroke-width="1.4" stroke-linecap="round" opacity="0.65"/>
+      </svg>
+      <span>AI/ML Explainers</span>
+    </a>
+    <div class="bar-actions">
+      <a class="icon-btn" href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener" aria-label="LinkedIn profile">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 0 1-2.07-2.07 2.07 2.07 0 1 1 2.07 2.07zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+      </a>
+      <a class="icon-btn" href="https://github.com/ancilcleetus/AI-ML-Explainers" target="_blank" rel="noopener" aria-label="GitHub repository">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      </a>
+      <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Toggle light and dark theme">
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <span id="top"></span>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg" aria-hidden="true">
+      <div class="grid"></div>
+      <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+    </div>
+    <div class="wrap hero-inner">
+      <span class="eyebrow"><span class="dotg"></span>Interactive · Visual-First · Build From Scratch</span>
+      <h1><span class="h1-lead">AI/ML Explainers:</span><span class="grad">An Interactive Visual-First Learning Platform for AI/ML</span></h1>
+      <p class="lede">Learn AI and machine learning the way it finally sticks — through interactive, visual explainers you can click, drag, and play with. Each explainer is a single, self-contained HTML file, built from first principles, with zero dependencies — just open it and start exploring.</p>
+      <div class="hero-cta">
+        <a class="btn-primary" href="#domains">Explore the domains</a>
+      </div>
+      <div class="stats" id="stats">
+        <div class="stat"><span class="num" data-target="3">0</span><span class="lbl">domains</span></div>
+        <div class="stat"><span class="num" data-target="16">0</span><span class="lbl">interactive explainers and growing</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALUES -->
+  <section class="block">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">The idea</span>
+        <h2>Built to be understood, not memorised</h2>
+        <p>Three promises behind every explainer on this platform.</p>
+      </div>
+      <div class="values">
+        <div class="value v-info reveal">
+          <span class="pill">Who is this for?</span>
+          <p class="stmt">Built for engineers who want to go deep — not skim the surface.</p>
+          <p class="sub">If you can read code but the math and intuition behind AI/ML still feel like a black box, you are exactly who this is for. No prior AI background assumed — just curiosity and the willingness to dig in.</p>
+        </div>
+        <div class="value v-success reveal">
+          <span class="pill">What you will do?</span>
+          <p class="stmt">You will interact with the content — click buttons, drag sliders, step through every animation — until each concept clicks and stays.</p>
+          <p class="sub">No passive walls of text. Every idea is something you poke at, break, and rebuild, so the understanding is yours to keep.</p>
+        </div>
+        <div class="value v-violet reveal">
+          <span class="pill">What you will achieve?</span>
+          <p class="stmt">In-depth understanding of every topic, from the ground up to genuine mastery.</p>
+          <p class="sub">From first principles to the frontier — one carefully built idea at a time, with nothing hand-waved along the way.</p>
+        </div>
+        <p class="values-note reveal"><span class="opt-pill">Optional · Advanced</span><span>Many explainers also include <strong>optional advanced content</strong> — from companion Jupyter notebooks to full end-to-end projects — for readers who want to roll up their sleeves and build everything from scratch.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOMAINS -->
+  <section class="block" id="domains">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">Explore</span>
+        <h2>Browse by domain</h2>
+        <p>Open a domain to see its roadmap and every explainer that is live today.</p>
+      </div>
+      <div id="domain-list"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built with <span class="heart">&hearts;</span> by
+    <a class="foot-link" href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener">Ancil Cleetus</a>
+    &nbsp;&nbsp;&middot;&nbsp;&nbsp;
+    <a class="foot-link" href="https://github.com/ancilcleetus/AI-ML-Explainers" target="_blank" rel="noopener">AI/ML Explainers</a>
+    &nbsp;&nbsp;&middot;&nbsp;&nbsp; No External Dependencies &nbsp;&nbsp;&middot;&nbsp;&nbsp; MIT License
+  </div>
+</footer>
+
+<script>
+  // ---------- SITE CONFIG (edit this as content goes live) ----------
+  const SITE = {
+    domains: [
+      {
+        name: "Deep Learning",
+        accent: "danger",
+        blurb: "From a single neuron to full training pipelines — the foundations everything else is built on.",
+        roadmap: "https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Deep-Learning-Explainer-Roadmap.html",
+        done: 7, total: 49,
+        base: "https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/",
+        explainers: [
+          { title: "The Neuron & Forward Pass", path: "neuron_forward_pass_explainer.html" },
+          { title: "Tensors — The Language of Deep Learning", path: "tensors_explainer.html" },
+          { title: "Activation Functions", path: "activation_functions_explainer.html" },
+          { title: "Embeddings — Representing Discrete Data as Vectors", path: "embeddings_explainer.html" },
+          { title: "Loss Functions Overview", path: "loss_functions_overview_explainer.html" },
+          { title: "Softmax & Probability Outputs", path: "softmax_explainer.html" },
+          { title: "Cross-Entropy Loss", path: "cross_entropy_loss_explainer.html" }
+        ]
+      },
+      {
+        name: "Computer Vision",
+        accent: "info",
+        blurb: "Teaching machines to see — from raw pixels to CNNs, detection, and Vision Transformers.",
+        roadmap: "https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Computer-Vision-Explainer-Roadmap.html",
+        done: 8, total: 90,
+        base: "https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/",
+        explainers: [
+          { title: "What Is an Image? — Pixels, Coordinates, and Resolution", path: "What-is-an-Image-Pixels-Coordinates-Resolution-Explainer.html" },
+          { title: "Colour — RGB, BGR, HSV, and Grayscale", path: "Colour-RGB-BGR-HSV-Grayscale-Explainer.html" },
+          { title: "Images as NumPy Arrays", path: "Images-as-NumPy-Arrays-Explainer.html" },
+          { title: "Loading, Displaying, and Saving Images", path: "Loading-Displaying-Saving-Images-Explainer.html" },
+          { title: "From Classical to Modern — The CNN and ViT Paradigms", path: "From-Classical-to-Modern-CNN-and-ViT-Paradigms-Explainer.html" },
+          { title: "The Convolution Operation", path: "convolution_operation_explainer.html" },
+          { title: "Pooling Strategies", path: "pooling_strategies_explainer.html" },
+          { title: "Building CNNs", path: "building_CNNs_explainer.html" }
+        ]
+      },
+      {
+        name: "Generative AI",
+        accent: "violet",
+        blurb: "Building language models from the ground up — starting with how text prediction actually works.",
+        roadmap: null,
+        done: 1, total: null,
+        base: "https://ancilcleetus.github.io/AI-ML-Explainers/Generative-AI/Build-LLM-from-Scratch/Foundations-of-Language-Modeling/",
+        explainers: [
+          { title: "Foundations of Language Modeling: N-gram Models", path: "N-gram-Models-Explainer.html" }
+        ]
+      }
+    ]
+  };
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // ---------- render domains ----------
+  function renderDomains(){
+    const wrap = document.getElementById('domain-list');
+    wrap.innerHTML = SITE.domains.map(function(d, i){
+      const pct = d.total ? Math.round(d.done / d.total * 100) : null;
+      const meta = d.total
+        ? '<div class="progress"><div class="progress-bar"><span data-w="'+pct+'"></span></div><span class="progress-txt">'+d.done+' / '+d.total+' · '+pct+'%</span></div>'
+        : '<span class="count-chip">'+d.done+' explainer'+(d.done===1?'':'s')+' live</span>';
+      const roadmap = d.roadmap
+        ? '<a class="roadmap-link" href="'+esc(d.roadmap)+'" target="_blank" rel="noopener"><svg class="map-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>View the full roadmap<span class="ext">&#8599;</span></a>'
+        : '';
+      const items = d.explainers.map(function(e, j){
+        return '<a class="ex-link" href="'+esc(d.base + e.path)+'" target="_blank" rel="noopener"><span class="ex-num">'+(j+1)+'</span><span class="ex-title">'+esc(e.title)+'</span><span class="ex-go">&rarr;</span></a>';
+      }).join('');
+      return '<div class="domain accent-'+d.accent+' reveal" style="transition-delay:'+(i*70)+'ms">'
+        + '<button class="domain-head" aria-expanded="false">'
+        +   '<div class="domain-headline"><span class="domain-dot"></span><div class="domain-text"><h3>'+esc(d.name)+'</h3><p>'+esc(d.blurb)+'</p></div>'
+        +     '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>'
+        +   '</div>'
+        +   meta
+        + '</button>'
+        + '<div class="domain-panel"><div class="domain-panel-inner">'+roadmap+'<div class="ex-list">'+items+'</div></div></div>'
+        + '</div>';
+    }).join('');
+
+    // accordion behaviour
+    wrap.querySelectorAll('.domain-head').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        const panel = btn.parentElement.querySelector('.domain-panel');
+        const open = btn.getAttribute('aria-expanded') === 'true';
+        if (open){
+          panel.style.maxHeight = '0px';
+          btn.setAttribute('aria-expanded','false');
+        } else {
+          const inner = panel.querySelector('.domain-panel-inner');
+          panel.style.maxHeight = inner.scrollHeight + 'px';
+          btn.setAttribute('aria-expanded','true');
+        }
+      });
+    });
+    // keep an open panel sized correctly on resize
+    window.addEventListener('resize', function(){
+      wrap.querySelectorAll('.domain-head[aria-expanded="true"]').forEach(function(btn){
+        const panel = btn.parentElement.querySelector('.domain-panel');
+        const inner = panel.querySelector('.domain-panel-inner');
+        panel.style.maxHeight = inner.scrollHeight + 'px';
+      });
+    });
+  }
+
+  // ---------- reveal on scroll ----------
+  function setupReveal(){
+    const els = document.querySelectorAll('.reveal');
+    if (reduceMotion || !('IntersectionObserver' in window)){
+      els.forEach(function(el){ el.classList.add('in'); });
+      return;
+    }
+    const io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function(el){ io.observe(el); });
+  }
+
+  // ---------- progress bars (fill when visible) ----------
+  function setupProgress(){
+    const bars = document.querySelectorAll('.progress-bar span');
+    const fill = function(){ bars.forEach(function(b){ b.style.width = (b.getAttribute('data-w')||0) + '%'; }); };
+    if (reduceMotion || !('IntersectionObserver' in window)){ fill(); return; }
+    const io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting){ en.target.style.width = (en.target.getAttribute('data-w')||0)+'%'; io.unobserve(en.target); }
+      });
+    }, { threshold: 0.5 });
+    bars.forEach(function(b){ io.observe(b); });
+  }
+
+  // ---------- count-up stats ----------
+  function setupCounters(){
+    const nums = document.querySelectorAll('#stats .num');
+    const run = function(el){
+      const target = parseInt(el.getAttribute('data-target'), 10) || 0;
+      const suffix = el.getAttribute('data-suffix') || '';
+      if (reduceMotion){ el.textContent = target + suffix; return; }
+      const dur = 1100, start = performance.now();
+      const tick = function(now){
+        const p = Math.min(1, (now - start) / dur);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(eased * target) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+    if (!('IntersectionObserver' in window)){ nums.forEach(run); return; }
+    const io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if (en.isIntersecting){ run(en.target); io.unobserve(en.target); } });
+    }, { threshold: 0.6 });
+    nums.forEach(function(n){ io.observe(n); });
+  }
+
+  // ---------- theme toggle ----------
+  document.getElementById('themeToggle').addEventListener('click', function(){
+    const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('aiml-theme', next); } catch (e) {}
+  });
+
+  // ---------- init ----------
+  renderDomains();
+  setupReveal();
+  setupProgress();
+  setupCounters();
+</script>
+</body>
+</html>
