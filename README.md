@@ -1,115 +1,44 @@
-# 🧠 Interactive AI/ML Visual Explainers
+<p align="center">
+  <a href="https://ancilcleetus.github.io/AI-ML-Explainers/">
+    <img src="assets/homepage-banner-light.png" alt="AI/ML Explainers — An Interactive Visual-First Learning Platform for AI/ML">
+  </a>
+</p>
 
-Interactive visual explainers for AI/ML — from absolute basics to advanced topics — covering:
+<h1 align="center">AI/ML Explainers</h1>
+<p align="center"><em>An Interactive Visual-First Learning Platform for AI/ML</em></p>
 
-- Machine Learning
-- Deep Learning
-- Computer Vision
-- Natural Language Processing (NLP)
-- Generative AI
-- Deployment
-- And beyond 🚀
+<p align="center">
+  <a href="https://ancilcleetus.github.io/AI-ML-Explainers/"><strong>Browse all explainers on the live site &rarr;</strong></a>
+</p>
 
-![rainbow](assets/rainbow-divider.png)
+---
 
-## 📚 Table of Contents
+Learn AI and machine learning the way it finally sticks — through interactive, visual explainers you can click, drag, and play with. Built for engineers who want to go deep, not skim the surface: no prior AI background assumed, just code literacy and curiosity.
 
-- [Roadmaps](#%EF%B8%8F-roadmaps)
-- [Machine Learning](#-machine-learning)
-- [Deep Learning](#-deep-learning)
-- [Computer Vision](#-computer-vision)
-- [Natural Language Processing](#-natural-language-processing)
-- [Generative AI](#-generative-ai)
-- [Deployment](#-deployment)
-- [Miscellaneous](#-miscellaneous)
+Each explainer is a single, self-contained HTML file, built from first principles, with zero dependencies — just open it and start exploring.
 
-![rainbow](assets/rainbow-divider.png)
+## What makes it different
 
-## 🗺️ Roadmaps
+- **Visual-first.** Every concept is something you see and manipulate, not a wall of text.
+- **Interactive.** Click buttons, drag sliders, and step through animations until each idea clicks and stays.
+- **Optional build-from-scratch content.** Many explainers include advanced companion material — Jupyter notebooks or full end-to-end projects — for readers who want to build everything themselves.
 
-Detailed explainer roadmaps for each area:
+## Domains &amp; roadmaps
 
-| Area | Roadmap | Progress |
-| :--- | :------ | :------- |
-| 🔴 Deep Learning | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Deep-Learning-Explainer-Roadmap.html) | 7 / 49 (14%) |
-| 🟢 Machine Learning | Coming soon | — |
-| 🔵 Computer Vision | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Computer-Vision-Explainer-Roadmap.html) | 4 / 90 (4%) |
-| 🟡 Natural Language Processing | Coming soon | — |
-| 🟣 Generative AI | Coming soon | — |
-| 🟠 Deployment | Coming soon | — |
+Each domain has a roadmap tracking what is planned and what is already live:
 
-![rainbow](assets/rainbow-divider.png)
+- **Deep Learning** — [roadmap](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Deep-Learning-Explainer-Roadmap.html)
+- **Computer Vision** — [roadmap](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Computer-Vision-Explainer-Roadmap.html)
+- **Generative AI** — [live on the site](https://ancilcleetus.github.io/AI-ML-Explainers/#domains) (roadmap coming soon)
 
-## 🟢 Machine Learning
-Coming soon 🔜
+> The full, always-up-to-date list of published explainers lives on the **[live site](https://ancilcleetus.github.io/AI-ML-Explainers/)** — that is the canonical catalog. This README intentionally stays a short signpost, so it never goes stale as more explainers are added.
 
-![rainbow](assets/rainbow-divider.png)
+## Tech
 
-## 🔴 Deep Learning
+Pure HTML, CSS, and vanilla JavaScript — no frameworks, no build step, no external dependencies. Every explainer works offline simply by opening the file in a browser. The site is published with GitHub Pages.
 
-📋 [View Deep Learning Explainer Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/Deep-Learning-Explainer-Roadmap.html)
+---
 
-| Explainer | Description | Status |
-| :-------- | :---------- | :----- |
-| [The Neuron & Forward Pass](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/neuron_forward_pass_explainer.html) | Step-by-step walkthrough of a single neuron — biological motivation, weighted-sum-plus-activation math, an interactive weights-and-inputs simulator, and what this minimal unit actually computes | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Tensors — The Language of Deep Learning](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/tensors_explainer.html) | Visual tour of the universal data structure of deep learning — from scalars and vectors to N-dimensional tensors, shapes and axes, broadcasting, and why every model input ends up as a tensor | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Activation Functions](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html) | Why neural networks need nonlinearity — interactive curve explorer for Sigmoid, Tanh, ReLU, and GELU, the vanishing gradient problem, and a practical guide for choosing between them | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Embeddings — Representing Discrete Data as Vectors](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/embeddings_explainer.html) | How neural networks turn words, IDs, and categories into meaningful vectors — one-hot's limits, embedding lookup tables, similarity in embedding space, and how embeddings are learned end-to-end | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Loss Functions Overview](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_functions_overview_explainer.html) | Visual introduction to loss functions — what loss is, task-to-loss mapping, and interactive deep dive into MSE, MAE, Huber, and Cross-Entropy with a practical decision guide | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Softmax & Probability Outputs](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/softmax_explainer.html) | How raw network outputs become a probability distribution — the softmax formula, why it's designed that way, numerical stability, temperature scaling, and when to use softmax vs sigmoid | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Cross-Entropy Loss](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/cross_entropy_loss_explainer.html) | Cross-entropy loss explained from first principles — information theory intuition, binary vs categorical formulas, and an interactive multiclass classification example | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Loss Landscape & Gradient Descent](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html) | Visualization of loss, gradient descent, and how neural networks learn step by step | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
-
-![rainbow](assets/rainbow-divider.png)
-
-## 🔵 Computer Vision
-
-📋 [View Computer Vision Explainer Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Computer-Vision-Explainer-Roadmap.html)
-
-| Explainer | Description | Status |
-| :-------- | :---------- | :----- |
-| [What Is an Image? — Pixels, Coordinates, and Resolution](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/What-is-an-Image-Pixels-Coordinates-Resolution-Explainer.html) | Interactive visual introduction to images as grids of numbers — pixels, coordinate systems, resolution, aspect ratio, and storage size | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Colour — RGB, BGR, HSV, and Grayscale](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Colour-RGB-BGR-HSV-Grayscale-Explainer.html) | Interactive introduction to how computer images carry colour — three numbers per pixel, the BGR-vs-RGB bug every beginner hits, HSV and grayscale as alternative colour spaces, with cross-library code references | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Images as NumPy Arrays](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Images-as-NumPy-Arrays-Explainer.html) | Interactive introduction to NumPy arrays as the data structure behind every Python image — shape conventions, slicing, vectorisation, the uint8 wraparound bug, and conversion to PyTorch tensors | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-| [Loading, Displaying, and Saving Images](https://ancilcleetus.github.io/AI-ML-Explainers/Computer-Vision/Loading-Displaying-Saving-Images-Explainer.html) | Interactive guide to how image files become arrays and back again — the decode/encode pipeline, the PIL / OpenCV / torchvision / Matplotlib landscape, the BGR colour-swap trap, and an interactive look at lossy vs lossless compression | ![Status](https://img.shields.io/badge/Live-brightgreen) |
-
-![rainbow](assets/rainbow-divider.png)
-
-## 🟡 Natural Language Processing
-
-| Explainer | Description | Status |
-| :-------- | :---------- | :----- |
-| Word Embeddings | Visual intuition behind embeddings | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
-
-![rainbow](assets/rainbow-divider.png)
-
-## 🟣 Generative AI
-
-| Explainer | Description | Status |
-| :-------- | :---------- | :----- |
-| Transformers Explainer | Attention mechanism visualization | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
-| GPT Explainer | To be added | ![Status](https://img.shields.io/badge/Planned-lightgrey) |
-
-![rainbow](assets/rainbow-divider.png)
-
-## 🟠 Deployment
-Coming soon 🔜
-
-## 🟤 Miscellaneous
-Coming soon 🔜
-
-![rainbow](assets/rainbow-divider.png)
-
-## 💡 How to Use
-
-1. Click on any explainer link
-2. Open in browser
-3. Interact and learn visually
-
-![rainbow](assets/rainbow-divider.png)
-
-## 🚀 Vision
-
-This repository aims to become a **visual-first learning hub for AI/ML**, where concepts are understood through interaction rather than static content.
-
-![rainbow](assets/rainbow-divider.png)
+<p align="center">
+  Built with &hearts; by <a href="https://www.linkedin.com/in/ancilcleetus/">Ancil Cleetus</a> &middot; No External Dependencies &middot; MIT License
+</p>
